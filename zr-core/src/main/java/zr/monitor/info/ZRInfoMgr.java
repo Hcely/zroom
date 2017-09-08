@@ -27,6 +27,7 @@ import zr.monitor.bean.info.ZRServiceInfo;
 import zr.monitor.util.ZRMonitorUtil;
 
 public class ZRInfoMgr {
+	protected final ZRInfoCreator creater;
 	protected final String machineIp;
 	protected final String serverId;
 	protected final String serviceId;
@@ -43,7 +44,8 @@ public class ZRInfoMgr {
 	protected volatile boolean serverOpen;
 	protected volatile boolean serviceOpen;
 
-	public ZRInfoMgr() {
+	public ZRInfoMgr(ZRInfoCreator creater) {
+		this.creater = creater;
 		this.machineIp = ZRMonitorUtil.getMachineIp();
 		this.serverId = ZRMonitorUtil.getServerId();
 		this.serviceId = ZRMonitorUtil.getServiceId();
@@ -96,12 +98,18 @@ public class ZRInfoMgr {
 		if (info == null)
 			synchronized (apiInfoMap) {
 				if ((info = apiInfoMap.get(method)) == null) {
-					info = new ZRApiInfo(methodName, version, method);
+					info = createInfo(methodName, version, method);
 					apiInfoMap.put(key, info);
 					apiInfos.add(info);
 				}
 			}
 		return info;
+	}
+
+	private ZRApiInfo createInfo(String methodName, String version, Method method) {
+		if (creater != null)
+			return creater.createInfo(methodName, version, method);
+		return new ZRApiInfo(methodName, version, method);
 	}
 
 	public ZRMethodSettings getApiSettings(String methodName) {
@@ -131,7 +139,7 @@ public class ZRInfoMgr {
 
 	public void putApiVersionSettings(ZRApiVersionSettings settings) {
 		getApiVersionSettings(settings.getMethodName(), settings.getVersion()).set(settings.isOpen(),
-				settings.getAuthoritys(), settings.isTopology());
+				settings.getAuthoritys(), settings.getTopology());
 	}
 
 	public Enumeration<ZRApiInfo> infos() {

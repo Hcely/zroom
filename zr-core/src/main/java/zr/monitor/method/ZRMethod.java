@@ -10,7 +10,15 @@ import zr.monitor.info.ZRMethodVersionSettings;
 
 @SuppressWarnings("unchecked")
 public class ZRMethod {
+	private static int incNum = 0;
+
+	private static final synchronized int getNumId() {
+		return incNum++;
+	}
+
 	private static final ZRRequestFilter[] EMPTY = {};
+
+	protected final int id = getNumId();
 	protected final String version;
 	protected final String methodName;
 	protected final Method method;
@@ -29,6 +37,10 @@ public class ZRMethod {
 		this.settings = settings;
 		this.versionSettings = versionSettings;
 		this.filters = filters;
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	public String getVersion() {
@@ -63,8 +75,8 @@ public class ZRMethod {
 		return settings.isOpen() && versionSettings.isOpen();
 	}
 
-	public boolean isTopology() {
-		return versionSettings.isTopology();
+	public int getTopology() {
+		return versionSettings.getTopology();
 	}
 
 	public ZRAuthorityInfo[] getAuthoritys() {

@@ -1,4 +1,4 @@
-package zr.monitor.info;
+package zr.monitor;
 
 import java.util.Map;
 

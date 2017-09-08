@@ -2,7 +2,7 @@ package zr.monitor.bean.info;
 
 public class ZRApiVersionSettings extends ZRApiSettings {
 	protected String version;
-	protected boolean topology;
+	protected int topology;
 
 	public String getVersion() {
 		return version;
@@ -12,12 +12,11 @@ public class ZRApiVersionSettings extends ZRApiSettings {
 		this.version = version;
 	}
 
-	public boolean isTopology() {
+	public int getTopology() {
 		return topology;
 	}
 
-	public void setTopology(boolean topology) {
+	public void setTopology(int topology) {
 		this.topology = topology;
 	}
-
 }

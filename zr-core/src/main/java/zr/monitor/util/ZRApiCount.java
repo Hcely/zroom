@@ -1,15 +1,17 @@
 package zr.monitor.util;
 
-public class ZRCount implements Cloneable {
+public class ZRApiCount implements Cloneable {
 	public static final int RESP_OK = 1;
 	public static final int RESP_BAD = 2;
 	public static final int RESP_ERROR = 3;
 
-	protected final String name;
+	protected final String methodName;
+	protected final String version;
 
 	protected long startTime;
 	protected long endTime;
 
+	protected int count;
 	protected long takeTime;
 	protected int count100ms;
 	protected int count250ms;
@@ -22,36 +24,39 @@ public class ZRCount implements Cloneable {
 	protected int countBad;
 	protected int countError;
 
-	public ZRCount(String name) {
-		this.name = name;
+	public ZRApiCount(String methodName, String version) {
+		this.methodName = methodName;
+		this.version = version;
 		reset();
 	}
 
 	@Override
-	public ZRCount clone() {
+	public ZRApiCount clone() {
 		try {
-			return (ZRCount) super.clone();
+			return (ZRApiCount) super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public void add(ZRCount count) {
-		takeTime = count.takeTime;
-		count100ms = count.count100ms;
-		count250ms = count.count250ms;
-		count500ms = count.count500ms;
-		count1000ms = count.count1000ms;
-		count2000ms = count.count2000ms;
-		countSlow = count.countSlow;
+	public void add(ZRApiCount count) {
+		takeTime += count.takeTime;
+		this.count += count.count;
+		count100ms += count.count100ms;
+		count250ms += count.count250ms;
+		count500ms += count.count500ms;
+		count1000ms += count.count1000ms;
+		count2000ms += count.count2000ms;
+		countSlow += count.countSlow;
 
-		countOk = count.countOk;
-		countBad = count.countBad;
-		countError = count.countError;
+		countOk += count.countOk;
+		countBad += count.countBad;
+		countError += count.countError;
 	}
 
 	public void add(long take, int respType) {
 		takeTime += take;
+		++count;
 		if (takeTime < 101)
 			++count100ms;
 		else if (takeTime < 251)
@@ -76,6 +81,7 @@ public class ZRCount implements Cloneable {
 	public void reset() {
 		startTime = System.currentTimeMillis();
 		endTime = startTime;
+		count = 0;
 		takeTime = 0;
 		count100ms = 0;
 		count250ms = 0;
@@ -92,8 +98,12 @@ public class ZRCount implements Cloneable {
 		this.endTime = endTime;
 	}
 
-	public String getName() {
-		return name;
+	public String getMethodName() {
+		return methodName;
+	}
+
+	public String getVersion() {
+		return version;
 	}
 
 	public long getStartTime() {

@@ -13,7 +13,7 @@ public class LockServerHandlerTask implements Runnable {
 	public void run() {
 		String key = ZRClusterServer.ZR_SERVER_INFO + cluster.infoMgr.getServerId();
 		boolean b = cluster.zker.setLock(key, ZRMonitorUtil.objToJson(cluster.infoMgr.getServerInfo()));
-		cluster.statusMgr.setServerStatus(b);
+		cluster.statisticCenter.setServerStatus(b);
 	}
 
 }

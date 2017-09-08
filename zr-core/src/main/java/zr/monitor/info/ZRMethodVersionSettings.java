@@ -3,14 +3,14 @@ package zr.monitor.info;
 import zr.monitor.bean.info.ZRAuthorityInfo;
 
 public class ZRMethodVersionSettings extends ZRMethodSettings {
-	protected volatile boolean topology;
+	protected volatile int topology;
 
-	void set(boolean open, ZRAuthorityInfo[] authoritys, boolean topology) {
+	void set(boolean open, ZRAuthorityInfo[] authoritys, int topology) {
 		super.set(open, authoritys);
 		this.topology = topology;
 	}
 
-	public boolean isTopology() {
+	public int getTopology() {
 		return topology;
 	}
 

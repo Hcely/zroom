@@ -13,7 +13,7 @@ public class LockMachineHandlerTask implements Runnable {
 	public void run() {
 		String key = ZRClusterServer.ZR_MACHINE_INFO + cluster.infoMgr.getMachineIp();
 		boolean b = cluster.zker.setLock(key, ZRMonitorUtil.objToJson(cluster.infoMgr.getMachineInfo()));
-		cluster.statusMgr.setMachineStatus(b);
+		cluster.statisticCenter.setMachineStatus(b);
 	}
 
 }

@@ -1,23 +1,38 @@
 package zr.monitor.statistic;
 
 import v.ObjBuilder;
-import zr.monitor.method.ZRMethod;
 
-public class ZRStatisticTask implements Cloneable {
-	private static final ZRStatisticTask INSTANCE = new ZRStatisticTask();
-	public static final ObjBuilder<ZRStatisticTask> BUILDER = new ObjBuilder<ZRStatisticTask>() {
+public class ZRStatistic implements Cloneable {
+	public static final class Builder implements ObjBuilder<ZRStatistic> {
+		private final ZRStatistic instance;
 
-		@Override
-		public Class<ZRStatisticTask> getType() {
-			return ZRStatisticTask.class;
+		private Builder(String machineIp, String serverId, String serviceId) {
+			instance = new ZRStatistic();
+			instance.machineIp = machineIp;
+			instance.serverId = serverId;
+			instance.serviceId = serviceId;
 		}
 
 		@Override
-		public ZRStatisticTask build() {
-			return INSTANCE.clone();
+		public ZRStatistic build() {
+			return instance.clone();
 		}
-	};
+
+		@Override
+		public Class<ZRStatistic> getType() {
+			return ZRStatistic.class;
+		}
+	}
+
+	public static final Builder builder(String machineIp, String serverId, String serviceId) {
+		return new Builder(machineIp, serverId, serviceId);
+	}
+
+	protected String machineIp;
+	protected String serverId;
 	protected String serviceId;
+
+	protected int id;
 	protected String version;
 	protected String methodName;
 	protected long startTime;
@@ -25,43 +40,26 @@ public class ZRStatisticTask implements Cloneable {
 	protected int respType;
 	protected String remoteAttr;
 	protected String logContent;
-	protected Object msg;
 	protected Throwable error;
 
-	public ZRStatisticTask() {
+	public ZRStatistic() {
 
 	}
 
 	@Override
-	protected ZRStatisticTask clone() {
+	protected ZRStatistic clone() {
 		try {
-			return (ZRStatisticTask) super.clone();
+			return (ZRStatistic) super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	void set(String serviceId, ZRMethod method, long startTime, long take, int respType, String remoteAttr,
-			String logContent, Object msg, Throwable error) {
-		this.serviceId = serviceId;
-		this.version = method.getVersion();
-		this.methodName = method.getMethodName();
-		this.startTime = startTime;
-		this.take = take;
-		this.respType = respType;
-		this.remoteAttr = remoteAttr;
-		this.logContent = logContent;
-		this.msg = msg;
-		this.error = error;
-	}
-
 	void clear() {
-		this.serviceId = null;
 		this.version = null;
 		this.methodName = null;
 		this.remoteAttr = null;
 		this.logContent = null;
-		this.msg = null;
 		this.error = null;
 	}
 
@@ -95,10 +93,6 @@ public class ZRStatisticTask implements Cloneable {
 
 	public String getLogContent() {
 		return logContent;
-	}
-
-	public Object getMsg() {
-		return msg;
 	}
 
 	public Throwable getError() {

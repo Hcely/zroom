@@ -11,17 +11,17 @@ import v.common.helper.ParseUtil;
 import v.common.helper.RandomHelper;
 import v.common.unit.VThreadLoop;
 import zr.monitor.info.ZRInfoMgr;
-import zr.monitor.status.ZRMonitorStatusMgr;
+import zr.monitor.statistic.ZRStatisticCenter;
 
 public class ZRClusterServer extends ZRCluster {
 
 	protected final ZRInfoMgr infoMgr;
-	protected final ZRMonitorStatusMgr statusMgr;
+	protected final ZRStatisticCenter statisticCenter;
 	protected final VThreadLoop loop;
 
-	public ZRClusterServer(ZRInfoMgr infoMgr, ZRMonitorStatusMgr statusMgr, VThreadLoop loop) {
+	public ZRClusterServer(ZRInfoMgr infoMgr, ZRStatisticCenter statisticCenter, VThreadLoop loop) {
 		this.infoMgr = infoMgr;
-		this.statusMgr = statusMgr;
+		this.statisticCenter = statisticCenter;
 		this.loop = loop;
 	}
 
