@@ -7,6 +7,11 @@ public class ZRMonitorContext {
 			return new ZRRequest();
 		}
 	};
+
+	public static final ZRRequest getCurRequest() {
+		return requestTL.get();
+	}
+
 	protected static final ThreadLocal<ZRTopology> topologyTL = new ThreadLocal<ZRTopology>() {
 		@Override
 		protected ZRTopology initialValue() {

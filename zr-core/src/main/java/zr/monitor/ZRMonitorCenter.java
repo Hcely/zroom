@@ -15,10 +15,11 @@ import zr.monitor.statistic.ZRStatisticCenter;
 
 public class ZRMonitorCenter implements Initializable, VObject {
 	protected VThreadLoop loop;
+
 	protected ZRInfoMgr infoMgr;
 	protected ZRMethodMgr methodMgr;
 	protected ZRStatisticCenter statisticCenter;
-	
+
 	protected ZRClusterServer clusterServer;
 	protected Set<Method> methods;
 	protected Set<ZRRequestFilter> filters;

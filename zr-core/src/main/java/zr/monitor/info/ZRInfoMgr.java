@@ -44,11 +44,11 @@ public class ZRInfoMgr {
 	protected volatile boolean serverOpen;
 	protected volatile boolean serviceOpen;
 
-	public ZRInfoMgr(ZRInfoCreator creater) {
+	public ZRInfoMgr(String machineIp, String serverId, String serviceId, ZRInfoCreator creater) {
 		this.creater = creater;
-		this.machineIp = ZRMonitorUtil.getMachineIp();
-		this.serverId = ZRMonitorUtil.getServerId();
-		this.serviceId = ZRMonitorUtil.getServiceId();
+		this.machineIp = machineIp;
+		this.serverId = serverId;
+		this.serviceId = serviceId;
 
 		this.machineInfo = getMachineInfo(machineIp);
 		this.serverInfo = getServerInfo(machineIp, serverId);

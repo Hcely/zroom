@@ -14,6 +14,24 @@ public class ZRRequest {
 
 	ZRRequest() {
 	}
-	
-	
+
+	ZRRequest set(ZRMethod method, String ip, HttpServletRequest request) {
+		this.startTime = System.currentTimeMillis();
+		this.method = method;
+		this.ip = ip;
+		this.request = request;
+		this.response = null;
+		this.error = null;
+		return this;
+	}
+
+	ZRRequest reset() {
+		this.method = null;
+		this.ip = null;
+		this.request = null;
+		this.response = null;
+		this.error = null;
+		return this;
+	}
+
 }

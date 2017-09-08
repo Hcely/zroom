@@ -8,8 +8,8 @@
 		<artifactId>zr</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>zr-kafka</artifactId>
-	<name>zr-kafka</name>
+	<artifactId>zr-dubbo-topology</artifactId>
+	<name>zr-dubbo-topology</name>
 	<url>http://maven.apache.org</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
