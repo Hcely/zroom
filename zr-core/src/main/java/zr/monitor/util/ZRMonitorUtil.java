@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -18,6 +19,12 @@ import v.server.helper.NetUtil;
 
 public final class ZRMonitorUtil {
 	private static final char[] STR_FORMAT = { '0', '0', '0', '0', '0', '0', '0' };
+	private static final char[] SILK_ID_FORMAT = { '0', '0', '0', '0', '0', '0', '0', '-', '0', '0' };
+	private static final char[] ZR_REQ_ID_FORMAT = { 'z', 'r', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
+			'0', '0', '0' };
+	private static final int machineCode = 0xFFFF & NetUtil.getMachineCode();
+	private static final AtomicInteger incNum = new AtomicInteger(0);
+
 	public static final ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL)
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 			.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
@@ -94,12 +101,21 @@ public final class ZRMonitorUtil {
 		return c;
 	}
 
-	protected static final char[] SILKID_FORMAT = { '0', '0', '0', '0', '0', '0', '0', '-', '0', '0' };
-
-	public static final String buildSilkId(int hashcode, int num) {
-		char[] c = SILKID_FORMAT.clone();
+	public static final String buildSilkId(int hashcode, int idx) {
+		char[] c = SILK_ID_FORMAT.clone();
 		NumberHelper.to32Str(c, hashcode, 0, 7);
-		NumberHelper.to32Str(c, num, 8, 2);
+		NumberHelper.to32Str(c, idx, 8, 2);
+		return StrUtil.newStr(c);
+	}
+
+	public static final String getReqId() {
+		long l = System.currentTimeMillis() << 16;
+		l |= machineCode;
+		int inc = incNum.getAndIncrement();
+		char[] c = ZR_REQ_ID_FORMAT.clone();
+		NumberHelper.to32Str(c, l, 2, 12);
+		c[14] = NumberHelper.CHAR_64[(inc >>> 5) & 31];
+		c[15] = NumberHelper.CHAR_64[inc & 31];
 		return StrUtil.newStr(c);
 	}
 

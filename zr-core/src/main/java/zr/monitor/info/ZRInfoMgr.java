@@ -13,6 +13,7 @@ import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
+import v.Clearable;
 import v.common.helper.StrUtil;
 import v.common.unit.DefEnumeration;
 import v.server.unit.SysStatusInfo;
@@ -26,8 +27,8 @@ import zr.monitor.bean.info.ZRServerInfo;
 import zr.monitor.bean.info.ZRServiceInfo;
 import zr.monitor.util.ZRMonitorUtil;
 
-public class ZRInfoMgr {
-	protected final ZRInfoCreator creater;
+public class ZRInfoMgr implements Clearable {
+	protected final ZRApiInfoBuilder builder;
 	protected final String machineIp;
 	protected final String serverId;
 	protected final String serviceId;
@@ -46,11 +47,11 @@ public class ZRInfoMgr {
 	protected volatile boolean serverHandler;
 	protected volatile boolean machineHandler;
 
-	public ZRInfoMgr(String machineIp, String serverId, String serviceId, ZRInfoCreator creater) {
-		this.creater = creater;
-		this.machineIp = machineIp;
-		this.serverId = serverId;
-		this.serviceId = serviceId;
+	public ZRInfoMgr(ZRApiInfoBuilder builder) {
+		this.builder = builder;
+		this.machineIp = ZRMonitorUtil.getMachineIp();
+		this.serverId = ZRMonitorUtil.getServerId();
+		this.serviceId = ZRMonitorUtil.getServiceId();
 
 		this.machineInfo = getMachineInfo(machineIp);
 		this.serverInfo = getServerInfo(machineIp, serverId);
@@ -91,6 +92,14 @@ public class ZRInfoMgr {
 		return serviceInfo;
 	}
 
+	@Override
+	public void clear() {
+		apiSettingsMap.clear();
+		apiVersionSettingsMap.clear();
+		apiInfoMap.clear();
+		apiInfos.clear();
+	}
+
 	public ZRApiInfo addGetApiInfo(Method method) {
 		String methodName = getMethodName(method);
 		String version = getMethodVersion(method);
@@ -108,8 +117,8 @@ public class ZRInfoMgr {
 	}
 
 	private ZRApiInfo createInfo(String methodName, String version, Method method) {
-		if (creater != null)
-			return creater.createInfo(methodName, version, method);
+		if (builder != null)
+			return builder.build(methodName, version, method);
 		return new ZRApiInfo(methodName, version, method);
 	}
 
@@ -246,4 +255,5 @@ public class ZRInfoMgr {
 		info.setArgs(args);
 		return info;
 	}
+
 }

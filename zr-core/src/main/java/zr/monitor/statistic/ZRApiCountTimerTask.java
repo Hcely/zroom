@@ -22,11 +22,13 @@ class ZRApiCountTimerTask implements Runnable {
 		for (ZRStatisticWorker e : center.workers)
 			count.add(e.swapCount());
 		long curTime = System.currentTimeMillis();
-		list.clear();
-		for (Enumeration<ZRApiCount> it = count.enumeration(); it.hasMoreElements();)
-			list.add(it.nextElement());
-		center.handler.onApiCount(center.infoMgr.getMachineIp(), center.infoMgr.getServerId(),
-				center.infoMgr.getServiceId(), lastTime, curTime, list);
+		if (count.sum > 0) {
+			list.clear();
+			for (Enumeration<ZRApiCount> it = count.enumeration(); it.hasMoreElements();)
+				list.add(it.nextElement());
+			center.handler.onApiCount(center.infoMgr.getMachineIp(), center.infoMgr.getServerId(),
+					center.infoMgr.getServiceId(), lastTime, curTime, list);
+		}
 		lastTime = curTime;
 	}
 

@@ -1,5 +1,5 @@
 package zr.monitor.method;
 
-public interface ZRMethodHandler {
+public interface ZRMethodListener {
 	public void onMethod(ZRMethod method);
 }

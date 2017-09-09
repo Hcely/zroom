@@ -2,7 +2,7 @@ package zr.monitor.cluster;
 
 import zr.monitor.bean.info.ZRAuthorityInfo;
 
-public class ZRClusterClient extends ZRCluster {
+public class ZRClusterClient extends ZRAbsCluster {
 
 	@Override
 	protected void init0() {

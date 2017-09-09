@@ -8,9 +8,9 @@ import zr.monitor.util.ZKER;
 import zr.monitor.util.ZRMonitorUtil;
 
 public class GetApiSettingsTask implements Runnable {
-	protected final ZRClusterServer cluster;
+	protected final ZRServerCluster cluster;
 
-	public GetApiSettingsTask(ZRClusterServer cluster) {
+	public GetApiSettingsTask(ZRServerCluster cluster) {
 		this.cluster = cluster;
 	}
 
@@ -18,7 +18,7 @@ public class GetApiSettingsTask implements Runnable {
 	public void run() {
 		ZKER zker = cluster.zker;
 		ZRInfoMgr infoMgr = cluster.infoMgr;
-		Map<String, String> apiMap = zker.getChildren(ZRClusterServer.ZR_API_SETTINGS);
+		Map<String, String> apiMap = zker.getChildren(ZRServerCluster.ZR_API_SETTINGS);
 		for (String s : apiMap.values()) {
 			ZRApiSettings settings = ZRMonitorUtil.jsonToObj(s, ZRApiSettings.class);
 			if (settings != null)

@@ -12,12 +12,12 @@ import v.common.helper.RandomHelper;
 import v.common.unit.VThreadLoop;
 import zr.monitor.info.ZRInfoMgr;
 
-public class ZRClusterServer extends ZRCluster {
+public class ZRServerCluster extends ZRAbsCluster {
 
 	protected final ZRInfoMgr infoMgr;
 	protected final VThreadLoop loop;
 
-	public ZRClusterServer(ZRInfoMgr infoMgr, VThreadLoop loop) {
+	public ZRServerCluster(ZRInfoMgr infoMgr, VThreadLoop loop) {
 		this.infoMgr = infoMgr;
 		this.loop = loop;
 	}
@@ -40,7 +40,7 @@ public class ZRClusterServer extends ZRCluster {
 	}
 
 	@Override
-	public void destory0() {
+	protected void destory0() {
 	}
 
 	private final class ZRStatusListener implements IZkStateListener {
@@ -48,12 +48,12 @@ public class ZRClusterServer extends ZRCluster {
 		@Override
 		public void handleStateChanged(KeeperState state) throws Exception {
 			if (state == KeeperState.SyncConnected)
-				loop.execute(new InitializeTask(ZRClusterServer.this));
+				loop.execute(new InitializeTask(ZRServerCluster.this));
 		}
 
 		@Override
 		public void handleNewSession() throws Exception {
-			loop.execute(new InitializeTask(ZRClusterServer.this));
+			loop.execute(new InitializeTask(ZRServerCluster.this));
 		}
 	}
 
@@ -66,7 +66,7 @@ public class ZRClusterServer extends ZRCluster {
 
 		@Override
 		public void handleDataDeleted(String dataPath) throws Exception {
-			loop.schedule(new LockMachineHandlerTask(ZRClusterServer.this), RandomHelper.randomInt(1000));
+			loop.schedule(new LockMachineHandlerTask(ZRServerCluster.this), RandomHelper.randomInt(1000));
 		}
 	}
 
@@ -94,7 +94,7 @@ public class ZRClusterServer extends ZRCluster {
 
 		@Override
 		public void handleDataDeleted(String dataPath) throws Exception {
-			loop.execute(new LockServerHandlerTask(ZRClusterServer.this), RandomHelper.randomInt(1000));
+			loop.execute(new LockServerHandlerTask(ZRServerCluster.this), RandomHelper.randomInt(1000));
 		}
 	}
 
@@ -129,21 +129,21 @@ public class ZRClusterServer extends ZRCluster {
 	private final class ZRApiSettingsListener implements IZkChildListener {
 		@Override
 		public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
-			loop.execute(new GetApiSettingsTask(ZRClusterServer.this));
+			loop.execute(new GetApiSettingsTask(ZRServerCluster.this));
 		}
 	}
 
 	private final class ZRApiVersionSettingsListener implements IZkChildListener {
 		@Override
 		public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
-			loop.execute(new GetApiVersionSettingsTask(ZRClusterServer.this));
+			loop.execute(new GetApiVersionSettingsTask(ZRServerCluster.this));
 		}
 	}
 
 	private final class ZRParamsListener implements IZkChildListener {
 		@Override
 		public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
-			loop.execute(new GetParamsTask(ZRClusterServer.this));
+			loop.execute(new GetParamsTask(ZRServerCluster.this));
 		}
 	}
 

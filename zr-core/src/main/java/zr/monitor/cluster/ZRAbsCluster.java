@@ -1,10 +1,10 @@
 package zr.monitor.cluster;
 
 import v.Initializable;
-import v.VObject;
+import v.common.unit.VStatusObject;
 import zr.monitor.util.ZKER;
 
-public abstract class ZRCluster implements VObject, Initializable {
+public abstract class ZRAbsCluster extends VStatusObject implements Initializable {
 	/**
 	 * 系统参数信息
 	 */
@@ -50,10 +50,8 @@ public abstract class ZRCluster implements VObject, Initializable {
 	protected static final String ZR_SERVICE_SWITCH = "/zr/service/switch";
 
 	protected final ZKER zker;
-	protected boolean init;
-	protected boolean destory;
 
-	public ZRCluster() {
+	public ZRAbsCluster() {
 		this.zker = new ZKER();
 	}
 
@@ -67,44 +65,30 @@ public abstract class ZRCluster implements VObject, Initializable {
 
 	@Override
 	public final void init() {
-		if (init)
+		if (!initing(this))
 			return;
-		synchronized (this) {
-			if (init)
-				return;
-			init = true;
+		try {
 			zker.init();
+			init0();
+		} finally {
+			inited(this);
 		}
-		init0();
 	}
 
 	protected abstract void init0();
 
 	@Override
 	public final void destory() {
-		if (destory)
+		if (!destorying(this))
 			return;
-		synchronized (this) {
-			if (destory)
-				return;
-			if (!init)
-				return;
-			destory = true;
+		try {
+			zker.destory();
+			destory0();
+		} finally {
+			destoryed(this);
 		}
-		zker.destory();
-		destory0();
 	}
 
 	protected abstract void destory0();
-
-	@Override
-	public final boolean isInit() {
-		return init;
-	}
-
-	@Override
-	public final boolean isDestory() {
-		return destory;
-	}
 
 }

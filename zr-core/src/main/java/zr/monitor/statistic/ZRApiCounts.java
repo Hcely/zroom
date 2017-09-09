@@ -6,6 +6,7 @@ import v.common.util.AutoArray;
 
 public class ZRApiCounts {
 	protected final AutoArray<ZRApiCount> counts;
+	protected int sum;
 
 	public ZRApiCounts() {
 		this.counts = new AutoArray<>(64, 16);
@@ -18,9 +19,11 @@ public class ZRApiCounts {
 			if (e != null)
 				getCount(i, e.methodName, e.version).add(e);
 		}
+		sum += count.sum;
 	}
 
 	public void add(int id, String methodName, String version, long take, byte resultType) {
+		++sum;
 		getCount(id, methodName, version).add(take, resultType);
 	}
 
@@ -40,6 +43,7 @@ public class ZRApiCounts {
 	public ZRApiCounts reset() {
 		for (Enumeration<ZRApiCount> it = counts.enumeration(); it.hasMoreElements();)
 			it.nextElement().reset();
+		sum = 0;
 		return this;
 	}
 

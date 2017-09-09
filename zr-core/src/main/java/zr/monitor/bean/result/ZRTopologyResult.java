@@ -1,53 +1,17 @@
 package zr.monitor.bean.result;
 
+import java.util.LinkedList;
+
 public class ZRTopologyResult {
-	protected String version;
-	protected String methodName;
-	protected long startTime;
-	protected long take;
-	protected byte resultType;
 	protected String reqId;
-	protected String prevId;
-	protected String silkId;
+	protected LinkedList<ZRTopology> topologys;
 
-	public String getVersion() {
-		return version;
+	public ZRTopologyResult() {
 	}
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
-
-	public String getMethodName() {
-		return methodName;
-	}
-
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
-	}
-
-	public long getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(long startTime) {
-		this.startTime = startTime;
-	}
-
-	public long getTake() {
-		return take;
-	}
-
-	public void setTake(long take) {
-		this.take = take;
-	}
-
-	public byte getResultType() {
-		return resultType;
-	}
-
-	public void setResultType(byte resultType) {
-		this.resultType = resultType;
+	public ZRTopologyResult(String reqId, LinkedList<ZRTopology> topologys) {
+		this.reqId = reqId;
+		this.topologys = topologys;
 	}
 
 	public String getReqId() {
@@ -58,20 +22,12 @@ public class ZRTopologyResult {
 		this.reqId = reqId;
 	}
 
-	public String getPrevId() {
-		return prevId;
+	public LinkedList<ZRTopology> getTopologys() {
+		return topologys;
 	}
 
-	public void setPrevId(String prevId) {
-		this.prevId = prevId;
-	}
-
-	public String getSilkId() {
-		return silkId;
-	}
-
-	public void setSilkId(String silkId) {
-		this.silkId = silkId;
+	public void setTopologys(LinkedList<ZRTopology> topologys) {
+		this.topologys = topologys;
 	}
 
 }

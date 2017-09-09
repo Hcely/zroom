@@ -2,8 +2,9 @@ package zr.monitor.statistic;
 
 import v.ObjBuilder;
 import zr.monitor.ZRRequest;
-import zr.monitor.ZRTopology;
+import zr.monitor.ZRTopologyStack;
 import zr.monitor.bean.result.ZRRequestResult;
+import zr.monitor.bean.result.ZRTopologyResult;
 import zr.monitor.method.ZRMethod;
 
 class ZRStatistic extends ZRRequestResult implements Cloneable {
@@ -26,6 +27,8 @@ class ZRStatistic extends ZRRequestResult implements Cloneable {
 
 	protected byte statisticType;
 	protected int id;
+	protected ZRRequestResult request;
+	protected ZRTopologyResult topologyInfo;
 
 	public ZRStatistic() {
 	}
@@ -50,7 +53,7 @@ class ZRStatistic extends ZRRequestResult implements Cloneable {
 		this.remoteIp = null;
 	}
 
-	public void set(ZRRequest zreq, ZRTopology topology, String logContent) {
+	public void set(ZRRequest zreq, ZRTopologyStack topology, String logContent) {
 		ZRMethod method = zreq.getMethod();
 		this.statisticType = TYPE_REQUEST;
 		this.id = method.getId();
@@ -69,7 +72,7 @@ class ZRStatistic extends ZRRequestResult implements Cloneable {
 		this.remoteIp = zreq.getRemoveIp();
 	}
 
-	public void set(ZRTopology topology, byte resultType) {
+	public void set(ZRTopologyStack topology, byte resultType) {
 		this.statisticType = TYPE_TOPOLOGY;
 		this.version = topology.getVersion();
 		this.methodName = topology.getMethodName();

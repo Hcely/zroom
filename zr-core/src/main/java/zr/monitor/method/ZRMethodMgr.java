@@ -2,13 +2,15 @@ package zr.monitor.method;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
+import v.Clearable;
 import v.common.unit.DefEnumeration;
 import zr.monitor.ZRRequestFilter;
 import zr.monitor.annotation.ZRFilter;
@@ -16,27 +18,47 @@ import zr.monitor.bean.info.ZRApiInfo;
 import zr.monitor.info.ZRInfoMgr;
 import zr.monitor.info.ZRMethodSettings;
 import zr.monitor.info.ZRMethodVersionSettings;
-import zr.monitor.util.ZRMonitorUtil;
 
-public class ZRMethodMgr {
+public class ZRMethodMgr implements Clearable {
 	protected final ZRInfoMgr infoMgr;
-	protected final ZRFliterMgr filterMgr;
+	protected final ZRFilters filters;
 	protected final Map<String, ZRMethod> methodMap0;
 	protected final Map<Method, ZRMethod> methodMap1;
-	protected final ZRMethodHandler handler;
-	protected final ConcurrentLinkedQueue<ZRMethod> methods;
+	protected final List<ZRMethod> methods;
+	protected final ZRMethodListener listener;
 
-	public ZRMethodMgr(ZRInfoMgr infoMgr, ZRFliterMgr filterMgr, ZRMethodHandler handler) {
+	public ZRMethodMgr(ZRInfoMgr infoMgr, ZRMethodListener listener) {
 		this.infoMgr = infoMgr;
-		this.filterMgr = filterMgr;
-		this.handler = handler;
+		this.filters = new ZRFilters();
+		this.listener = listener;
 		this.methodMap0 = new HashMap<>();
 		this.methodMap1 = new IdentityHashMap<>();
-		this.methods = new ConcurrentLinkedQueue<>();
+		this.methods = new LinkedList<>();
+	}
+
+	@Override
+	public void clear() {
+		methodMap0.clear();
+		methodMap1.clear();
+		filters.clear();
+		methods.clear();
 	}
 
 	public Enumeration<ZRMethod> enumMethod() {
 		return new DefEnumeration<>(methods.iterator());
+	}
+
+	public void addFilters(Collection<ZRRequestFilter> filters) {
+		this.filters.addFilters(filters);
+	}
+
+	public void addFilter(ZRRequestFilter filter) {
+		filters.addFilter(filter);
+	}
+
+	public void addMethods(Collection<Method> methods) {
+		for (Method e : methods)
+			addMethod(e);
 	}
 
 	public ZRMethod addMethod(Method method) {
@@ -53,8 +75,8 @@ public class ZRMethodMgr {
 		return methodMap1.get(method);
 	}
 
-	public ZRMethod getMethod(String methodName, String version) {
-		return methodMap0.get(ZRMonitorUtil.getApiKey(methodName, version));
+	public ZRMethod getMethod(String methodName) {
+		return methodMap0.get(methodName);
 	}
 
 	private ZRMethod createZRMethod(Method method) {
@@ -63,12 +85,11 @@ public class ZRMethodMgr {
 		ZRMethodVersionSettings versionSettings = infoMgr.getApiVersionSettings(info.getMethodName(),
 				info.getVersion());
 		ZRMethod m = new ZRMethod(method, info, settings, versionSettings, getFilters(method));
-		String key = ZRMonitorUtil.getApiKey(info.getMethodName(), info.getVersion());
-		methodMap0.put(key, m);
+		methodMap0.put(info.getMethodName(), m);
 		methodMap1.put(method, m);
 		methods.add(m);
-		if (handler != null)
-			handler.onMethod(m);
+		if (listener != null)
+			listener.onMethod(m);
 		return m;
 	}
 
@@ -87,7 +108,7 @@ public class ZRMethodMgr {
 		ZRRequestFilter[] filters = new ZRRequestFilter[list.size()];
 		int i = 0;
 		for (Class<?> e : list)
-			filters[i++] = filterMgr.getFilter(e);
+			filters[i++] = this.filters.getFilter(e);
 		return filters;
 
 	}
