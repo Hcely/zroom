@@ -1,15 +1,11 @@
-package zr.monitor.util;
+package zr.monitor.statistic;
+
+import zr.monitor.ZRRequest;
 
 public class ZRApiCount implements Cloneable {
-	public static final int RESP_OK = 1;
-	public static final int RESP_BAD = 2;
-	public static final int RESP_ERROR = 3;
 
 	protected final String methodName;
 	protected final String version;
-
-	protected long startTime;
-	protected long endTime;
 
 	protected int count;
 	protected long takeTime;
@@ -54,7 +50,7 @@ public class ZRApiCount implements Cloneable {
 		countError += count.countError;
 	}
 
-	public void add(long take, int respType) {
+	public void add(long take, byte resultType) {
 		takeTime += take;
 		++count;
 		if (takeTime < 101)
@@ -70,17 +66,15 @@ public class ZRApiCount implements Cloneable {
 		else
 			++countSlow;
 
-		if (respType == 1)
+		if (resultType == ZRRequest.RESULT_OK)
 			++countOk;
-		else if (respType == 2)
+		else if (resultType == ZRRequest.RESULT_BAD)
 			++countBad;
 		else
 			++countError;
 	}
 
 	public void reset() {
-		startTime = System.currentTimeMillis();
-		endTime = startTime;
 		count = 0;
 		takeTime = 0;
 		count100ms = 0;
@@ -94,24 +88,12 @@ public class ZRApiCount implements Cloneable {
 		countError = 0;
 	}
 
-	public void setEndTime(long endTime) {
-		this.endTime = endTime;
-	}
-
 	public String getMethodName() {
 		return methodName;
 	}
 
 	public String getVersion() {
 		return version;
-	}
-
-	public long getStartTime() {
-		return startTime;
-	}
-
-	public long getEndTime() {
-		return endTime;
 	}
 
 	public long getTakeTime() {

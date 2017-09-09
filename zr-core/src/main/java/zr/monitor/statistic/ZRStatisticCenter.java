@@ -4,11 +4,12 @@ import v.VObject;
 import v.common.unit.VThreadLoop;
 import v.common.unit.VThreadLoop.VTimerTask;
 import v.common.util.ProductQueue;
+import zr.monitor.ZRRequest;
+import zr.monitor.ZRTopology;
+import zr.monitor.info.ZRInfoMgr;
 
 public class ZRStatisticCenter implements VObject {
-	protected final String machineIp;
-	protected final String serverId;
-	protected final String serviceId;
+	protected final ZRInfoMgr infoMgr;
 	protected final VThreadLoop loop;
 	protected final ZRStatisticWorker[] workers;
 	protected final ProductQueue<ZRStatistic> queue;
@@ -16,34 +17,21 @@ public class ZRStatisticCenter implements VObject {
 
 	protected VTimerTask statusTask;
 	protected VTimerTask countTask;
-	protected volatile boolean serverStatus;
-	protected volatile boolean machineStatus;
 
 	private boolean init;
 	private boolean destory;
 
-	public ZRStatisticCenter(String machineIp, String serverId, String serviceId, VThreadLoop loop, int workerNum,
-			int cacheSize, ZRStatisticHandler taskHandler) {
+	public ZRStatisticCenter(ZRInfoMgr infoMgr, VThreadLoop loop, int workerNum, int cacheSize,
+			ZRStatisticHandler taskHandler) {
 		workerNum = workerNum < 1 ? 1 : workerNum;
-		this.machineIp = machineIp;
-		this.serverId = serverId;
-		this.serviceId = serviceId;
+		this.infoMgr = infoMgr;
 		this.loop = loop;
 		this.workers = new ZRStatisticWorker[workerNum];
-		this.queue = new ProductQueue<>(cacheSize, ZRStatistic.builder(machineIp, serverId, serviceId));
+		this.queue = new ProductQueue<>(cacheSize, ZRStatistic.BUILDER);
 		this.handler = taskHandler;
 		for (int i = 0; i < workerNum; ++i)
 			workers[i] = new ZRStatisticWorker(this);
 		init = destory = false;
-		machineStatus = serverStatus = false;
-	}
-
-	public void setServerStatus(boolean serverStatus) {
-		this.serverStatus = serverStatus;
-	}
-
-	public void setMachineStatus(boolean machineStatus) {
-		this.machineStatus = machineStatus;
 	}
 
 	public void init() {
@@ -59,8 +47,16 @@ public class ZRStatisticCenter implements VObject {
 		}
 	}
 
-	public void putTask() {
+	public void putRequestTask(ZRRequest zreq, ZRTopology topology, String logContent) {
+		long i = queue.product();
+		queue.item(i).set(zreq, topology, logContent);
+		queue.finishProduct(i);
+	}
 
+	public void putTopology(ZRTopology topology, byte resultType) {
+		long i = queue.product();
+		queue.item(i).set(topology, resultType);
+		queue.finishProduct(i);
 	}
 
 	@Override

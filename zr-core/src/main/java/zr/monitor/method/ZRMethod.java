@@ -1,6 +1,7 @@
 package zr.monitor.method;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicLong;
 
 import zr.monitor.ZRRequestFilter;
 import zr.monitor.bean.info.ZRApiInfo;
@@ -25,6 +26,7 @@ public class ZRMethod {
 	protected final ZRAuthorityInfo[] defAuthoritys;
 	protected final ZRMethodSettings settings;
 	protected final ZRMethodVersionSettings versionSettings;
+	protected final AtomicLong count;
 	protected volatile ZRRequestFilter[] filters;
 	protected Object flag0, flag1;
 
@@ -36,6 +38,7 @@ public class ZRMethod {
 		this.defAuthoritys = info.getDefAuthoritys();
 		this.settings = settings;
 		this.versionSettings = versionSettings;
+		this.count = new AtomicLong(0);
 		this.filters = filters;
 	}
 
@@ -77,6 +80,10 @@ public class ZRMethod {
 
 	public int getTopology() {
 		return versionSettings.getTopology();
+	}
+
+	public long incCount() {
+		return count.incrementAndGet();
 	}
 
 	public ZRAuthorityInfo[] getAuthoritys() {

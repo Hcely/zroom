@@ -1,4 +1,4 @@
-package zr.monitor.util;
+package zr.monitor.statistic;
 
 import java.util.Enumeration;
 
@@ -8,7 +8,7 @@ public class ZRApiCounts {
 	protected final AutoArray<ZRApiCount> counts;
 
 	public ZRApiCounts() {
-		this.counts = new AutoArray<>(128, 16);
+		this.counts = new AutoArray<>(64, 16);
 	}
 
 	public void add(ZRApiCounts count) {
@@ -20,8 +20,8 @@ public class ZRApiCounts {
 		}
 	}
 
-	public void add(int id, String methodName, String version, long take, int respType) {
-		getCount(id, methodName, version).add(take, respType);
+	public void add(int id, String methodName, String version, long take, byte resultType) {
+		getCount(id, methodName, version).add(take, resultType);
 	}
 
 	public Enumeration<ZRApiCount> enumeration() {

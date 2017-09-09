@@ -75,21 +75,32 @@ public final class ZRMonitorUtil {
 	public static final String getServerId() {
 		StringBuilder sb = new StringBuilder(128);
 		buildServerStr(sb);
-		char[] c = STR_FORMAT.clone();
-		NumberHelper.to32Str(c, StrUtil.hashCode(sb), 0, 7);
 		sb.setLength(0);
-		sb.append(getMachineIp()).append('-').append(c);
+		sb.append(getMachineIp()).append('-').append(get32Hashcode(StrUtil.hashCode(sb)));
 		return sb.toString();
 	}
 
 	public static final String getServiceId() {
 		StringBuilder sb = new StringBuilder(256);
 		buildServiceStr(sb);
-		char[] c = STR_FORMAT.clone();
-		NumberHelper.to32Str(c, StrUtil.hashCode(sb), 0, 7);
 		sb.setLength(0);
-		sb.append(getServerId()).append('-').append(c);
+		sb.append(getServerId()).append('-').append(get32Hashcode(StrUtil.hashCode(sb)));
 		return sb.toString();
+	}
+
+	private static final char[] get32Hashcode(int hashcode) {
+		char[] c = STR_FORMAT.clone();
+		NumberHelper.to32Str(c, hashcode, 0, 7);
+		return c;
+	}
+
+	protected static final char[] SILKID_FORMAT = { '0', '0', '0', '0', '0', '0', '0', '-', '0', '0' };
+
+	public static final String buildSilkId(int hashcode, int num) {
+		char[] c = SILKID_FORMAT.clone();
+		NumberHelper.to32Str(c, hashcode, 0, 7);
+		NumberHelper.to32Str(c, num, 8, 2);
+		return StrUtil.newStr(c);
 	}
 
 	private static final void buildServerStr(StringBuilder sb) {

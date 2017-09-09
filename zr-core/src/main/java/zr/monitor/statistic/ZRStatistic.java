@@ -1,49 +1,33 @@
 package zr.monitor.statistic;
 
 import v.ObjBuilder;
+import zr.monitor.ZRRequest;
+import zr.monitor.ZRTopology;
+import zr.monitor.bean.result.ZRRequestResult;
+import zr.monitor.method.ZRMethod;
 
-public class ZRStatistic implements Cloneable {
-	public static final class Builder implements ObjBuilder<ZRStatistic> {
-		private final ZRStatistic instance;
+class ZRStatistic extends ZRRequestResult implements Cloneable {
+	public static final byte TYPE_REQUEST = 1;
+	public static final byte TYPE_TOPOLOGY = 2;
 
-		private Builder(String machineIp, String serverId, String serviceId) {
-			instance = new ZRStatistic();
-			instance.machineIp = machineIp;
-			instance.serverId = serverId;
-			instance.serviceId = serviceId;
-		}
+	private static final ZRStatistic INSTANCE = new ZRStatistic();
 
+	public static final ObjBuilder<ZRStatistic> BUILDER = new ObjBuilder<ZRStatistic>() {
 		@Override
 		public ZRStatistic build() {
-			return instance.clone();
+			return INSTANCE.clone();
 		}
 
 		@Override
 		public Class<ZRStatistic> getType() {
 			return ZRStatistic.class;
 		}
-	}
+	};
 
-	public static final Builder builder(String machineIp, String serverId, String serviceId) {
-		return new Builder(machineIp, serverId, serviceId);
-	}
-
-	protected String machineIp;
-	protected String serverId;
-	protected String serviceId;
-
+	protected byte statisticType;
 	protected int id;
-	protected String version;
-	protected String methodName;
-	protected long startTime;
-	protected long take;
-	protected int respType;
-	protected String remoteAttr;
-	protected String logContent;
-	protected Throwable error;
 
 	public ZRStatistic() {
-
 	}
 
 	@Override
@@ -55,47 +39,46 @@ public class ZRStatistic implements Cloneable {
 		}
 	}
 
-	void clear() {
+	void reset() {
 		this.version = null;
 		this.methodName = null;
-		this.remoteAttr = null;
+		this.reqId = null;
+		this.prevId = null;
+		this.silkId = null;
 		this.logContent = null;
 		this.error = null;
+		this.remoteIp = null;
 	}
 
-	public String getServiceId() {
-		return serviceId;
+	public void set(ZRRequest zreq, ZRTopology topology, String logContent) {
+		ZRMethod method = zreq.getMethod();
+		this.statisticType = TYPE_REQUEST;
+		this.id = method.getId();
+		this.version = method.getVersion();
+		this.methodName = method.getMethodName();
+		this.startTime = zreq.getStartTime();
+		this.take = zreq.getTake();
+		this.resultType = zreq.getResultType();
+		if (topology != null) {
+			this.reqId = topology.getReqId();
+			this.prevId = topology.getPrevId();
+			this.silkId = topology.getSilkId();
+		}
+		this.logContent = logContent;
+		this.error = zreq.getError();
+		this.remoteIp = zreq.getRemoveIp();
 	}
 
-	public String getVersion() {
-		return version;
+	public void set(ZRTopology topology, byte resultType) {
+		this.statisticType = TYPE_TOPOLOGY;
+		this.version = topology.getVersion();
+		this.methodName = topology.getMethodName();
+		this.startTime = topology.getStartTime();
+		this.take = topology.getTake();
+		this.resultType = resultType;
+		this.reqId = topology.getReqId();
+		this.prevId = topology.getPrevId();
+		this.silkId = topology.getSilkId();
 	}
 
-	public String getMethodName() {
-		return methodName;
-	}
-
-	public long getStartTime() {
-		return startTime;
-	}
-
-	public long getTake() {
-		return take;
-	}
-
-	public int getRespType() {
-		return respType;
-	}
-
-	public String getRemoteAttr() {
-		return remoteAttr;
-	}
-
-	public String getLogContent() {
-		return logContent;
-	}
-
-	public Throwable getError() {
-		return error;
-	}
 }

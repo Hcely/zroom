@@ -39,10 +39,12 @@ public class ZRInfoMgr {
 	protected final Map<String, ZRApiInfo> apiInfoMap;
 	protected final List<ZRApiInfo> apiInfos;
 
-	protected volatile boolean topologyOpen;
 	protected volatile boolean machineOpen;
 	protected volatile boolean serverOpen;
 	protected volatile boolean serviceOpen;
+
+	protected volatile boolean serverHandler;
+	protected volatile boolean machineHandler;
 
 	public ZRInfoMgr(String machineIp, String serverId, String serviceId, ZRInfoCreator creater) {
 		this.creater = creater;
@@ -60,7 +62,6 @@ public class ZRInfoMgr {
 
 		this.serviceInfo = new ZRServiceInfo(machineIp, serverId, serviceId, apiInfos);
 
-		this.topologyOpen = false;
 		this.machineOpen = true;
 		this.serverOpen = true;
 		this.serviceOpen = true;
@@ -176,6 +177,26 @@ public class ZRInfoMgr {
 
 	public boolean isServiceOpen() {
 		return serviceOpen;
+	}
+
+	public boolean isOpen() {
+		return serverOpen && machineOpen && serviceOpen;
+	}
+
+	public boolean isServerHandler() {
+		return serverHandler;
+	}
+
+	public void setServerHandler(boolean serverHandler) {
+		this.serverHandler = serverHandler;
+	}
+
+	public boolean isMachineHandler() {
+		return machineHandler;
+	}
+
+	public void setMachineHandler(boolean machineHandler) {
+		this.machineHandler = machineHandler;
 	}
 
 	private static final String getMethodName(Method method) {

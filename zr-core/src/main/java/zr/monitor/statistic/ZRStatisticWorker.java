@@ -2,7 +2,6 @@ package zr.monitor.statistic;
 
 import v.common.unit.VThread;
 import v.common.util.ProductQueue;
-import zr.monitor.util.ZRApiCounts;
 
 class ZRStatisticWorker extends VThread {
 	protected final ZRStatisticCenter center;
@@ -18,15 +17,30 @@ class ZRStatisticWorker extends VThread {
 	@Override
 	protected void run0() {
 		long l;
-		ZRStatistic task;
+		ZRStatistic e;
 		final ProductQueue<ZRStatistic> queue = center.queue;
 		final ZRStatisticHandler handler = center.handler;
+		final String machineIp = center.infoMgr.getMachineIp();
+		final String serverId = center.infoMgr.getServerId();
+		final String serviceId = center.infoMgr.getServiceId();
+		count.reset();
 		while ((l = queue.consume()) != ProductQueue.IDX_DESTORY) {
-			task = queue.item(l);
+			e = queue.item(l);
 			try {
-				count.add(task.id, task.methodName, task.version, task.take, task.respType);
-				handler.onReqTask(task);
+				switch (e.statisticType) {
+				case ZRStatistic.TYPE_REQUEST: {
+					count.add(e.id, e.getMethodName(), e.getVersion(), e.getTake(), e.getResultType());
+					handler.onRequest(machineIp, serverId, serviceId, e);
+					break;
+				}
+				case ZRStatistic.TYPE_TOPOLOGY: {
+					handler.onTopology(machineIp, serverId, serviceId, e);
+					break;
+				}
+				}
+
 			} finally {
+				e.reset();
 				queue.finishConsume(l);
 			}
 		}

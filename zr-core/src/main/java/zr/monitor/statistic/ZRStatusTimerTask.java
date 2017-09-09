@@ -27,19 +27,21 @@ class ZRStatusTimerTask implements Runnable {
 
 	@Override
 	public void run() {
-		if (!center.serverStatus && !center.serverStatus)
+		boolean serverHandler = center.infoMgr.isServerHandler();
+		boolean machineHandler = center.infoMgr.isMachineHandler();
+		if (!serverHandler && !machineHandler)
 			return;
 		SysStatusInfo sysInfo = SysStatusInfo.getStatus();
-		if (center.serverStatus)
+		if (serverHandler)
 			center.handler.onServerStatus(getServerStatus(sysInfo));
-		if (center.serverStatus)
+		if (machineHandler)
 			center.handler.onMachineStatus(getMachineStatus(sysInfo));
 	}
 
 	private final ZRServerStatus getServerStatus(SysStatusInfo sysInfo) {
 		ZRServerStatus status = new ZRServerStatus();
-		status.setMachineIp(center.machineIp);
-		status.setServerId(center.serverId);
+		status.setMachineIp(center.infoMgr.getMachineIp());
+		status.setServerId(center.infoMgr.getServerId());
 		status.setMaxJvmMemory(sysInfo.getMaxJvmMemory());
 		status.setTotalJvmMemory(sysInfo.getTotalJvmMemory());
 		status.setUsingJvmMemory(sysInfo.getUsingJvmMemory());
@@ -57,7 +59,7 @@ class ZRStatusTimerTask implements Runnable {
 
 	private final ZRMachineStatus getMachineStatus(SysStatusInfo sysInfo) {
 		ZRMachineStatus status = new ZRMachineStatus();
-		status.setMachineIp(center.machineIp);
+		status.setMachineIp(center.infoMgr.getMachineIp());
 		status.setCpuLoad(sysInfo.getSysCpuLoad());
 		status.setTotolMemory(sysInfo.getTotalPhysicalMemory());
 		status.setUsingMemory(sysInfo.getUsingPhysicalMemory());
