@@ -2,7 +2,9 @@ package zr.monitor.info;
 
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,6 +25,7 @@ import zr.monitor.bean.info.ZRApiSettings;
 import zr.monitor.bean.info.ZRApiVersionSettings;
 import zr.monitor.bean.info.ZRDiskInfo;
 import zr.monitor.bean.info.ZRMachineInfo;
+import zr.monitor.bean.info.ZRParamInfo;
 import zr.monitor.bean.info.ZRServerInfo;
 import zr.monitor.bean.info.ZRServiceInfo;
 import zr.monitor.util.ZRMonitorUtil;
@@ -117,7 +120,19 @@ public class ZRInfoMgr implements Clearable {
 	}
 
 	private ZRApiInfo createInfo(String methodName, String version, Method method) {
-		return builder.build(methodName, version, method);
+		ZRApiInfo apiInfo = builder.build(methodName, version, method);
+		apiInfo.setParams(getApiParams(method));
+		return apiInfo;
+	}
+
+	private final List<ZRParamInfo> getApiParams(Method method) {
+		Parameter[] params = method.getParameters();
+		if (params == null || params.length == 0)
+			return Collections.emptyList();
+		List<ZRParamInfo> paramList = new ArrayList<>(params.length);
+		for (Parameter e : params)
+			paramList.add(builder.build(e));
+		return paramList;
 	}
 
 	public ZRMethodSettings getApiSettings(String methodName) {

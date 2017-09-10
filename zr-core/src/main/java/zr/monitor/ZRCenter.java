@@ -106,7 +106,6 @@ public class ZRCenter extends VStatusObject implements Initializable {
 		if (!destorying(this))
 			return;
 		try {
-
 			statisticCenter.destory();
 			clusterServer.destory();
 			loop.destory();

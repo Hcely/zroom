@@ -1,9 +1,7 @@
 package zr.monitor.bean.info;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,7 +10,6 @@ import zr.monitor.annotation.ZRAuthor;
 import zr.monitor.annotation.ZRAuthority;
 import zr.monitor.annotation.ZRDate;
 import zr.monitor.annotation.ZRDescription;
-import zr.monitor.annotation.ZRParam;
 
 public class ZRApiInfo {
 	protected String version;
@@ -32,7 +29,6 @@ public class ZRApiInfo {
 		this.version = version;
 		this.methodName = methodName;
 		this.returnType = method.getReturnType().getSimpleName();
-		this.params = getParams(method);
 		ZRAuthor author = method.getAnnotation(ZRAuthor.class);
 		this.author = author == null ? null : author.value();
 		ZRDate date = method.getAnnotation(ZRDate.class);
@@ -43,68 +39,68 @@ public class ZRApiInfo {
 		this.defAuthoritys = getAuthoritys(method);
 	}
 
-	void setVersion(String version) {
-		this.version = version;
-	}
-
-	void setMethodName(String methodName) {
-		this.methodName = methodName;
-	}
-
-	void setReturnType(String returnType) {
-		this.returnType = returnType;
-	}
-
-	void setParams(List<ZRParamInfo> params) {
-		this.params = params;
-	}
-
-	void setAuthor(String author) {
-		this.author = author;
-	}
-
-	void setDate(String date) {
-		this.date = date;
-	}
-
-	void setName(String name) {
-		this.name = name;
-	}
-
-	void setDescription(String description) {
-		this.description = description;
-	}
-
 	public String getVersion() {
 		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 	public String getMethodName() {
 		return methodName;
 	}
 
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;
+	}
+
 	public String getReturnType() {
 		return returnType;
+	}
+
+	public void setReturnType(String returnType) {
+		this.returnType = returnType;
 	}
 
 	public List<ZRParamInfo> getParams() {
 		return params;
 	}
 
+	public void setParams(List<ZRParamInfo> params) {
+		this.params = params;
+	}
+
 	public String getAuthor() {
 		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
 	}
 
 	public String getDate() {
 		return date;
 	}
 
+	public void setDate(String date) {
+		this.date = date;
+	}
+
 	public String getName() {
 		return name;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public String getDescription() {
 		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public ZRAuthorityInfo[] getDefAuthoritys() {
@@ -113,23 +109,6 @@ public class ZRApiInfo {
 
 	public void setDefAuthoritys(ZRAuthorityInfo[] defAuthoritys) {
 		this.defAuthoritys = defAuthoritys;
-	}
-
-	private static final List<ZRParamInfo> getParams(Method method) {
-		Parameter[] params = method.getParameters();
-		if (params == null || params.length == 0)
-			return Collections.emptyList();
-		List<ZRParamInfo> paramList = new ArrayList<>(params.length);
-		for (Parameter e : params) {
-			ZRParamInfo info = new ZRParamInfo();
-			info.setType(e.getType().getSimpleName());
-			info.setName(e.getName());
-			ZRParam p = e.getAnnotation(ZRParam.class);
-			info.setDescription(p == null ? null : p.value());
-			info.setDemo(p == null ? null : p.demo());
-			paramList.add(info);
-		}
-		return paramList;
 	}
 
 	private static final ZRAuthorityInfo[] getAuthoritys(Method method) {
