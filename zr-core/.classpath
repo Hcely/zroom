@@ -22,6 +22,5 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/v-common.jar" sourcepath="/V"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

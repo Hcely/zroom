@@ -38,5 +38,12 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.6.1</version>
 		</dependency>
+		<dependency>
+			<groupId>wv</groupId>
+			<artifactId>v</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/v-common.jar</systemPath>
+		</dependency>
 	</dependencies>
 </project>
