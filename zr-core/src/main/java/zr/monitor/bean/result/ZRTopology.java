@@ -1,24 +1,25 @@
 package zr.monitor.bean.result;
 
+import zr.monitor.util.ZRMonitorUtil;
+
 public class ZRTopology {
 	protected String prevId;
+	protected String silkId;
 	protected String methodName;
 	protected String version;
-	protected String silkId;
 	protected long startTime;
 	protected long take;
 	protected byte resultStatus;
-	protected int idx;
 	protected int num;
 
 	public ZRTopology() {
 	}
 
-	public ZRTopology(String prevId, String methodName, String version, String silkId, int idx, long startTime) {
+	public ZRTopology(String prevId, String silkId, String methodName, String version, long startTime) {
 		this.prevId = prevId;
+		this.silkId = silkId;
 		this.methodName = methodName;
 		this.version = version;
-		this.silkId = silkId;
 		this.startTime = startTime;
 	}
 
@@ -28,8 +29,8 @@ public class ZRTopology {
 		return this;
 	}
 
-	public int incNum() {
-		return num++;
+	public String nextSilkId() {
+		return ZRMonitorUtil.buildSilkId(silkId.hashCode(), num++);
 	}
 
 	public String getPrevId() {
@@ -86,14 +87,6 @@ public class ZRTopology {
 
 	public void setResultStatus(byte resultStatus) {
 		this.resultStatus = resultStatus;
-	}
-
-	public int getIdx() {
-		return idx;
-	}
-
-	public void setIdx(int idx) {
-		this.idx = idx;
 	}
 
 	public int getNum() {

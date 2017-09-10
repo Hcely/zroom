@@ -49,13 +49,13 @@ public class ZRStatisticCenter extends VStatusObject implements Initializable {
 
 	public void putRequestTask(ZRRequest zreq, String reqId, List<ZRTopology> result, String logContent) {
 		long i = queue.product();
-		queue.item(i);
+		queue.item(i).set(zreq, reqId, result, logContent);
 		queue.finishProduct(i);
 	}
 
 	public void putTopology(String reqId, List<ZRTopology> result) {
 		long i = queue.product();
-		queue.item(i);
+		queue.item(i).set(reqId, result);
 		queue.finishProduct(i);
 	}
 

@@ -1,22 +1,21 @@
 package zr.monitor.statistic;
 
+import java.util.List;
+
 import v.ObjBuilder;
 import zr.monitor.ZRRequest;
-import zr.monitor.ZRTopologyStack;
-import zr.monitor.bean.result.ZRRequestResult;
-import zr.monitor.bean.result.ZRTopologyResult;
+import zr.monitor.bean.result.ZRTopology;
 import zr.monitor.method.ZRMethod;
 
-class ZRStatistic extends ZRRequestResult implements Cloneable {
+final class ZRStatistic {
 	public static final byte TYPE_REQUEST = 1;
-	public static final byte TYPE_TOPOLOGY = 2;
-
-	private static final ZRStatistic INSTANCE = new ZRStatistic();
+	public static final byte TYPE_REQUEST_TOPOLOPY = 2;
+	public static final byte TYPE_TOPOLOGY = 3;
 
 	public static final ObjBuilder<ZRStatistic> BUILDER = new ObjBuilder<ZRStatistic>() {
 		@Override
 		public ZRStatistic build() {
-			return INSTANCE.clone();
+			return new ZRStatistic();
 		}
 
 		@Override
@@ -27,61 +26,34 @@ class ZRStatistic extends ZRRequestResult implements Cloneable {
 
 	protected byte statisticType;
 	protected int id;
-	protected ZRRequestResult request;
-	protected ZRTopologyResult topologyInfo;
+	protected ZRRequestResult0 requestResult;
+	protected ZRTopologyResult0 topologyResult;
 
 	public ZRStatistic() {
-	}
-
-	@Override
-	protected ZRStatistic clone() {
-		try {
-			return (ZRStatistic) super.clone();
-		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException(e);
-		}
+		this.requestResult = new ZRRequestResult0();
+		this.topologyResult = new ZRTopologyResult0();
 	}
 
 	void reset() {
-		this.version = null;
-		this.methodName = null;
-		this.reqId = null;
-		this.prevId = null;
-		this.silkId = null;
-		this.logContent = null;
-		this.error = null;
-		this.remoteIp = null;
+		requestResult.reset();
+		topologyResult.reset();
 	}
 
-	public void set(ZRRequest zreq, ZRTopologyStack topology, String logContent) {
+	void set(ZRRequest zreq, String reqId, List<ZRTopology> topologys, String logContent) {
 		ZRMethod method = zreq.getMethod();
-		this.statisticType = TYPE_REQUEST;
 		this.id = method.getId();
-		this.version = method.getVersion();
-		this.methodName = method.getMethodName();
-		this.startTime = zreq.getStartTime();
-		this.take = zreq.getTake();
-		this.resultType = zreq.getResultType();
-		if (topology != null) {
-			this.reqId = topology.getReqId();
-			this.prevId = topology.getPrevId();
-			this.silkId = topology.getSilkId();
+		requestResult.set(reqId, method, zreq, logContent);
+		if (topologys == null)
+			this.statisticType = TYPE_REQUEST;
+		else {
+			this.statisticType = TYPE_REQUEST_TOPOLOPY;
+			this.topologyResult.set(reqId, topologys);
 		}
-		this.logContent = logContent;
-		this.error = zreq.getError();
-		this.remoteIp = zreq.getRemoveIp();
 	}
 
-	public void set(ZRTopologyStack topology, byte resultType) {
+	public void set(String reqId, List<ZRTopology> topologys) {
 		this.statisticType = TYPE_TOPOLOGY;
-		this.version = topology.getVersion();
-		this.methodName = topology.getMethodName();
-		this.startTime = topology.getStartTime();
-		this.take = topology.getTake();
-		this.resultType = resultType;
-		this.reqId = topology.getReqId();
-		this.prevId = topology.getPrevId();
-		this.silkId = topology.getSilkId();
+		this.topologyResult.set(reqId, topologys);
 	}
 
 }

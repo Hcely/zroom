@@ -12,7 +12,6 @@ public class ZRTopologyStack {
 
 	private String reqId;
 	private LinkedList<ZRTopology> topologys;
-	private ZRTopology firstTopology;
 	private ZRTopology curTopology;
 
 	public ZRTopologyStack() {
@@ -21,24 +20,23 @@ public class ZRTopologyStack {
 		len = 0;
 	}
 
-	public ZRTopologyStack start(final String reqId, final String prevId, final String methodName, final String version,
-			final long startTime, final int idx) {
+	public ZRTopologyStack start(final String reqId, final String prevId, final String silkId, final String methodName,
+			final String version, final long startTime) {
 		this.reqId = reqId;
 		this.topologys = new LinkedList<>();
-		String silkId = prevId == null ? ZRMonitorUtil.buildSilkId(methodName.hashCode(), idx)
-				: ZRMonitorUtil.buildSilkId(prevId.hashCode(), idx);
-		this.firstTopology = addStack(prevId, methodName, version, silkId, idx, startTime);
+		addStack(prevId, buildSilkId(silkId, methodName), methodName, version, startTime);
 		return this;
 	}
 
-	public ZRTopology addTopology(final String methodName, final String version, final long startTime) {
-		String prevId = curTopology.getPrevId();
-		int idx = curTopology.incNum();
-		String silkId = ZRMonitorUtil.buildSilkId(prevId.hashCode(), idx);
-		return addStack(prevId, methodName, version, silkId, idx, startTime);
+	private static final String buildSilkId(final String silkId, final String methodName) {
+		return silkId == null ? ZRMonitorUtil.buildSilkId(methodName.hashCode(), 0) : silkId;
 	}
 
-	public ZRTopology popAndFinishTopology(final long endTime, final byte resultStatus) {
+	public ZRTopology addTopology(final String methodName, final String version, final long startTime) {
+		return addStack(curTopology.getSilkId(), curTopology.nextSilkId(), methodName, version, startTime);
+	}
+
+	public ZRTopology finishAndPopTopology(final long endTime, final byte resultStatus) {
 		ZRTopology topology = curTopology;
 		popAndNext();
 		return topology.finish(endTime, resultStatus);
@@ -48,16 +46,11 @@ public class ZRTopologyStack {
 		LinkedList<ZRTopology> list = topologys;
 		reqId = null;
 		topologys = null;
-		firstTopology = null;
 		return list;
 	}
 
 	public String reqId() {
 		return reqId;
-	}
-
-	public ZRTopology firstTopology() {
-		return firstTopology;
 	}
 
 	public ZRTopology curTopology() {
@@ -68,10 +61,9 @@ public class ZRTopologyStack {
 		return len == 0;
 	}
 
-	private final ZRTopology addStack(String prevId, String methodName, String version, String silkId, int idx,
-			long startTime) {
+	private final ZRTopology addStack(String prevId, String silkId, String methodName, String version, long startTime) {
 		checkCapacity();
-		ZRTopology topology = curTopology = new ZRTopology(prevId, methodName, version, silkId, idx, startTime);
+		ZRTopology topology = curTopology = new ZRTopology(prevId, silkId, methodName, version, startTime);
 		topologys.add(topology);
 		stacks[len++] = topology;
 		return topology;

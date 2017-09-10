@@ -1,19 +1,17 @@
 package zr.monitor.statistic;
 
-import java.util.List;
-
+import zr.monitor.bean.result.ZRApiCountResult;
 import zr.monitor.bean.result.ZRRequestResult;
 import zr.monitor.bean.result.ZRTopologyResult;
 import zr.monitor.bean.status.ZRMachineStatus;
 import zr.monitor.bean.status.ZRServerStatus;
 
 public interface ZRStatisticHandler {
-	public void onRequest(String machineIp, String serverId, String serviceId, ZRRequestResult reuqest);
+	public void onRequest(String machineIp, String serverId, String serviceId, ZRRequestResult result);
 
-	public void onTopology(String machineIp, String serverId, String serviceId, ZRTopologyResult topology);
+	public void onTopology(String machineIp, String serverId, String serviceId, ZRTopologyResult result);
 
-	public void onApiCount(String machineIp, String serverId, String serviceId, long startTime, long endTime,
-			List<ZRApiCount> counts);
+	public void onApiCount(String machineIp, String serverId, String serviceId, ZRApiCountResult result);
 
 	public void onMachineStatus(ZRMachineStatus status);
 

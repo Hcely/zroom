@@ -2,6 +2,7 @@ package zr.monitor.statistic;
 
 import v.common.unit.VThread;
 import v.common.util.ProductQueue;
+import zr.monitor.bean.result.ZRRequestResult;
 
 class ZRStatisticWorker extends VThread {
 	protected final ZRStatisticCenter center;
@@ -29,16 +30,25 @@ class ZRStatisticWorker extends VThread {
 			try {
 				switch (e.statisticType) {
 				case ZRStatistic.TYPE_REQUEST: {
-					count.add(e.id, e.getMethodName(), e.getVersion(), e.getTake(), e.getResultType());
-					handler.onRequest(machineIp, serverId, serviceId, e);
+					ZRRequestResult result = e.requestResult;
+					count.add(e.id, result.getMethodName(), result.getVersion(), result.getTake(),
+							result.getResultStatus());
+					handler.onRequest(machineIp, serverId, serviceId, result);
+					break;
+				}
+				case ZRStatistic.TYPE_REQUEST_TOPOLOPY: {
+					ZRRequestResult result = e.requestResult;
+					count.add(e.id, result.getMethodName(), result.getVersion(), result.getTake(),
+							result.getResultStatus());
+					handler.onRequest(machineIp, serverId, serviceId, result);
+					handler.onTopology(machineIp, serverId, serviceId, e.topologyResult);
 					break;
 				}
 				case ZRStatistic.TYPE_TOPOLOGY: {
-					handler.onTopology(machineIp, serverId, serviceId, e);
+					handler.onTopology(machineIp, serverId, serviceId, e.topologyResult);
 					break;
 				}
 				}
-
 			} finally {
 				e.reset();
 				queue.finishConsume(l);

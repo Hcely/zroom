@@ -18,11 +18,24 @@ class ZRStatusTimerTask implements Runnable {
 	protected final ZRStatisticCenter center;
 	protected final List<MemoryPoolMXBean> pMemorys;
 	protected final int memorySize;
+	protected final ZRServerStatus serverStatus;
+	protected final ZRMachineStatus machineStatus;
 
 	public ZRStatusTimerTask(ZRStatisticCenter center) {
 		this.center = center;
-		this.pMemorys = ManagementFactory.getMemoryPoolMXBeans();
+		this.pMemorys = new ArrayList<>(ManagementFactory.getMemoryPoolMXBeans());
 		this.memorySize = pMemorys.size();
+		this.serverStatus = new ZRServerStatus();
+
+		List<ZRJvmMemoryStatus> jvmmemorys = new ArrayList<>(memorySize);
+		for (int i = 0; i < memorySize; ++i)
+			jvmmemorys.add(new ZRJvmMemoryStatus());
+		serverStatus.setMachineIp(center.infoMgr.getMachineIp());
+		serverStatus.setServerId(center.infoMgr.getServerId());
+		serverStatus.setMemorys(jvmmemorys);
+
+		this.machineStatus = new ZRMachineStatus();
+		machineStatus.setMachineIp(center.infoMgr.getMachineIp());
 	}
 
 	@Override
@@ -33,33 +46,29 @@ class ZRStatusTimerTask implements Runnable {
 			return;
 		SysStatusInfo sysInfo = SysStatusInfo.getStatus();
 		if (serverHandler)
-			center.handler.onServerStatus(getServerStatus(sysInfo));
+			center.handler.onServerStatus(updateServerStatus(sysInfo));
 		if (machineHandler)
-			center.handler.onMachineStatus(getMachineStatus(sysInfo));
+			center.handler.onMachineStatus(updateMachineStatus(sysInfo));
 	}
 
-	private final ZRServerStatus getServerStatus(SysStatusInfo sysInfo) {
-		ZRServerStatus status = new ZRServerStatus();
-		status.setMachineIp(center.infoMgr.getMachineIp());
-		status.setServerId(center.infoMgr.getServerId());
+	private final ZRServerStatus updateServerStatus(SysStatusInfo sysInfo) {
+		ZRServerStatus status = this.serverStatus;
 		status.setMaxJvmMemory(sysInfo.getMaxJvmMemory());
 		status.setTotalJvmMemory(sysInfo.getTotalJvmMemory());
 		status.setUsingJvmMemory(sysInfo.getUsingJvmMemory());
 		status.setThreadCount(sysInfo.getThreadCount());
-		List<ZRJvmMemoryStatus> list = new ArrayList<>(memorySize);
+		List<ZRJvmMemoryStatus> jvmmemorys = status.getMemorys();
 		for (int i = 0; i < memorySize; ++i) {
 			MemoryPoolMXBean e = pMemorys.get(i);
 			MemoryUsage usage = e.getUsage();
-			list.add(new ZRJvmMemoryStatus(e.getName(), e.getType().toString(), usage.getInit(), usage.getUsed(),
-					usage.getCommitted(), usage.getMax()));
+			jvmmemorys.get(i).set(e.getName(), e.getType().toString(), usage.getInit(), usage.getUsed(),
+					usage.getCommitted(), usage.getMax());
 		}
-		status.setMemorys(list);
 		return status;
 	}
 
-	private final ZRMachineStatus getMachineStatus(SysStatusInfo sysInfo) {
-		ZRMachineStatus status = new ZRMachineStatus();
-		status.setMachineIp(center.infoMgr.getMachineIp());
+	private final ZRMachineStatus updateMachineStatus(SysStatusInfo sysInfo) {
+		ZRMachineStatus status = this.machineStatus;
 		status.setCpuLoad(sysInfo.getSysCpuLoad());
 		status.setTotolMemory(sysInfo.getTotalPhysicalMemory());
 		status.setUsingMemory(sysInfo.getUsingPhysicalMemory());

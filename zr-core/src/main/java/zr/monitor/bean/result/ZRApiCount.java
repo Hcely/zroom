@@ -1,4 +1,4 @@
-package zr.monitor.statistic;
+package zr.monitor.bean.result;
 
 import zr.monitor.ZRRequest;
 
@@ -7,7 +7,7 @@ public class ZRApiCount implements Cloneable {
 	protected final String methodName;
 	protected final String version;
 
-	protected int count;
+	protected int sum;
 	protected long takeTime;
 	protected int count100ms;
 	protected int count250ms;
@@ -37,7 +37,7 @@ public class ZRApiCount implements Cloneable {
 
 	public void add(ZRApiCount count) {
 		takeTime += count.takeTime;
-		this.count += count.count;
+		this.sum += count.sum;
 		count100ms += count.count100ms;
 		count250ms += count.count250ms;
 		count500ms += count.count500ms;
@@ -50,9 +50,9 @@ public class ZRApiCount implements Cloneable {
 		countError += count.countError;
 	}
 
-	public void add(long take, byte resultType) {
+	public void add(long take, byte resultStatus) {
 		takeTime += take;
-		++count;
+		++sum;
 		if (takeTime < 101)
 			++count100ms;
 		else if (takeTime < 251)
@@ -66,16 +66,16 @@ public class ZRApiCount implements Cloneable {
 		else
 			++countSlow;
 
-		if (resultType == ZRRequest.RESULT_OK)
+		if (resultStatus == ZRRequest.RESULT_OK)
 			++countOk;
-		else if (resultType == ZRRequest.RESULT_BAD)
+		else if (resultStatus == ZRRequest.RESULT_BAD)
 			++countBad;
 		else
 			++countError;
 	}
 
 	public void reset() {
-		count = 0;
+		sum = 0;
 		takeTime = 0;
 		count100ms = 0;
 		count250ms = 0;
@@ -86,6 +86,54 @@ public class ZRApiCount implements Cloneable {
 		countOk = 0;
 		countBad = 0;
 		countError = 0;
+	}
+
+	public int getSum() {
+		return sum;
+	}
+
+	public void setSum(int sum) {
+		this.sum = sum;
+	}
+
+	public void setTakeTime(long takeTime) {
+		this.takeTime = takeTime;
+	}
+
+	public void setCount100ms(int count100ms) {
+		this.count100ms = count100ms;
+	}
+
+	public void setCount250ms(int count250ms) {
+		this.count250ms = count250ms;
+	}
+
+	public void setCount500ms(int count500ms) {
+		this.count500ms = count500ms;
+	}
+
+	public void setCount1000ms(int count1000ms) {
+		this.count1000ms = count1000ms;
+	}
+
+	public void setCount2000ms(int count2000ms) {
+		this.count2000ms = count2000ms;
+	}
+
+	public void setCountSlow(int countSlow) {
+		this.countSlow = countSlow;
+	}
+
+	public void setCountOk(int countOk) {
+		this.countOk = countOk;
+	}
+
+	public void setCountBad(int countBad) {
+		this.countBad = countBad;
+	}
+
+	public void setCountError(int countError) {
+		this.countError = countError;
 	}
 
 	public String getMethodName() {

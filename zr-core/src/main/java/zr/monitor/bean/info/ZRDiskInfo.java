@@ -6,14 +6,18 @@ public class ZRDiskInfo {
 	protected long size;
 	protected long using;
 
+	public ZRDiskInfo() {
+	}
+
 	public ZRDiskInfo(String name, String model, long size, long using) {
+		set(name, model, size, using);
+	}
+
+	public void set(String name, String model, long size, long using) {
 		this.name = name;
 		this.model = model;
 		this.size = size;
 		this.using = using;
-	}
-
-	public ZRDiskInfo() {
 	}
 
 	public String getName() {

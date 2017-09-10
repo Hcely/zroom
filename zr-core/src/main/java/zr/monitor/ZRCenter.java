@@ -1,6 +1,7 @@
 package zr.monitor;
 
 import java.lang.reflect.Method;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -8,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import v.Initializable;
-import v.common.helper.ParseUtil;
 import v.common.unit.VStatusObject;
 import v.common.unit.VThreadLoop;
 import zr.monitor.bean.result.ZRTopology;
@@ -25,8 +25,8 @@ import zr.monitor.util.ZRMonitorUtil;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ZRCenter extends VStatusObject implements Initializable {
 	public static final String ZR_REQUEST_ID = "zr-req-id";
-	public static final String ZR_REQUEST_SILK_ID = "zr-silk-id";
-	public static final String ZR_REQUEST_NUM = "zr-cur-num";
+	public static final String ZR_REQUEST_PREV_ID = "zr-prev-id";
+	public static final String ZR_REQUEST_SILK_ID = "zr-cur-num";
 
 	protected VThreadLoop loop;
 	protected ZRInfoMgr infoMgr;
@@ -98,7 +98,7 @@ public class ZRCenter extends VStatusObject implements Initializable {
 			HttpServletResponse response) throws Throwable {
 		final ZRMethod zrm = methodMgr.getMethod(method);
 		if (zrm == null)
-			return reqHandler.executeNoMethod(invoker);
+			return handleNoMethod(invoker, request);
 		final ZRRequest zreq = ZRContext.getRequest(zrm, remoteIp, request, response);
 		try {
 			if (zrm.isOpen() && infoMgr.isOpen())
@@ -107,6 +107,29 @@ public class ZRCenter extends VStatusObject implements Initializable {
 				return handleApiClose(invoker, zreq);
 		} finally {
 			zreq.reset();
+		}
+	}
+
+	private final Object handleNoMethod(Object invoker, HttpServletRequest request) throws Throwable {
+		final ZRTopologyStack stack = checkTopology(request, System.currentTimeMillis());
+		byte resultStatus = ZRRequest.RESULT_OK;
+		try {
+			return reqHandler.executeNoMethod(invoker);
+		} catch (Throwable e) {
+			resultStatus = ZRRequest.RESULT_ERROR;
+			throw e;
+		} finally {
+			if (stack != null) {
+				String reqId = stack.reqId();
+				ZRTopology topology = stack.finishAndPopTopology(System.currentTimeMillis(), resultStatus);
+				if (stack.isEmpty()) {
+					LinkedList<ZRTopology> result = stack.finishAndGetResult();
+					request.setAttribute(ZR_REQUEST_ID, reqId);
+					request.setAttribute(ZR_REQUEST_PREV_ID, topology.getSilkId());
+					request.setAttribute(ZR_REQUEST_SILK_ID, topology.nextSilkId());
+					statisticCenter.putTopology(reqId, result);
+				}
+			}
 		}
 	}
 
@@ -173,13 +196,13 @@ public class ZRCenter extends VStatusObject implements Initializable {
 		String logContent = null;
 		if (stack != null) {
 			reqId = stack.reqId();
-			ZRTopology topology = stack.popAndFinishTopology(endTime, zreq.resultStatus);
+			ZRTopology topology = stack.finishAndPopTopology(endTime, zreq.resultStatus);
 			if (stack.isEmpty()) {
 				result = stack.finishAndGetResult();
 				HttpServletRequest request = zreq.getRequest();
 				request.setAttribute(ZR_REQUEST_ID, reqId);
-				request.setAttribute(ZR_REQUEST_SILK_ID, topology.getSilkId());
-				request.setAttribute(ZR_REQUEST_NUM, topology.incNum());
+				request.setAttribute(ZR_REQUEST_PREV_ID, topology.getSilkId());
+				request.setAttribute(ZR_REQUEST_SILK_ID, topology.nextSilkId());
 			}
 		}
 		try {
@@ -210,22 +233,41 @@ public class ZRCenter extends VStatusObject implements Initializable {
 		if (stack.isEmpty()) {
 			String reqId = request.getHeader(ZR_REQUEST_ID);
 			if (reqId != null) {
-				String prevId = request.getHeader(ZR_REQUEST_SILK_ID);
-				String numStr = request.getHeader(ZR_REQUEST_NUM);
-				int num = ParseUtil.parse(numStr, Integer.class, 0);
-				return stack.start(reqId, prevId, zrm.getMethodName(), zrm.getVersion(), startTime, num);
+				String prevId = request.getHeader(ZR_REQUEST_PREV_ID);
+				String silkId = request.getHeader(ZR_REQUEST_SILK_ID);
+				return stack.start(reqId, prevId, silkId, zrm.getMethodName(), zrm.getVersion(), startTime);
 			} else if ((reqId = (String) request.getAttribute(ZR_REQUEST_ID)) != null) {
-				String prevId = (String) request.getAttribute(ZR_REQUEST_SILK_ID);
-				int num = (Integer) request.getAttribute(ZR_REQUEST_NUM);
-				return stack.start(reqId, prevId, zrm.getMethodName(), zrm.getVersion(), startTime, num);
+				String prevId = (String) request.getAttribute(ZR_REQUEST_PREV_ID);
+				String silkId = (String) request.getAttribute(ZR_REQUEST_SILK_ID);
+				return stack.start(reqId, prevId, silkId, zrm.getMethodName(), zrm.getVersion(), startTime);
 			} else {
 				int topology = zrm.getTopology();
 				if (topology > 0 && zrm.incCount() % topology == 0)
-					return stack.start(ZRMonitorUtil.getReqId(), null, zrm.getMethodName(), zrm.getVersion(), startTime,
-							0);
+					return stack.start(ZRMonitorUtil.getReqId(), null, null, zrm.getMethodName(), zrm.getVersion(),
+							startTime);
 			}
 		} else {
 			stack.addTopology(zrm.getMethodName(), zrm.getVersion(), startTime);
+			return stack;
+		}
+		return null;
+	}
+
+	private final ZRTopologyStack checkTopology(final HttpServletRequest request, final long startTime) {
+		ZRTopologyStack stack = ZRContext.curTopology();
+		if (stack.isEmpty()) {
+			String reqId = request.getHeader(ZR_REQUEST_ID);
+			if (reqId != null) {
+				String prevId = request.getHeader(ZR_REQUEST_PREV_ID);
+				String silkId = request.getHeader(ZR_REQUEST_SILK_ID);
+				return stack.start(reqId, prevId, silkId, request.getRequestURI(), "0.0.0", startTime);
+			} else if ((reqId = (String) request.getAttribute(ZR_REQUEST_ID)) != null) {
+				String prevId = (String) request.getAttribute(ZR_REQUEST_PREV_ID);
+				String silkId = (String) request.getAttribute(ZR_REQUEST_SILK_ID);
+				return stack.start(reqId, prevId, silkId, request.getRequestURI(), "0.0.0", startTime);
+			}
+		} else {
+			stack.addTopology(request.getRequestURI(), "0.0.0", startTime);
 			return stack;
 		}
 		return null;
