@@ -16,6 +16,7 @@
     <module>zr-spring</module>
     <module>zr-kafka</module>
     <module>zr-dubbo-topology</module>
+    <module>zr-topology</module>
   </modules>
 	<dependencies>
 		<!-- servlet start -->

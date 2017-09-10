@@ -1,4 +1,4 @@
-package zr.dubbo;
+package zr.topology;
 
 /**
  * Hello world!

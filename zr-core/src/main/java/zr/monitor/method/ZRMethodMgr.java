@@ -30,7 +30,7 @@ public class ZRMethodMgr implements Clearable {
 	public ZRMethodMgr(ZRInfoMgr infoMgr, ZRMethodListener listener) {
 		this.infoMgr = infoMgr;
 		this.filters = new ZRFilters();
-		this.listener = listener;
+		this.listener = listener == null ? ZRMethodListener.DEF : listener;
 		this.methodMap0 = new HashMap<>();
 		this.methodMap1 = new IdentityHashMap<>();
 		this.methods = new LinkedList<>();
@@ -88,8 +88,7 @@ public class ZRMethodMgr implements Clearable {
 		methodMap0.put(info.getMethodName(), m);
 		methodMap1.put(method, m);
 		methods.add(m);
-		if (listener != null)
-			listener.onMethod(m);
+		listener.onMethod(m);
 		return m;
 	}
 

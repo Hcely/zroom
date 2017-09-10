@@ -1,4 +1,4 @@
-package zr.dubbo;
+package zr.topology;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

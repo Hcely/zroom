@@ -26,7 +26,7 @@ import zr.monitor.util.ZRMonitorUtil;
 public class ZRCenter extends VStatusObject implements Initializable {
 	public static final String ZR_REQUEST_ID = "zr-req-id";
 	public static final String ZR_REQUEST_PREV_ID = "zr-prev-id";
-	public static final String ZR_REQUEST_SILK_ID = "zr-cur-num";
+	public static final String ZR_REQUEST_SILK_ID = "zr-silk-id";
 
 	protected VThreadLoop loop;
 	protected ZRInfoMgr infoMgr;
@@ -37,8 +37,8 @@ public class ZRCenter extends VStatusObject implements Initializable {
 
 	protected Set<Method> methods;
 	protected Set<ZRRequestFilter> filters;
-	protected int workerNum;
-	protected int cacheSize;
+	protected int workerNum = 2;
+	protected int cacheSize = 1024 * 16;
 
 	protected ZRRequestHandler reqHandler;
 	protected ZRApiInfoBuilder apiInfoBuilder;
@@ -51,6 +51,30 @@ public class ZRCenter extends VStatusObject implements Initializable {
 
 	public void setFilters(Set<ZRRequestFilter> filters) {
 		this.filters = filters;
+	}
+
+	public void setWorkerNum(int workerNum) {
+		this.workerNum = workerNum;
+	}
+
+	public void setCacheSize(int cacheSize) {
+		this.cacheSize = cacheSize;
+	}
+
+	public void setReqHandler(ZRRequestHandler reqHandler) {
+		this.reqHandler = reqHandler;
+	}
+
+	public void setApiInfoBuilder(ZRApiInfoBuilder apiInfoBuilder) {
+		this.apiInfoBuilder = apiInfoBuilder;
+	}
+
+	public void setMethodListener(ZRMethodListener methodListener) {
+		this.methodListener = methodListener;
+	}
+
+	public void setStatisticHandler(ZRStatisticHandler statisticHandler) {
+		this.statisticHandler = statisticHandler;
 	}
 
 	@Override

@@ -28,7 +28,7 @@ public class ZRStatisticCenter extends VStatusObject implements Initializable {
 		this.loop = loop;
 		this.workers = new ZRStatisticWorker[workerNum];
 		this.queue = new ProductQueue<>(cacheSize, ZRStatistic.BUILDER);
-		this.handler = handler;
+		this.handler = handler == null ? ZRStatisticHandler.DEF : handler;
 		for (int i = 0; i < workerNum; ++i)
 			workers[i] = new ZRStatisticWorker(this);
 	}

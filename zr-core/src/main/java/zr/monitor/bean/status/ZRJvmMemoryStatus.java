@@ -8,9 +8,7 @@ public class ZRJvmMemoryStatus {
 	protected long total;
 	protected long max;
 
-	public void set(String name, String type, long init, long using, long total, long max) {
-		this.name = name;
-		this.type = type;
+	public void set(long init, long using, long total, long max) {
 		this.init = init;
 		this.using = using;
 		this.total = total;

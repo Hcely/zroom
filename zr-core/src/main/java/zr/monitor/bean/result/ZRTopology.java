@@ -10,7 +10,7 @@ public class ZRTopology {
 	protected long startTime;
 	protected long take;
 	protected byte resultStatus;
-	protected int num;
+	protected int num = -1;
 
 	public ZRTopology() {
 	}
@@ -30,7 +30,7 @@ public class ZRTopology {
 	}
 
 	public String nextSilkId() {
-		return ZRMonitorUtil.buildSilkId(silkId.hashCode(), num++);
+		return ZRMonitorUtil.buildSilkId(silkId.hashCode(), ++num);
 	}
 
 	public String getPrevId() {
