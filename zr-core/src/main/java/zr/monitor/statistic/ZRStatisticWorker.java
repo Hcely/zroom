@@ -31,14 +31,16 @@ class ZRStatisticWorker extends VThread {
 				switch (e.statisticType) {
 				case ZRStatistic.TYPE_REQUEST: {
 					ZRRequestResult result = e.requestResult;
-					count.add(e.id, result.getMethodName(), result.getVersion(), result.getTake(),
+					if (e.flags.size() > 0)
+						result.setFlags(e.flags);
+					count.add(e.methodId, result.getMethodName(), result.getVersion(), result.getTake(),
 							result.getResultStatus());
 					handler.onRequest(machineIp, serverId, serviceId, result);
 					break;
 				}
 				case ZRStatistic.TYPE_REQUEST_TOPOLOPY: {
 					ZRRequestResult result = e.requestResult;
-					count.add(e.id, result.getMethodName(), result.getVersion(), result.getTake(),
+					count.add(e.methodId, result.getMethodName(), result.getVersion(), result.getTake(),
 							result.getResultStatus());
 					handler.onRequest(machineIp, serverId, serviceId, result);
 					handler.onTopology(machineIp, serverId, serviceId, e.topologyResult);

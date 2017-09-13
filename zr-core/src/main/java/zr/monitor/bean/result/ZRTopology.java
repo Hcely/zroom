@@ -10,7 +10,7 @@ public class ZRTopology {
 	protected long startTime;
 	protected long take;
 	protected byte resultStatus;
-	protected int num = -1;
+	protected int num = 0;
 
 	public ZRTopology() {
 	}
@@ -23,6 +23,11 @@ public class ZRTopology {
 		this.startTime = startTime;
 	}
 
+	public ZRTopology(String prevId, String silkId) {
+		this.prevId = prevId;
+		this.silkId = silkId;
+	}
+
 	public ZRTopology finish(final long endTime, final byte resultStatus) {
 		this.take = endTime - startTime;
 		this.resultStatus = resultStatus;
@@ -30,7 +35,12 @@ public class ZRTopology {
 	}
 
 	public String nextSilkId() {
-		return ZRMonitorUtil.buildSilkId(silkId.hashCode(), ++num);
+		return ZRMonitorUtil.buildSilkId(silkId.hashCode(), num++);
+	}
+
+	public ZRTopology resetNum() {
+		num = 0;
+		return this;
 	}
 
 	public String getPrevId() {
@@ -87,14 +97,6 @@ public class ZRTopology {
 
 	public void setResultStatus(byte resultStatus) {
 		this.resultStatus = resultStatus;
-	}
-
-	public int getNum() {
-		return num;
-	}
-
-	public void setNum(int num) {
-		this.num = num;
 	}
 
 }

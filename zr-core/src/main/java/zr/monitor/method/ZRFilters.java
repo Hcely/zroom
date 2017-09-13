@@ -16,8 +16,9 @@ class ZRFilters implements Clearable {
 	}
 
 	public void addFilters(Collection<ZRRequestFilter> filters) {
-		for (ZRRequestFilter e : filters)
-			filterMap.put(e.getClass(), e);
+		if (filters != null)
+			for (ZRRequestFilter e : filters)
+				filterMap.put(e.getClass(), e);
 	}
 
 	public void addFilter(ZRRequestFilter filter) {

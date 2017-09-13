@@ -57,8 +57,9 @@ public class ZRMethodMgr implements Clearable {
 	}
 
 	public void addMethods(Collection<Method> methods) {
-		for (Method e : methods)
-			addMethod(e);
+		if (methods != null)
+			for (Method e : methods)
+				addMethod(e);
 	}
 
 	public ZRMethod addMethod(Method method) {
@@ -84,7 +85,8 @@ public class ZRMethodMgr implements Clearable {
 		ZRMethodSettings settings = infoMgr.getApiSettings(info.getMethodName());
 		ZRMethodVersionSettings versionSettings = infoMgr.getApiVersionSettings(info.getMethodName(),
 				info.getVersion());
-		ZRMethod m = new ZRMethod(method, info, settings, versionSettings, getFilters(method));
+		ZRRequestFilter[] filters = getFilters(method);
+		ZRMethod m = new ZRMethod(method, info, settings, versionSettings, filters);
 		methodMap0.put(info.getMethodName(), m);
 		methodMap1.put(method, m);
 		methods.add(m);

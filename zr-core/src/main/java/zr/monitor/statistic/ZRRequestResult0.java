@@ -5,7 +5,10 @@ import zr.monitor.bean.result.ZRRequestResult;
 import zr.monitor.method.ZRMethod;
 
 final class ZRRequestResult0 extends ZRRequestResult {
-	void set(String reqId, ZRMethod zrm, ZRRequest request, String logContent) {
+	ZRRequestResult0() {
+	}
+
+	void set(String reqId, ZRMethod zrm, ZRRequest request) {
 		this.version = zrm.getVersion();
 		this.methodName = zrm.getMethodName();
 		this.remoteIp = request.getRemoveIp();
@@ -13,7 +16,6 @@ final class ZRRequestResult0 extends ZRRequestResult {
 		this.take = request.getTake();
 		this.resultStatus = request.getResultStatus();
 		this.reqId = reqId;
-		this.logContent = logContent;
 		this.error = request.getError();
 	}
 
@@ -23,6 +25,7 @@ final class ZRRequestResult0 extends ZRRequestResult {
 		this.remoteIp = null;
 		this.reqId = null;
 		this.logContent = null;
+		this.flags = null;
 		this.error = null;
 	}
 }

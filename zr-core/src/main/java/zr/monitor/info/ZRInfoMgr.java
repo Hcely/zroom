@@ -2,9 +2,7 @@ package zr.monitor.info;
 
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -25,7 +23,6 @@ import zr.monitor.bean.info.ZRApiSettings;
 import zr.monitor.bean.info.ZRApiVersionSettings;
 import zr.monitor.bean.info.ZRDiskInfo;
 import zr.monitor.bean.info.ZRMachineInfo;
-import zr.monitor.bean.info.ZRParamInfo;
 import zr.monitor.bean.info.ZRServerInfo;
 import zr.monitor.bean.info.ZRServiceInfo;
 import zr.monitor.util.ZRMonitorUtil;
@@ -51,7 +48,7 @@ public class ZRInfoMgr implements Clearable {
 	protected volatile boolean machineHandler;
 
 	public ZRInfoMgr(ZRApiInfoBuilder builder) {
-		this.builder = builder == null ? ZRApiInfoBuilder.DEF : builder;
+		this.builder = builder == null ? ZRDefApiInfoBuilder.INSTANCE : builder;
 		this.machineIp = ZRMonitorUtil.getMachineIp();
 		this.serverId = ZRMonitorUtil.getServerId();
 		this.serviceId = ZRMonitorUtil.getServiceId();
@@ -111,28 +108,12 @@ public class ZRInfoMgr implements Clearable {
 		if (info == null)
 			synchronized (apiInfoMap) {
 				if ((info = apiInfoMap.get(method)) == null) {
-					info = createInfo(methodName, version, method);
+					info = builder.buildApiInfo(methodName, version, method);
 					apiInfoMap.put(key, info);
 					apiInfos.add(info);
 				}
 			}
 		return info;
-	}
-
-	private ZRApiInfo createInfo(String methodName, String version, Method method) {
-		ZRApiInfo apiInfo = builder.build(methodName, version, method);
-		apiInfo.setParams(getApiParams(method));
-		return apiInfo;
-	}
-
-	private final List<ZRParamInfo> getApiParams(Method method) {
-		Parameter[] params = method.getParameters();
-		if (params == null || params.length == 0)
-			return Collections.emptyList();
-		List<ZRParamInfo> paramList = new ArrayList<>(params.length);
-		for (Parameter e : params)
-			paramList.add(builder.build(e));
-		return paramList;
 	}
 
 	public ZRMethodSettings getApiSettings(String methodName) {

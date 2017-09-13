@@ -1,14 +1,10 @@
 package zr.monitor.statistic;
 
-import java.util.List;
-
 import v.Initializable;
 import v.common.unit.VStatusObject;
 import v.common.unit.VThreadLoop;
 import v.common.unit.VThreadLoop.VTimerTask;
 import v.common.util.ProductQueue;
-import zr.monitor.ZRRequest;
-import zr.monitor.bean.result.ZRTopology;
 import zr.monitor.info.ZRInfoMgr;
 
 public class ZRStatisticCenter extends VStatusObject implements Initializable {
@@ -47,16 +43,15 @@ public class ZRStatisticCenter extends VStatusObject implements Initializable {
 		}
 	}
 
-	public void putRequestTask(ZRRequest zreq, String reqId, List<ZRTopology> result, String logContent) {
+	public ZRStatistic product() {
 		long i = queue.product();
-		queue.item(i).set(zreq, reqId, result, logContent);
-		queue.finishProduct(i);
+		ZRStatistic e = queue.item(i);
+		e.idx = i;
+		return e;
 	}
 
-	public void putTopology(String reqId, List<ZRTopology> result) {
-		long i = queue.product();
-		queue.item(i).set(reqId, result);
-		queue.finishProduct(i);
+	public void finishProduct(ZRStatistic e) {
+		queue.finishProduct(e.idx);
 	}
 
 	@Override

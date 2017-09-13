@@ -20,5 +20,10 @@
 			<artifactId>zr-core</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-clients</artifactId>
+			<version>0.11.0.0</version>
+		</dependency>
 	</dependencies>
 </project>

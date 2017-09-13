@@ -7,6 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,12 +21,14 @@ import v.common.helper.StrUtil;
 import v.server.helper.NetUtil;
 
 public final class ZRMonitorUtil {
-	private static final char[] STR_FORMAT = { '0', '0', '0', '0', '0', '0', '0' };
+	private static final char[] STR_ID_FORMAT = { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0' };
 	private static final char[] SILK_ID_FORMAT = { '0', '0', '0', '0', '0', '0', '0', '-', '0', '0' };
 	private static final char[] ZR_REQ_ID_FORMAT = { 'z', 'r', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
 			'0', '0', '0' };
 	private static final int machineCode = 0xFFFF & NetUtil.getMachineCode();
 	private static final AtomicInteger incNum = new AtomicInteger(0);
+
+	public static final Logger logger = LogManager.getLogger(ZRMonitorUtil.class);
 
 	public static final ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL)
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -82,22 +87,18 @@ public final class ZRMonitorUtil {
 	public static final String getServerId() {
 		StringBuilder sb = new StringBuilder(128);
 		buildServerStr(sb);
-		sb.setLength(0);
-		sb.append(getMachineIp()).append('-').append(get32Hashcode(StrUtil.hashCode(sb)));
-		return sb.toString();
+		return StrUtil.newStr(get32Hashcode(StrUtil.hashCodeL(sb)));
 	}
 
 	public static final String getServiceId() {
 		StringBuilder sb = new StringBuilder(256);
 		buildServiceStr(sb);
-		sb.setLength(0);
-		sb.append(getServerId()).append('-').append(get32Hashcode(StrUtil.hashCode(sb)));
-		return sb.toString();
+		return StrUtil.newStr(get32Hashcode(StrUtil.hashCodeL(sb)));
 	}
 
-	private static final char[] get32Hashcode(int hashcode) {
-		char[] c = STR_FORMAT.clone();
-		NumberHelper.to32Str(c, hashcode, 0, 7);
+	private static final char[] get32Hashcode(long hashcode) {
+		char[] c = STR_ID_FORMAT.clone();
+		NumberHelper.to32Str(c, hashcode, 0, 13);
 		return c;
 	}
 

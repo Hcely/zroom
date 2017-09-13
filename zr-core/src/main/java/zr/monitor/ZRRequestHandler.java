@@ -11,7 +11,7 @@ public interface ZRRequestHandler<T> {
 
 	public void onAfter(T invoker, ZRRequest zreq);
 
-	public String onLog(T invoker, ZRRequest zreq);
+	public void onLog(T invoker, ZRRequest zreq, ZRLogContent logHr);
 
 	public Throwable onError(T invoker, ZRRequest zreq, boolean resultError);
 }

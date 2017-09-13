@@ -1,5 +1,7 @@
 package zr.monitor.bean.result;
 
+import java.util.Map;
+
 public class ZRRequestResult {
 	protected String version;
 	protected String methodName;
@@ -9,6 +11,7 @@ public class ZRRequestResult {
 	protected byte resultStatus;
 	protected String reqId;
 	protected String logContent;
+	protected Map<String, String> flags;
 	protected Throwable error;
 
 	public String getVersion() {
@@ -73,6 +76,14 @@ public class ZRRequestResult {
 
 	public void setLogContent(String logContent) {
 		this.logContent = logContent;
+	}
+
+	public Map<String, String> getFlags() {
+		return flags;
+	}
+
+	public void setFlags(Map<String, String> flags) {
+		this.flags = flags;
 	}
 
 	public Throwable getError() {
