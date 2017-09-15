@@ -2,7 +2,7 @@ package zr.monitor.bean.info;
 
 import java.util.List;
 
-public class ZRMachineInfo {
+public class ZRMachineInfo implements Comparable<ZRMachineInfo> {
 	protected String machineIp;
 	protected String cpuName;
 	protected int physicalProcessNum;
@@ -74,6 +74,11 @@ public class ZRMachineInfo {
 
 	public void setDisks(List<ZRDiskInfo> disks) {
 		this.disks = disks;
+	}
+
+	@Override
+	public int compareTo(ZRMachineInfo o) {
+		return machineIp.compareTo(o.machineIp);
 	}
 
 }

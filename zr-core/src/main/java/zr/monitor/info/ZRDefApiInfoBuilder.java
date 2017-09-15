@@ -6,11 +6,9 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import v.server.helper.ClassHelper;
 import zr.monitor.annotation.ZRAuthor;
@@ -20,21 +18,19 @@ import zr.monitor.annotation.ZRDescription;
 import zr.monitor.annotation.ZRFilter;
 import zr.monitor.annotation.ZRRequiedParam;
 import zr.monitor.bean.info.ZRApiInfo;
-import zr.monitor.bean.info.ZRAuthorityInfo;
 import zr.monitor.bean.info.ZRParamInfo;
 
 public class ZRDefApiInfoBuilder implements ZRApiInfoBuilder {
 	public static final ZRDefApiInfoBuilder INSTANCE = new ZRDefApiInfoBuilder();
 
 	@Override
-	public final ZRApiInfo buildApiInfo(String methodName, String version, Method method) {
+	public final ZRApiInfo buildApiInfo(String module, String methodName, String version, Method method) {
 		ZRApiInfo apiInfo = createApiInfo();
-		setBaseInfo(methodName, version, method, apiInfo);
+		setBaseInfo(module, methodName, version, method, apiInfo);
 		LinkedHashMap<String, ZRParamInfo> paramsMap = new LinkedHashMap<>();
 		getZRRequiedParams(method, paramsMap);
 		getMethodParams(method, paramsMap);
-		ZRParamInfo[] params = paramsMap.values().toArray(new ZRParamInfo[paramsMap.size()]);
-		apiInfo.setParams(params);
+		apiInfo.setParams(new ArrayList<>(paramsMap.values()));
 		return apiInfo;
 	}
 
@@ -42,7 +38,8 @@ public class ZRDefApiInfoBuilder implements ZRApiInfoBuilder {
 		return new ZRApiInfo();
 	}
 
-	protected void setBaseInfo(String methodName, String version, Method method, ZRApiInfo apiInfo) {
+	protected void setBaseInfo(String module, String methodName, String version, Method method, ZRApiInfo apiInfo) {
+		apiInfo.setModule(module);
 		apiInfo.setVersion(version);
 		apiInfo.setMethodName(methodName);
 		apiInfo.setReturnType(method.getReturnType().getSimpleName());
@@ -103,26 +100,18 @@ public class ZRDefApiInfoBuilder implements ZRApiInfoBuilder {
 		}
 	}
 
-	private static final ZRAuthorityInfo[] getAuthoritys(Method method) {
-		Set<String> set = new HashSet<>();
-
-		getAuthoritys(method.getDeclaringClass().getAnnotation(ZRAuthority.class), set);
-		getAuthoritys(method.getAnnotation(ZRAuthority.class), set);
-
-		List<ZRAuthorityInfo> hr = new ArrayList<>(set.size());
-		for (String e : set) {
-			ZRAuthorityInfo info = ZRAuthorityInfo.parse(e);
-			if (info != null)
-				hr.add(info);
-		}
-		return hr.toArray(new ZRAuthorityInfo[hr.size()]);
+	private static final List<String> getAuthoritys(Method method) {
+		Map<String, Void> hr = new LinkedHashMap<>();
+		getAuthoritys(method.getDeclaringClass().getAnnotation(ZRAuthority.class), hr);
+		getAuthoritys(method.getAnnotation(ZRAuthority.class), hr);
+		return new ArrayList<>(hr.keySet());
 	}
 
-	private static final void getAuthoritys(ZRAuthority authority, Set<String> set) {
+	private static final void getAuthoritys(ZRAuthority authority, Map<String, Void> hr) {
 		if (authority == null)
 			return;
 		for (String e : authority.values())
-			set.add(e);
+			hr.put(e, null);
 	}
 
 	public static final boolean isBaseType(Class<?> clazz) {

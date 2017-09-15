@@ -12,7 +12,7 @@ import v.common.helper.RandomHelper;
 import v.common.unit.VThreadLoop;
 import zr.monitor.info.ZRInfoMgr;
 
-public class ZRServerCluster extends ZRAbsCluster {
+public class ZRServerCluster extends ZRCluster {
 
 	protected final ZRInfoMgr infoMgr;
 	protected final VThreadLoop loop;

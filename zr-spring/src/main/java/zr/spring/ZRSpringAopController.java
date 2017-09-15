@@ -26,9 +26,9 @@ public class ZRSpringAopController implements ApplicationContextAware, Initializ
 
 	}
 
-	@Around("execution(* ..*Controller.*(..))")
+	@Around("execution(* *..*Controller.*(..))")
 	public Object execute(ProceedingJoinPoint jp) throws Throwable {
 		center.execute(invoker, method, remoteIp, request, response);
 	}
-	
+
 }

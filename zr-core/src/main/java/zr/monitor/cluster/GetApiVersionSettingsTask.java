@@ -18,7 +18,7 @@ public class GetApiVersionSettingsTask implements Runnable {
 	public void run() {
 		ZKER zker = cluster.zker;
 		ZRInfoMgr infoMgr = cluster.infoMgr;
-		Map<String, String> versionMap = zker.getChildren(ZRServerCluster.ZR_API_VERSION_SETTINGS);
+		Map<String, String> versionMap = zker.getChildren(ZRCluster.ZR_API_VERSION_SETTINGS);
 		for (String s : versionMap.values()) {
 			ZRApiVersionSettings settings = ZRMonitorUtil.jsonToObj(s, ZRApiVersionSettings.class);
 			if (settings != null)

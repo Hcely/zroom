@@ -11,7 +11,7 @@ public class GetParamsTask implements Runnable {
 
 	@Override
 	public void run() {
-		Map<String, String> params = cluster.zker.getChildren(ZRServerCluster.ZR_PARAM);
+		Map<String, String> params = cluster.zker.getChildren(ZRCluster.ZR_PARAM);
 		ZRParamUtil0.setParams0(params);
 	}
 }

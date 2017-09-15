@@ -1,7 +1,6 @@
 package zr.monitor.method;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -13,7 +12,6 @@ import java.util.Map;
 import v.Clearable;
 import v.common.unit.DefEnumeration;
 import zr.monitor.ZRRequestFilter;
-import zr.monitor.annotation.ZRFilter;
 import zr.monitor.bean.info.ZRApiInfo;
 import zr.monitor.info.ZRInfoMgr;
 import zr.monitor.info.ZRMethodSettings;
@@ -82,36 +80,16 @@ public class ZRMethodMgr implements Clearable {
 
 	private ZRMethod createZRMethod(Method method) {
 		ZRApiInfo info = infoMgr.addGetApiInfo(method);
-		ZRMethodSettings settings = infoMgr.getApiSettings(info.getMethodName());
+		ZRMethodSettings settings = infoMgr.getApiSettings(info.getModule(), info.getMethodName());
 		ZRMethodVersionSettings versionSettings = infoMgr.getApiVersionSettings(info.getMethodName(),
 				info.getVersion());
-		ZRRequestFilter[] filters = getFilters(method);
+		ZRRequestFilter[] filters = this.filters.getFilters(method);
 		ZRMethod m = new ZRMethod(method, info, settings, versionSettings, filters);
 		methodMap0.put(info.getMethodName(), m);
 		methodMap1.put(method, m);
 		methods.add(m);
 		listener.onMethod(m);
 		return m;
-	}
-
-	private ZRRequestFilter[] getFilters(Method method) {
-		ZRFilter anno = method.getDeclaringClass().getAnnotation(ZRFilter.class);
-		List<Class<?>> list = new ArrayList<>();
-		if (anno != null)
-			for (Class<?> e : anno.value())
-				if (!list.contains(e))
-					list.add(e);
-		anno = method.getAnnotation(ZRFilter.class);
-		if (anno != null)
-			for (Class<?> e : anno.value())
-				if (!list.contains(e))
-					list.add(e);
-		ZRRequestFilter[] filters = new ZRRequestFilter[list.size()];
-		int i = 0;
-		for (Class<?> e : list)
-			filters[i++] = this.filters.getFilter(e);
-		return filters;
-
 	}
 
 }

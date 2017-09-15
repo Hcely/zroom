@@ -1,10 +1,9 @@
 package zr.monitor.cluster;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import zr.monitor.bean.info.ZRApiSettings;
-import zr.monitor.info.ZRInfoMgr;
-import zr.monitor.util.ZKER;
 import zr.monitor.util.ZRMonitorUtil;
 
 public class GetApiSettingsTask implements Runnable {
@@ -16,14 +15,14 @@ public class GetApiSettingsTask implements Runnable {
 
 	@Override
 	public void run() {
-		ZKER zker = cluster.zker;
-		ZRInfoMgr infoMgr = cluster.infoMgr;
-		Map<String, String> apiMap = zker.getChildren(ZRServerCluster.ZR_API_SETTINGS);
+		Map<String, String> apiMap = cluster.zker.getChildren(ZRCluster.ZR_API_SETTINGS);
+		Map<String, ZRApiSettings> map = new HashMap<>();
 		for (String s : apiMap.values()) {
 			ZRApiSettings settings = ZRMonitorUtil.jsonToObj(s, ZRApiSettings.class);
 			if (settings != null)
-				infoMgr.putApiSettings(settings);
+				map.put(settings.getPackageName(), settings);
 		}
+		cluster.infoMgr.putApiSettings(map);
 	}
 
 }

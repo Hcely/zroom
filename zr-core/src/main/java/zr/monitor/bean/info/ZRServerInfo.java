@@ -2,7 +2,7 @@ package zr.monitor.bean.info;
 
 import java.util.List;
 
-public class ZRServerInfo {
+public class ZRServerInfo implements Comparable<ZRServerInfo> {
 	protected String machineIp;
 	protected String serverId;
 	protected String jvmVersion;
@@ -74,6 +74,14 @@ public class ZRServerInfo {
 
 	public void setArgs(List<String> args) {
 		this.args = args;
+	}
+
+	@Override
+	public int compareTo(ZRServerInfo o) {
+		int i = machineIp.compareTo(o.machineIp);
+		if (i != 0)
+			return i;
+		return serverId.compareTo(o.serverId);
 	}
 
 }

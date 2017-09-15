@@ -4,7 +4,7 @@ import v.Initializable;
 import v.common.unit.VStatusObject;
 import zr.monitor.util.ZKER;
 
-public abstract class ZRAbsCluster extends VStatusObject implements Initializable {
+public abstract class ZRCluster extends VStatusObject implements Initializable {
 	/**
 	 * 系统参数信息
 	 */
@@ -22,6 +22,10 @@ public abstract class ZRAbsCluster extends VStatusObject implements Initializabl
 	 * 记录具体版本api开关,权限
 	 */
 	protected static final String ZR_API_VERSION_SETTINGS = "/zr/api/version/settings";
+	/**
+	 * 记录服务器设备句柄
+	 */
+	protected static final String ZR_MACHINE_HANDLER = "/zr/machine/handler";
 	/**
 	 * 记录服务器设备状态信息
 	 */
@@ -51,7 +55,7 @@ public abstract class ZRAbsCluster extends VStatusObject implements Initializabl
 
 	protected final ZKER zker;
 
-	public ZRAbsCluster() {
+	public ZRCluster() {
 		this.zker = new ZKER();
 	}
 
@@ -75,7 +79,8 @@ public abstract class ZRAbsCluster extends VStatusObject implements Initializabl
 		}
 	}
 
-	protected abstract void init0();
+	protected void init0() {
+	}
 
 	@Override
 	public final void destory() {
@@ -89,6 +94,7 @@ public abstract class ZRAbsCluster extends VStatusObject implements Initializabl
 		}
 	}
 
-	protected abstract void destory0();
+	protected void destory0() {
+	}
 
 }

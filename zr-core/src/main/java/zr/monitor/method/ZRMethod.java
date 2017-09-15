@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import zr.monitor.ZRRequestFilter;
 import zr.monitor.bean.info.ZRApiInfo;
-import zr.monitor.bean.info.ZRAuthorityInfo;
+import zr.monitor.info.ZRDomainAuthority;
 import zr.monitor.info.ZRMethodSettings;
 import zr.monitor.info.ZRMethodVersionSettings;
 
@@ -17,13 +17,11 @@ public class ZRMethod {
 		return incNum++;
 	}
 
-	private static final ZRRequestFilter[] EMPTY = {};
-
 	protected final int id = getNumId();
 	protected final String version;
 	protected final String methodName;
 	protected final Method method;
-	protected final ZRAuthorityInfo[] defAuthoritys;
+	protected final ZRDomainAuthority[] defAuthoritys;
 	protected final ZRMethodSettings settings;
 	protected final ZRMethodVersionSettings versionSettings;
 	protected final AtomicLong count;
@@ -35,7 +33,7 @@ public class ZRMethod {
 		this.version = info.getVersion();
 		this.methodName = info.getMethodName();
 		this.method = method;
-		this.defAuthoritys = info.getDefAuthoritys();
+		this.defAuthoritys = ZRDomainAuthority.parseList(info.getDefAuthoritys());
 		this.settings = settings;
 		this.versionSettings = versionSettings;
 		this.count = new AtomicLong(0);
@@ -86,28 +84,24 @@ public class ZRMethod {
 		return count.incrementAndGet();
 	}
 
-	public ZRAuthorityInfo[] getAuthoritys() {
-		ZRAuthorityInfo[] hr = versionSettings.getAuthoritys();
+	public ZRDomainAuthority[] getAuthoritys() {
+		ZRDomainAuthority[] hr = versionSettings.getAuthoritys();
 		if (hr != null)
-			if (hr.length > 0)
-				return hr;
-			else
-				return defAuthoritys;
-		hr = settings.getAuthoritys();
-		if (hr != null && hr.length > 0)
+			return hr.length > 0 ? hr : defAuthoritys;
+		if ((hr = settings.getAuthoritys()) != null && hr.length > 0)
 			return hr;
 		return defAuthoritys;
 	}
 
-	public ZRAuthorityInfo[] getApiAuthoritys() {
+	public ZRDomainAuthority[] getApiAuthoritys() {
 		return settings.getAuthoritys();
 	}
 
-	public ZRAuthorityInfo[] getApiVersionAuthoritys() {
+	public ZRDomainAuthority[] getApiVersionAuthoritys() {
 		return versionSettings.getAuthoritys();
 	}
 
-	public ZRAuthorityInfo[] getDefAuthoritys() {
+	public ZRDomainAuthority[] getDefAuthoritys() {
 		return defAuthoritys;
 	}
 
@@ -116,7 +110,7 @@ public class ZRMethod {
 	}
 
 	public void setFilters(ZRRequestFilter[] filters) {
-		this.filters = filters == null ? EMPTY : filters;
+		this.filters = filters == null ? ZRFilters.EMPTY : filters;
 	}
 
 }

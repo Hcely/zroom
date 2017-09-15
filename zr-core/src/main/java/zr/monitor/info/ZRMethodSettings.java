@@ -1,17 +1,23 @@
 package zr.monitor.info;
 
-import zr.monitor.bean.info.ZRAuthorityInfo;
-
 public class ZRMethodSettings {
-	protected volatile boolean open;
-	protected volatile ZRAuthorityInfo[] authoritys;
+	protected final String module;
+	protected final String methodName;
 
-	void set(boolean open, ZRAuthorityInfo[] authoritys) {
+	protected volatile boolean open;
+	protected volatile ZRDomainAuthority[] authoritys;
+
+	ZRMethodSettings(String module, String methodName) {
+		this.module = module;
+		this.methodName = methodName;
+	}
+
+	void set(boolean open, ZRDomainAuthority[] authoritys) {
 		this.open = open;
 		this.authoritys = authoritys;
 	}
 
-	public ZRAuthorityInfo[] getAuthoritys() {
+	public ZRDomainAuthority[] getAuthoritys() {
 		return authoritys;
 	}
 

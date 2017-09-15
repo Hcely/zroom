@@ -1,15 +1,30 @@
 package zr.monitor.bean.info;
 
-public class ZRApiInfo {
+import java.util.List;
+
+import zr.monitor.util.ZRMonitorUtil;
+
+public class ZRApiInfo implements Comparable<ZRApiInfo> {
+	protected String module;
 	protected String version;
 	protected String methodName;
 	protected String returnType;
-	protected ZRParamInfo[] params;
+	protected List<ZRParamInfo> params;
 	protected String author;
 	protected String date;
 	protected String name;
 	protected String description;
-	protected ZRAuthorityInfo[] defAuthoritys;
+	protected List<String> defAuthoritys;
+	protected List<String> uris;
+	protected List<String> methods;
+
+	public String getModule() {
+		return module;
+	}
+
+	public void setModule(String module) {
+		this.module = module;
+	}
 
 	public String getVersion() {
 		return version;
@@ -35,11 +50,11 @@ public class ZRApiInfo {
 		this.returnType = returnType;
 	}
 
-	public ZRParamInfo[] getParams() {
+	public List<ZRParamInfo> getParams() {
 		return params;
 	}
 
-	public void setParams(ZRParamInfo[] params) {
+	public void setParams(List<ZRParamInfo> params) {
 		this.params = params;
 	}
 
@@ -75,12 +90,36 @@ public class ZRApiInfo {
 		this.description = description;
 	}
 
-	public ZRAuthorityInfo[] getDefAuthoritys() {
+	public List<String> getDefAuthoritys() {
 		return defAuthoritys;
 	}
 
-	public void setDefAuthoritys(ZRAuthorityInfo[] defAuthoritys) {
+	public void setDefAuthoritys(List<String> defAuthoritys) {
 		this.defAuthoritys = defAuthoritys;
+	}
+
+	public List<String> getUris() {
+		return uris;
+	}
+
+	public void setUris(List<String> uris) {
+		this.uris = uris;
+	}
+
+	public List<String> getMethods() {
+		return methods;
+	}
+
+	public void setMethods(List<String> methods) {
+		this.methods = methods;
+	}
+
+	@Override
+	public int compareTo(ZRApiInfo o) {
+		int i = methodName.compareTo(o.methodName);
+		if (i != 0)
+			return i;
+		return ZRMonitorUtil.compareVersion(version, o.version);
 	}
 
 }

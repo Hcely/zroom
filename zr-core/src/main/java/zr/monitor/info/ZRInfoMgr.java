@@ -14,10 +14,8 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import v.Clearable;
-import v.common.helper.StrUtil;
 import v.common.unit.DefEnumeration;
 import v.server.unit.SysStatusInfo;
-import zr.monitor.annotation.ZRVersion;
 import zr.monitor.bean.info.ZRApiInfo;
 import zr.monitor.bean.info.ZRApiSettings;
 import zr.monitor.bean.info.ZRApiVersionSettings;
@@ -25,6 +23,7 @@ import zr.monitor.bean.info.ZRDiskInfo;
 import zr.monitor.bean.info.ZRMachineInfo;
 import zr.monitor.bean.info.ZRServerInfo;
 import zr.monitor.bean.info.ZRServiceInfo;
+import zr.monitor.util.ZRMethodUtil;
 import zr.monitor.util.ZRMonitorUtil;
 
 public class ZRInfoMgr implements Clearable {
@@ -39,6 +38,7 @@ public class ZRInfoMgr implements Clearable {
 	protected final Map<String, ZRMethodVersionSettings> apiVersionSettingsMap;
 	protected final Map<String, ZRApiInfo> apiInfoMap;
 	protected final List<ZRApiInfo> apiInfos;
+	protected final List<String> apiNames;
 
 	protected volatile boolean machineOpen;
 	protected volatile boolean serverOpen;
@@ -60,8 +60,8 @@ public class ZRInfoMgr implements Clearable {
 		this.apiVersionSettingsMap = new HashMap<>();
 		this.apiInfoMap = new HashMap<>();
 		this.apiInfos = new LinkedList<>();
-
-		this.serviceInfo = new ZRServiceInfo(machineIp, serverId, serviceId, apiInfos);
+		this.apiNames = new LinkedList<>();
+		this.serviceInfo = new ZRServiceInfo(machineIp, serverId, serviceId, apiNames);
 
 		this.machineOpen = true;
 		this.serverOpen = true;
@@ -98,40 +98,48 @@ public class ZRInfoMgr implements Clearable {
 		apiVersionSettingsMap.clear();
 		apiInfoMap.clear();
 		apiInfos.clear();
+		apiNames.clear();
 	}
 
 	public ZRApiInfo addGetApiInfo(Method method) {
-		String methodName = getMethodName(method);
-		String version = getMethodVersion(method);
-		String key = ZRMonitorUtil.getApiKey(methodName, version);
-		ZRApiInfo info = apiInfoMap.get(key);
+		String methodName = ZRMethodUtil.getMethodName(method);
+		String version = ZRMethodUtil.getMethodVersion(method);
+		String fullName = ZRMethodUtil.getMethodFullName(methodName, version);
+		ZRApiInfo info = apiInfoMap.get(fullName);
 		if (info == null)
 			synchronized (apiInfoMap) {
 				if ((info = apiInfoMap.get(method)) == null) {
-					info = builder.buildApiInfo(methodName, version, method);
-					apiInfoMap.put(key, info);
+					String module = ZRMethodUtil.getMethodModule(method);
+					info = builder.buildApiInfo(module, methodName, version, method);
+					apiInfoMap.put(fullName, info);
 					apiInfos.add(info);
+					apiNames.add(fullName);
 				}
 			}
 		return info;
 	}
 
-	public ZRMethodSettings getApiSettings(String methodName) {
+	public ZRMethodSettings getApiSettings(String module, String methodName) {
 		ZRMethodSettings a = apiSettingsMap.get(methodName);
 		if (a == null)
 			synchronized (apiSettingsMap) {
 				if ((a = apiSettingsMap.get(methodName)) == null)
-					apiSettingsMap.put(methodName, a = new ZRMethodSettings());
+					apiSettingsMap.put(methodName, a = new ZRMethodSettings(module, methodName));
 			}
 		return a;
 	}
 
-	public void putApiSettings(ZRApiSettings settings) {
-		getApiSettings(settings.getMethodName()).set(settings.isOpen(), settings.getAuthoritys());
+	public void putApiSettings(Map<String, ZRApiSettings> settingsMap) {
+		for (ZRMethodSettings e : apiSettingsMap.values()) {
+			ZRApiSettings0 s = new ZRApiSettings0();
+			s.set(settingsMap.get(e.module));
+			s.set(settingsMap.get(e.methodName));
+			e.set(s.open, s.toAuthoritys());
+		}
 	}
 
 	public ZRMethodVersionSettings getApiVersionSettings(String methodName, String version) {
-		String key = ZRMonitorUtil.getApiKey(methodName, version);
+		String key = ZRMethodUtil.getMethodFullName(methodName, version);
 		ZRMethodVersionSettings sw = apiVersionSettingsMap.get(key);
 		if (sw == null)
 			synchronized (apiVersionSettingsMap) {
@@ -143,10 +151,10 @@ public class ZRInfoMgr implements Clearable {
 
 	public void putApiVersionSettings(ZRApiVersionSettings settings) {
 		getApiVersionSettings(settings.getMethodName(), settings.getVersion()).set(settings.isOpen(),
-				settings.getAuthoritys(), settings.getTopology());
+				ZRDomainAuthority.parseList(settings.getAuthoritys()), settings.getTopology());
 	}
 
-	public Enumeration<ZRApiInfo> infos() {
+	public Enumeration<ZRApiInfo> apiInfoEnum() {
 		return new DefEnumeration<>(apiInfos.iterator());
 	}
 
@@ -200,19 +208,6 @@ public class ZRInfoMgr implements Clearable {
 
 	public void setMachineHandler(boolean machineHandler) {
 		this.machineHandler = machineHandler;
-	}
-
-	private static final String getMethodName(Method method) {
-		String clazzName = method.getDeclaringClass().getName();
-		String methodName = method.getName();
-		StringBuilder sb = new StringBuilder(clazzName.length() + methodName.length() + 3);
-		sb.append(clazzName).append('.').append(methodName).append("()");
-		return StrUtil.sbToString(sb);
-	}
-
-	private static final String getMethodVersion(Method method) {
-		ZRVersion version = method.getAnnotation(ZRVersion.class);
-		return version == null ? "0.0.0" : version.value();
 	}
 
 	private static final ZRMachineInfo getMachineInfo(String machineIp) {
