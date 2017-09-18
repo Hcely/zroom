@@ -35,7 +35,7 @@ final class InitializeTask implements Runnable {
 
 	private void initParams(ZKER zker) {
 		Map<String, String> params = zker.getChildren(ZRCluster.ZR_PARAM);
-		ZRParamUtil0.setParams0(params);
+		GetParamsTask.setParams0(params);
 	}
 
 	private void initSwitch(ZKER zker, ZRInfoMgr infoMgr) {

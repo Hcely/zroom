@@ -48,7 +48,7 @@ public class ZRInfoMgr implements Clearable {
 	protected volatile boolean machineHandler;
 
 	public ZRInfoMgr(ZRApiInfoBuilder builder) {
-		this.builder = builder == null ? ZRDefApiInfoBuilder.INSTANCE : builder;
+		this.builder = builder == null ? new ZRDefApiInfoBuilder() : builder;
 		this.machineIp = ZRMonitorUtil.getMachineIp();
 		this.serverId = ZRMonitorUtil.getServerId();
 		this.serviceId = ZRMonitorUtil.getServiceId();

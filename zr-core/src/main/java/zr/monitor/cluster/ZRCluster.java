@@ -1,10 +1,9 @@
 package zr.monitor.cluster;
 
-import v.Initializable;
-import v.common.unit.VStatusObject;
+import v.common.unit.VSimpleStatusObject;
 import zr.monitor.util.ZKER;
 
-public abstract class ZRCluster extends VStatusObject implements Initializable {
+public abstract class ZRCluster extends VSimpleStatusObject {
 	/**
 	 * 系统参数信息
 	 */
@@ -68,30 +67,18 @@ public abstract class ZRCluster extends VStatusObject implements Initializable {
 	}
 
 	@Override
-	public final void init() {
-		if (!initing(this))
-			return;
-		try {
-			zker.init();
-			init0();
-		} finally {
-			inited(this);
-		}
-	}
-
-	protected void init0() {
+	protected final void _init0() {
+		zker.init();
+		init0();
 	}
 
 	@Override
-	public final void destory() {
-		if (!destorying(this))
-			return;
-		try {
-			zker.destory();
-			destory0();
-		} finally {
-			destoryed(this);
-		}
+	protected final void _destory0() {
+		zker.destory();
+		destory0();
+	}
+
+	protected void init0() {
 	}
 
 	protected void destory0() {

@@ -21,8 +21,6 @@ import zr.monitor.bean.info.ZRApiInfo;
 import zr.monitor.bean.info.ZRParamInfo;
 
 public class ZRDefApiInfoBuilder implements ZRApiInfoBuilder {
-	public static final ZRDefApiInfoBuilder INSTANCE = new ZRDefApiInfoBuilder();
-
 	@Override
 	public final ZRApiInfo buildApiInfo(String module, String methodName, String version, Method method) {
 		ZRApiInfo apiInfo = createApiInfo();
@@ -57,7 +55,7 @@ public class ZRDefApiInfoBuilder implements ZRApiInfoBuilder {
 		apiInfo.setDefAuthoritys(getAuthoritys(method));
 	}
 
-	protected void getZRRequiedParams(Method method, LinkedHashMap<String, ZRParamInfo> hr) {
+	protected final void getZRRequiedParams(Method method, LinkedHashMap<String, ZRParamInfo> hr) {
 		ZRFilter anno = method.getDeclaringClass().getAnnotation(ZRFilter.class);
 		getZRRequiedParams(anno, hr);
 		anno = method.getAnnotation(ZRFilter.class);
@@ -77,26 +75,33 @@ public class ZRDefApiInfoBuilder implements ZRApiInfoBuilder {
 		}
 	}
 
-	protected void getMethodParams(Method method, LinkedHashMap<String, ZRParamInfo> hr) {
+	protected final void getMethodParams(Method method, LinkedHashMap<String, ZRParamInfo> hr) {
 		Parameter[] params = method.getParameters();
 		for (Parameter e : params)
 			parseParams(e, hr);
 	}
 
-	protected void parseParams(Parameter param, LinkedHashMap<String, ZRParamInfo> hr) {
+	protected final void parseParams(Parameter param, LinkedHashMap<String, ZRParamInfo> hr) {
 		Class<?> clazz = param.getType();
 		if (isBaseType(clazz)) {
-			ZRParamInfo info = ZRParamInfo.parse(param);
+			ZRParamInfo info = parseParam(param);
 			hr.put(info.getName(), info);
-		} else {
-			Map<String, Field> map = ClassHelper.getAllFields(clazz);
-			for (Field f : map.values()) {
-				int mod = f.getModifiers();
-				if (Modifier.isFinal(mod) || Modifier.isStatic(mod))
-					continue;
-				ZRParamInfo info = ZRParamInfo.parse(f);
-				hr.put(info.getName(), info);
-			}
+		} else  
+			parseParams(clazz, hr);
+	}
+
+	protected ZRParamInfo parseParam(Parameter param) {
+		return ZRParamInfo.parse(param);
+	}
+
+	protected void parseParams(Class<?> clazz, LinkedHashMap<String, ZRParamInfo> hr) {
+		Map<String, Field> map = ClassHelper.getAllFields(clazz);
+		for (Field f : map.values()) {
+			int mod = f.getModifiers();
+			if (Modifier.isFinal(mod) || Modifier.isStatic(mod))
+				continue;
+			ZRParamInfo info = ZRParamInfo.parse(f);
+			hr.put(info.getName(), info);
 		}
 	}
 

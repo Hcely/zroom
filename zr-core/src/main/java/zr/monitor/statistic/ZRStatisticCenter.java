@@ -1,13 +1,12 @@
 package zr.monitor.statistic;
 
-import v.Initializable;
-import v.common.unit.VStatusObject;
-import v.common.unit.VThreadLoop;
-import v.common.unit.VThreadLoop.VTimerTask;
+import v.common.unit.VSimpleStatusObject;
+import v.common.unit.thread.VThreadLoop;
+import v.common.unit.thread.VThreadLoop.VTimerTask;
 import v.common.util.ProductQueue;
 import zr.monitor.info.ZRInfoMgr;
 
-public class ZRStatisticCenter extends VStatusObject implements Initializable {
+public class ZRStatisticCenter extends VSimpleStatusObject {
 	protected final ZRInfoMgr infoMgr;
 	protected final VThreadLoop loop;
 	protected final ZRStatisticWorker[] workers;
@@ -30,17 +29,11 @@ public class ZRStatisticCenter extends VStatusObject implements Initializable {
 	}
 
 	@Override
-	public void init() {
-		if (!initing(this))
-			return;
-		try {
-			for (ZRStatisticWorker worker : workers)
-				worker.start();
-			statusTask = loop.schedule(new ZRStatusTimerTask(this), 15000, 60000);
-			countTask = loop.schedule(new ZRApiCountTimerTask(this), 60000, 60000);
-		} finally {
-			inited(this);
-		}
+	protected final void _init0() {
+		for (ZRStatisticWorker worker : workers)
+			worker.start();
+		statusTask = loop.schedule(new ZRStatusTimerTask(this), 15000, 60000);
+		countTask = loop.schedule(new ZRApiCountTimerTask(this), 60000, 60000);
 	}
 
 	public ZRStatistic product() {
@@ -55,16 +48,10 @@ public class ZRStatisticCenter extends VStatusObject implements Initializable {
 	}
 
 	@Override
-	public void destory() {
-		if (!destorying(this))
-			return;
-		try {
-			queue.destory();
-			statusTask.cancel();
-			countTask.cancel();
-		} finally {
-			destoryed(this);
-		}
+	protected void _destory0() {
+		queue.destory();
+		statusTask.cancel();
+		countTask.cancel();
 	}
 
 }

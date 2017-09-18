@@ -1,4 +1,4 @@
-package zr.monitor.cluster;
+package zr.monitor.cluster.client;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,6 +19,7 @@ import zr.monitor.bean.info.vo.ZRMachineInfoVo;
 import zr.monitor.bean.info.vo.ZRModuleVo;
 import zr.monitor.bean.info.vo.ZRServerInfoVo;
 import zr.monitor.bean.info.vo.ZRServiceInfoVo;
+import zr.monitor.cluster.ZRCluster;
 import zr.monitor.util.ZRMethodUtil;
 import zr.monitor.util.ZRMonitorUtil;
 

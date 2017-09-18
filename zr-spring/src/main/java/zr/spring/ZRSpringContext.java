@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-class ZRSpringUtil {
+public class ZRSpringContext {
 	public static final HttpServletRequest curRequest() {
 		if (ZRMultipartResolver.instance == null)
 			return curRawRequest();
@@ -23,4 +23,5 @@ class ZRSpringUtil {
 	public static final HttpServletResponse curResponse() {
 		return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
 	}
+
 }

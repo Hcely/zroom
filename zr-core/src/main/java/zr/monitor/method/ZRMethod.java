@@ -11,13 +11,15 @@ import zr.monitor.info.ZRMethodVersionSettings;
 
 @SuppressWarnings("unchecked")
 public class ZRMethod {
+	public static final ZRMethod NULL = new ZRMethod();
+
 	private static int incNum = 0;
 
 	private static final synchronized int getNumId() {
 		return incNum++;
 	}
 
-	protected final int id = getNumId();
+	protected final int id;
 	protected final String version;
 	protected final String methodName;
 	protected final Method method;
@@ -28,8 +30,20 @@ public class ZRMethod {
 	protected volatile ZRRequestFilter[] filters;
 	protected Object flag0, flag1;
 
+	private ZRMethod() {
+		this.id = -1;
+		this.version = null;
+		this.methodName = null;
+		this.method = null;
+		this.defAuthoritys = null;
+		this.settings = null;
+		this.versionSettings = null;
+		this.count = null;
+	}
+
 	ZRMethod(Method method, ZRApiInfo info, ZRMethodSettings settings, ZRMethodVersionSettings versionSettings,
 			ZRRequestFilter[] filters) {
+		this.id = getNumId();
 		this.version = info.getVersion();
 		this.methodName = info.getMethodName();
 		this.method = method;

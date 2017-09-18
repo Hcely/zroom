@@ -218,17 +218,23 @@ public class ZKER implements Destoryable {
 
 	private static final String getPath(String path) {
 		int len = path.length();
+		if (len == 0)
+			return "/";
 		boolean b0 = path.charAt(0) == '/';
 		boolean b1 = path.charAt(len - 1) != '/';
 		if (b0 && b1)
 			return path;
-		StringBuilder sb = new StringBuilder(len + 1);
-		if (b0)
+		if (!b0)
+			++len;
+		if (b1)
+			--len;
+		StringBuilder sb = new StringBuilder(len);
+		if (!b0)
 			sb.append('/');
 		if (b1)
 			sb.append(path);
 		else
-			sb.append(path, 0, len - 1);
+			StrUtil.appendValue(sb, path, 0, len - 1);
 		return StrUtil.sbToString(sb);
 	}
 

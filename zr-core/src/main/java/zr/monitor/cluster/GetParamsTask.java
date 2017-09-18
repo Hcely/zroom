@@ -2,7 +2,9 @@ package zr.monitor.cluster;
 
 import java.util.Map;
 
-public class GetParamsTask implements Runnable {
+import zr.monitor.ZRParamUtil;
+
+public class GetParamsTask extends ZRParamUtil implements Runnable {
 	protected final ZRServerCluster cluster;
 
 	public GetParamsTask(ZRServerCluster cluster) {
@@ -12,6 +14,11 @@ public class GetParamsTask implements Runnable {
 	@Override
 	public void run() {
 		Map<String, String> params = cluster.zker.getChildren(ZRCluster.ZR_PARAM);
-		ZRParamUtil0.setParams0(params);
+		setParams0(params);
 	}
+
+	static final void setParams0(Map<String, String> params) {
+		ZRParamUtil.setParams(params);
+	}
+
 }

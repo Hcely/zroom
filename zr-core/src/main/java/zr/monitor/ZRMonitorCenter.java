@@ -8,10 +8,9 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import v.Initializable;
 import v.common.helper.ParseUtil;
-import v.common.unit.VStatusObject;
-import v.common.unit.VThreadLoop;
+import v.common.unit.VSimpleStatusObject;
+import v.common.unit.thread.VThreadLoop;
 import zr.monitor.bean.result.ZRTopology;
 import zr.monitor.cluster.ZRServerCluster;
 import zr.monitor.info.ZRApiInfoBuilder;
@@ -25,7 +24,7 @@ import zr.monitor.statistic.ZRStatisticHandler;
 import zr.monitor.util.ZRMonitorUtil;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class ZRMonitorCenter extends VStatusObject implements Initializable {
+public class ZRMonitorCenter extends VSimpleStatusObject {
 	public static final String ZR_REQUEST_ID = "zr-req-id";
 	public static final String ZR_REQUEST_PREV_ID = "zr-prev-id";
 	public static final String ZR_REQUEST_SILK_ID = "zr-silk-id";
@@ -84,52 +83,44 @@ public class ZRMonitorCenter extends VStatusObject implements Initializable {
 	}
 
 	@Override
-	public void init() {
-		if (!initing(this))
-			return;
-		try {
-			loop = new VThreadLoop();
+	public void _init0() {
+		loop = new VThreadLoop();
 
-			infoMgr = new ZRInfoMgr(apiInfoBuilder);
-			methodMgr = new ZRMethodMgr(infoMgr, methodListener);
+		infoMgr = new ZRInfoMgr(apiInfoBuilder);
+		methodMgr = new ZRMethodMgr(infoMgr, methodListener);
 
-			statisticCenter = new ZRStatisticCenter(infoMgr, loop, workerNum, cacheSize, statisticHandler);
-			clusterServer = new ZRServerCluster(infoMgr, loop);
+		statisticCenter = new ZRStatisticCenter(infoMgr, loop, workerNum, cacheSize, statisticHandler);
+		clusterServer = new ZRServerCluster(infoMgr, loop);
 
-			methodMgr.addFilters(filters);
-			methodMgr.addMethods(methods);
+		methodMgr.addFilters(filters);
+		methodMgr.addMethods(methods);
 
-			loop.start();
-			statisticCenter.init();
-			clusterServer.init();
-		} finally {
-			inited(this);
-			ZRContext.zrCenter = this;
-			ZRContext.statisticCenter = statisticCenter;
-		}
+		loop.start();
+		statisticCenter.init();
+		clusterServer.init();
+
+		ZRContext.zrCenter = this;
+		ZRContext.statisticCenter = statisticCenter;
 	}
 
 	@Override
-	public void destory() {
-		if (!destorying(this))
-			return;
-		try {
-			statisticCenter.destory();
-			clusterServer.destory();
-			loop.destory();
+	protected void _destory0() {
+		statisticCenter.destory();
+		clusterServer.destory();
+		loop.destory();
 
-			infoMgr.clear();
-			methodMgr.clear();
-		} finally {
-			destoryed(this);
-		}
+		infoMgr.clear();
+		methodMgr.clear();
 	}
 
-	public Object execute(Object invoker, Method method, String remoteIp, HttpServletRequest request,
-			HttpServletResponse response) throws Throwable {
-		final ZRMethod zrm = methodMgr.getMethod(method);
-		if (zrm == null)
-			return handleNoMethod(invoker, request);
+	public ZRMethod getZRMethod(Method method) {
+		return methodMgr.getMethod(method);
+	}
+
+	public Object execute(final Object invoker, final ZRMethod zrm, final String remoteIp,
+			final HttpServletRequest request, final HttpServletResponse response) throws Throwable {
+		if (zrm == ZRMethod.NULL || zrm == null)
+			return executeNoMethod(invoker, request);
 		final ZRRequest zreq = ZRContext.getRequest(zrm, remoteIp, request, response);
 		try {
 			if (zrm.isOpen() && infoMgr.isOpen())
@@ -141,7 +132,7 @@ public class ZRMonitorCenter extends VStatusObject implements Initializable {
 		}
 	}
 
-	private final Object handleNoMethod(Object invoker, HttpServletRequest request) throws Throwable {
+	public final Object executeNoMethod(final Object invoker, final HttpServletRequest request) throws Throwable {
 		final ZRTopologyStack stack = checkTopology(request, System.currentTimeMillis());
 		byte resultStatus = ZRRequest.RESULT_OK;
 		try {

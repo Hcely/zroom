@@ -9,7 +9,7 @@ import org.apache.zookeeper.Watcher.Event.KeeperState;
 
 import v.common.helper.ParseUtil;
 import v.common.helper.RandomHelper;
-import v.common.unit.VThreadLoop;
+import v.common.unit.thread.VThreadLoop;
 import zr.monitor.info.ZRInfoMgr;
 
 public class ZRServerCluster extends ZRCluster {

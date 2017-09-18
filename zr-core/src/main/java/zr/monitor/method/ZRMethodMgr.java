@@ -29,8 +29,8 @@ public class ZRMethodMgr implements Clearable {
 		this.infoMgr = infoMgr;
 		this.filters = new ZRFilters();
 		this.listener = listener == null ? ZRMethodListener.DEF : listener;
-		this.methodMap0 = new HashMap<>();
-		this.methodMap1 = new IdentityHashMap<>();
+		this.methodMap0 = new HashMap<>(256);
+		this.methodMap1 = new IdentityHashMap<>(256);
 		this.methods = new LinkedList<>();
 	}
 

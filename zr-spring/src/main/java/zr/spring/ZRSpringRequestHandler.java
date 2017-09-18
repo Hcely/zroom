@@ -2,6 +2,7 @@ package zr.spring;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 
+import zr.monitor.ZRLogContent;
 import zr.monitor.ZRRequest;
 import zr.monitor.ZRRequestHandler;
 
@@ -34,14 +35,13 @@ final class ZRSpringRequestHandler implements ZRRequestHandler<ProceedingJoinPoi
 	}
 
 	@Override
-	public String onLog(ProceedingJoinPoint invoker, ZRRequest zreq) {
+	public Throwable onError(ProceedingJoinPoint invoker, ZRRequest zreq, boolean resultError) {
 		return null;
 	}
 
 	@Override
-	public Throwable onError(ProceedingJoinPoint invoker, ZRRequest zreq, boolean resultError) {
+	public void onLog(ProceedingJoinPoint invoker, ZRRequest zreq, ZRLogContent logHr) {
 
-		return null;
 	}
 
 }
