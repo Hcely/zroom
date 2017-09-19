@@ -156,9 +156,9 @@ public class ZRSpringUtil {
 		}
 	}
 
-	public static final Object getRawCGLibProxyObj(Object obj) {
-		Class<?> clazz = obj.getClass();
+	public static final Object getRawProxyObj(Object obj) {
 		try {
+			Class<?> clazz = obj.getClass();
 			if (isJdkProxy(clazz))
 				return getRawJdkProxy(clazz, obj);
 			else if (isCglibProxy(clazz))

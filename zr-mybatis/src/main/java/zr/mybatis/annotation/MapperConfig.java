@@ -18,4 +18,8 @@ public @interface MapperConfig {
 	public String table() default "";
 
 	public Ternary ignoreEmpty() default Ternary.UNKNOWN;
+
+	public Ternary insertAsMap() default Ternary.UNKNOWN;
+
+	public String[] fields() default { "*" };
 }

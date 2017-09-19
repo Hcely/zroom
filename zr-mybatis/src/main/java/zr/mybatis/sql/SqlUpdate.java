@@ -1,6 +1,6 @@
 package zr.mybatis.sql;
 
-public class SqlUpdate {
+public final class SqlUpdate {
 	protected final boolean raw;
 	protected final String key;
 	protected final Object value;

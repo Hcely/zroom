@@ -7,11 +7,9 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import v.common.unit.Ternary;
-
 @Documented
 @Retention(RUNTIME)
 @Target(FIELD)
-public @interface KeyColumn {
-	public Ternary sortAsc() default Ternary.UNKNOWN;
+public @interface SortColumn {
+	public boolean asc() default true;
 }
