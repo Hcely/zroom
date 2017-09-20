@@ -11,12 +11,14 @@ import zr.monitor.ZRMonitorCenter;
 import zr.monitor.ZRContext;
 import zr.monitor.ZRRequest;
 import zr.monitor.ZRTopologyStack;
+import zr.monitor.bean.result.ZRTopology;
 
 public class ZRDubboProviderFilter implements Filter {
 
 	@Override
 	public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-		ZRTopologyStack stack = checkTopology(invoker, invocation);
+		final ZRTopologyStack stack = checkTopology(invoker, invocation);
+		final ZRTopology topology = stack == null ? null : stack.curTopology();
 		Result result = null;
 		try {
 			result = invoker.invoke(invocation);
@@ -26,7 +28,7 @@ public class ZRDubboProviderFilter implements Filter {
 				byte resultStatus = ZRRequest.RESULT_OK;
 				if (result == null || result.hasException())
 					resultStatus = ZRRequest.RESULT_ERROR;
-				stack.finishAndPopTopology(System.currentTimeMillis(), resultStatus);
+				stack.finishAndPopTopology(topology, System.currentTimeMillis(), resultStatus);
 				ZRContext.putTopology(stack.reqId(), stack.finishAndGetResult());
 			}
 		}

@@ -13,8 +13,8 @@ import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import zr.monitor.ZRMonitorCenter;
 import zr.monitor.ZRContext;
+import zr.monitor.ZRMonitorCenter;
 import zr.monitor.ZRRequest;
 import zr.monitor.ZRTopologyStack;
 import zr.monitor.bean.result.ZRTopology;
@@ -37,9 +37,10 @@ public class ZRRestTemplate extends RestTemplate {
 	protected <T> T doExecute(URI url, HttpMethod method, RequestCallback requestCallback,
 			ResponseExtractor<T> responseExtractor) throws RestClientException {
 		T result = null;
-		ZRTopologyStack stack = checkTopology();
+		final ZRTopologyStack stack = checkTopology();
+		ZRTopology topology = null;
 		if (stack != null) {
-			ZRTopology topology = stack.addTopology(url.getPath(), "spring-http", System.currentTimeMillis());
+			topology = stack.addTopology(url.getPath(), "spring-http", System.currentTimeMillis());
 			requestCallback = new RCallback(requestCallback, stack.reqId(), topology);
 		}
 		try {
@@ -47,7 +48,7 @@ public class ZRRestTemplate extends RestTemplate {
 			return result;
 		} finally {
 			if (stack != null) {
-				stack.finishAndPopTopology(System.currentTimeMillis(), ZRRequest.RESULT_OK);
+				stack.finishAndPopTopology(topology, System.currentTimeMillis(), ZRRequest.RESULT_OK);
 				if (stack.isEmpty())
 					ZRContext.putTopology(stack.reqId(), stack.finishAndGetResult());
 			}

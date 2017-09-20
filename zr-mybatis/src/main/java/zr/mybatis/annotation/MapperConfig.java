@@ -13,6 +13,8 @@ import v.common.unit.Ternary;
 @Retention(RUNTIME)
 @Target({ FIELD, TYPE })
 public @interface MapperConfig {
+	public static final String[] DEF_FIELDS = { "*" };
+
 	public String template() default "";
 
 	public String table() default "";

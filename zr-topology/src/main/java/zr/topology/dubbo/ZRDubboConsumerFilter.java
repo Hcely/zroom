@@ -7,8 +7,8 @@ import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.RpcException;
 
-import zr.monitor.ZRMonitorCenter;
 import zr.monitor.ZRContext;
+import zr.monitor.ZRMonitorCenter;
 import zr.monitor.ZRRequest;
 import zr.monitor.ZRTopologyStack;
 import zr.monitor.bean.result.ZRTopology;
@@ -17,10 +17,11 @@ public class ZRDubboConsumerFilter implements Filter {
 
 	@Override
 	public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-		ZRTopologyStack stack = checkTopology();
+		final ZRTopologyStack stack = checkTopology();
+		ZRTopology topology = null;
 		if (stack != null) {
 			String methodName = ZRDubboUtil.getMethodName(invoker, invocation);
-			ZRTopology topology = stack.addTopology(methodName, "consumer-dubbo", System.currentTimeMillis());
+			topology = stack.addTopology(methodName, "consumer-dubbo", System.currentTimeMillis());
 			RpcContext context = RpcContext.getContext();
 			context.setAttachment(ZRMonitorCenter.ZR_REQUEST_ID, stack.reqId());
 			context.setAttachment(ZRMonitorCenter.ZR_REQUEST_PREV_ID, topology.getPrevId());
@@ -35,7 +36,7 @@ public class ZRDubboConsumerFilter implements Filter {
 				byte resultStatus = ZRRequest.RESULT_OK;
 				if (result == null || result.hasException())
 					resultStatus = ZRRequest.RESULT_ERROR;
-				stack.finishAndPopTopology(System.currentTimeMillis(), resultStatus);
+				stack.finishAndPopTopology(topology, System.currentTimeMillis(), resultStatus);
 				if (stack.isEmpty())
 					ZRContext.putTopology(stack.reqId(), stack.finishAndGetResult());
 			}

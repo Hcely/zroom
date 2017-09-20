@@ -53,4 +53,19 @@ public interface SqlCriteria {
 
 	public SqlCriteria reset();
 
+	public boolean isFieldValid();
+
+	public boolean isUpdateValid();
+
+	public boolean isWhereValid();
+
+	public boolean isGroupByValid();
+
+	public boolean isHavingValid();
+
+	public boolean isSortValid();
+
+	public boolean isLimitValid();
+
+	public boolean isTailValid();
 }

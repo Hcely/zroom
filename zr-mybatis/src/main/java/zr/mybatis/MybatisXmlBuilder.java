@@ -238,9 +238,9 @@ final class MybatisXmlBuilder {
 	private static final void writeInsertMapSql(StringBuilder sb) {
 		sb.append("INSERT INTO\n");
 		sb.append("<include refid=\"_TABLE\" />\n");
-		sb.append("<foreach collection=\"keys\" item=\"e\" open=\"(\" separator=\",\" close=\")\">${e}</foreach>");
+		sb.append("<foreach collection=\"entrySet\" item=\"e\" open=\"(\" separator=\",\" close=\")\">${e.key}</foreach>");
 		sb.append("VALUES\n");
-		sb.append("<foreach collection=\"keys\" item=\"e\" open=\"(\" separator=\",\" close=\")\">#{${e}}</foreach>");
+		sb.append("<foreach collection=\"entrySet\" item=\"e\" open=\"(\" separator=\",\" close=\")\">#{e.value}</foreach>");
 	}
 
 	private static final void writeSelectObj(StringBuilder sb, MapperConfigInfo info) {
@@ -256,7 +256,7 @@ final class MybatisXmlBuilder {
 		sb.append("<include refid=\"_HAVING\" />\n");
 		sb.append("<include refid=\"_SORT\" />\n");
 		sb.append("<include refid=\"_LIMIT\" />\n");
-		sb.append("<if test=\"tailSql != null\">\n");
+		sb.append("<if test=\"tailValid\">\n");
 		sb.append("${tailSql}\n");
 		sb.append("</if>\n");
 		sb.append("</select>\n");

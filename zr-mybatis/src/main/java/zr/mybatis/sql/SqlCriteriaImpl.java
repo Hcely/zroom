@@ -100,7 +100,10 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 
 	@Override
 	public SqlWhere where() {
-		return new SqlWhereImpl(this);
+		if (wheres == null || wheres.isEmpty())
+			return new SqlWhereImpl(this);
+		else
+			return wheres.peekLast();
 	}
 
 	@Override
@@ -249,32 +252,44 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 		return this;
 	}
 
+	@Override
 	public boolean isFieldValid() {
 		return fields != null && fields.size() > 0;
 	}
 
+	@Override
 	public boolean isUpdateValid() {
 		return updates != null && updates.size() > 0;
 	}
 
+	@Override
 	public boolean isWhereValid() {
 		return wheres != null && wheres.size() > 0;
 	}
 
+	@Override
 	public boolean isGroupByValid() {
 		return groupBy != null;
 	}
 
+	@Override
 	public boolean isHavingValid() {
 		return having != null;
 	}
 
+	@Override
 	public boolean isSortValid() {
 		return sorts != null && sorts.length() > 0;
 	}
 
+	@Override
 	public boolean isLimitValid() {
 		return count > 0;
+	}
+
+	@Override
+	public boolean isTailValid() {
+		return tailSql != null;
 	}
 
 	public List<String> getFields() {

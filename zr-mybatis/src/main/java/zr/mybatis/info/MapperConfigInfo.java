@@ -17,11 +17,11 @@ public final class MapperConfigInfo {
 
 	protected int hashcode = 0;
 
-	public MapperConfigInfo(SqlSessionTemplate template, BeanInfo bean, Class<?> clazz, String table,
-			Ternary ignoreEmpty, Ternary insertAsMap, String[] fields) {
+	public MapperConfigInfo(SqlSessionTemplate template, BeanInfo bean, String table, Ternary ignoreEmpty,
+			Ternary insertAsMap, String[] fields) {
 		this.template = template;
 		this.bean = bean;
-		this.clazz = clazz;
+		this.clazz = bean.getType();
 		this.table = table;
 		this.ignoreEmpty = ignoreEmpty;
 		this.insertAsMap = insertAsMap;

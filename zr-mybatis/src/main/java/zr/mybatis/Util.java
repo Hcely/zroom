@@ -1,16 +1,61 @@
 package zr.mybatis;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.aop.framework.AdvisedSupport;
 import org.springframework.aop.framework.AopProxy;
 import org.springframework.aop.support.AopUtils;
 
+import zr.mybatis.annotation.MapperConfig;
+
 final class Util {
+	private static int incNum = 0;
+
+	public static final String getNextNamespace() {
+		return new StringBuilder(16).append("_zrMapper_").append(incNum++).toString();
+	}
+
+	public static final List<MapperField> getMapperFields(Class<?> clazz) {
+		LinkedHashMap<String, MapperField> hr = new LinkedHashMap<>();
+		getMapperFields(clazz, hr);
+		return new ArrayList<>(hr.values());
+	}
+
+	public static final MapperConfig getDaoConfig(Class<?> clazz) {
+		while (clazz != Object.class) {
+			MapperConfig config = clazz.getAnnotation(MapperConfig.class);
+			if (config != null)
+				return config;
+			clazz = clazz.getSuperclass();
+		}
+		return null;
+	}
+
+	private static final void getMapperFields(Class<?> clazz, Map<String, MapperField> hr) {
+		if (clazz.getSuperclass() != Object.class)
+			getMapperFields(clazz.getSuperclass(), hr);
+		for (Field f : clazz.getDeclaredFields()) {
+			int mod = f.getModifiers();
+			if (Modifier.isFinal(mod))
+				continue;
+			if (f.getType() != SimpleMapper.class)
+				continue;
+			MapperConfig config = f.getAnnotation(MapperConfig.class);
+			if (config == null)
+				continue;
+			f.setAccessible(true);
+			hr.put(f.getName(), new MapperField(f, config));
+		}
+	}
 
 	public static final Object getRawObj(Object obj) {
 		try {
@@ -46,7 +91,7 @@ final class Util {
 		return target;
 	}
 
-	public static final Class<?> getType(Class<?> clazz) {
+	public static final Class<?> getDaoGenericType(Class<?> clazz) {
 		LinkedList<Class<?>> stacks = new LinkedList<>();
 		while (clazz.getSuperclass() != SimpleDao.class) {
 			stacks.add(clazz);
@@ -71,9 +116,17 @@ final class Util {
 		throw new RuntimeException("can not get type of SimpleDao");
 	}
 
-	public static final Class<?> getType(Field field) {
+	public static final Class<?> getFieldGenericType(Field field) {
 		ParameterizedType type = (ParameterizedType) field.getGenericType();
 		return (Class<?>) type.getActualTypeArguments()[0];
+	}
+
+	public static final Object get(Field f, Object obj) {
+		try {
+			return f.get(obj);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 }

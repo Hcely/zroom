@@ -12,8 +12,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 
-import zr.monitor.ZRMonitorCenter;
 import zr.monitor.ZRContext;
+import zr.monitor.ZRMonitorCenter;
 import zr.monitor.ZRRequest;
 import zr.monitor.ZRTopologyStack;
 import zr.monitor.bean.result.ZRTopology;
@@ -30,10 +30,10 @@ public class ZRHttpClient extends CloseableHttpClient {
 	protected CloseableHttpResponse doExecute(HttpHost target, HttpRequest request, HttpContext context)
 			throws IOException, ClientProtocolException {
 		CloseableHttpResponse result = null;
-		ZRTopologyStack stack = checkTopology();
+		final ZRTopologyStack stack = checkTopology();
+		ZRTopology topology = null;
 		if (stack != null) {
-			ZRTopology topology = stack.addTopology(request.getRequestLine().getUri(), "spring-http",
-					System.currentTimeMillis());
+			topology = stack.addTopology(request.getRequestLine().getUri(), "spring-http", System.currentTimeMillis());
 			request.addHeader(ZRMonitorCenter.ZR_REQUEST_ID, stack.reqId());
 			request.addHeader(ZRMonitorCenter.ZR_REQUEST_PREV_ID, topology.getPrevId());
 			request.addHeader(ZRMonitorCenter.ZR_REQUEST_SILK_ID, topology.getSilkId());
@@ -44,7 +44,7 @@ public class ZRHttpClient extends CloseableHttpClient {
 		} finally {
 			if (stack != null) {
 				byte resultStatus = checkResponse(result);
-				stack.finishAndPopTopology(System.currentTimeMillis(), resultStatus);
+				stack.finishAndPopTopology(topology, System.currentTimeMillis(), resultStatus);
 				if (stack.isEmpty())
 					ZRContext.putTopology(stack.reqId(), stack.finishAndGetResult());
 			}

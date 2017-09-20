@@ -134,6 +134,7 @@ public class ZRMonitorCenter extends VSimpleStatusObject {
 
 	public final Object executeNoMethod(final Object invoker, final HttpServletRequest request) throws Throwable {
 		final ZRTopologyStack stack = checkTopology(request, System.currentTimeMillis());
+		final ZRTopology topology = stack == null ? null : stack.curTopology();
 		byte resultStatus = ZRRequest.RESULT_OK;
 		try {
 			return reqHandler.executeNoMethod(invoker);
@@ -143,7 +144,7 @@ public class ZRMonitorCenter extends VSimpleStatusObject {
 		} finally {
 			if (stack != null) {
 				String reqId = stack.reqId();
-				stack.finishAndPopTopology(System.currentTimeMillis(), resultStatus);
+				stack.finishAndPopTopology(topology, System.currentTimeMillis(), resultStatus);
 				if (stack.isEmpty()) {
 					LinkedList<ZRTopology> result = stack.finishAndGetResult();
 					ZRStatistic statistic = statisticCenter.product();
@@ -162,6 +163,7 @@ public class ZRMonitorCenter extends VSimpleStatusObject {
 	private final Object handleRequest(final Object invoker, final ZRMethod zrm, final ZRRequest zreq)
 			throws Throwable {
 		final ZRTopologyStack stack = checkTopology(zrm, zreq.request, zreq.startTime);
+		final ZRTopology topology = stack == null ? null : stack.curTopology();
 		final ZRRequestFilter[] filters = zrm.getFilters();
 
 		int n = 0;
@@ -202,21 +204,22 @@ public class ZRMonitorCenter extends VSimpleStatusObject {
 			}
 		}
 
-		finish(invoker, zreq, stack);
+		finish(invoker, zreq, stack, topology);
 
 		if (errorHr != null)
 			throw errorHr;
 		return zreq.hresult;
 	}
 
-	private final void finish(final Object invoker, final ZRRequest zreq, final ZRTopologyStack stack) {
+	private final void finish(final Object invoker, final ZRRequest zreq, final ZRTopologyStack stack,
+			final ZRTopology topology) {
 		long endTime = System.currentTimeMillis();
 		zreq.end(endTime);
 		List<ZRTopology> topologyResult = null;
 		String reqId = null;
 		if (stack != null) {
 			reqId = stack.reqId();
-			stack.finishAndPopTopology(endTime, zreq.resultStatus);
+			stack.finishAndPopTopology(topology, endTime, zreq.resultStatus);
 			if (stack.isEmpty())
 				topologyResult = stack.finishAndGetResult();
 		}

@@ -67,9 +67,12 @@ public class ZRTopologyStack {
 		return topology;
 	}
 
-	public ZRTopology finishAndPopTopology(final long endTime, final byte resultStatus) {
-		ZRTopology topology = curTopology;
-		popAndNext();
+	public ZRTopology finishAndPopTopology(final ZRTopology topology, final long endTime, final byte resultStatus) {
+		if (topology == curTopology)
+			popTopology();
+		else
+			for (ZRTopology badTopology = popTopology(); topology != badTopology; badTopology = popTopology())
+				badTopology.finish(endTime, resultStatus);
 		return topology.finish(endTime, resultStatus);
 	}
 
@@ -98,9 +101,11 @@ public class ZRTopologyStack {
 		return topology;
 	}
 
-	private final void popAndNext() {
+	private final ZRTopology popTopology() {
+		ZRTopology tmp = curTopology;
 		stacks[--len] = null;
 		curTopology = len == 0 ? null : stacks[len - 1];
+		return tmp;
 	}
 
 	private void checkCapacity() {

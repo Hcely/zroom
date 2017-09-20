@@ -8,10 +8,10 @@ import java.util.TreeMap;
 
 import v.Clearable;
 
-public class BeanFieldMgr implements Clearable {
+public class BeanInfoMgr implements Clearable {
 	protected final Map<Class<?>, BeanInfo> fieldMap;
 
-	public BeanFieldMgr() {
+	public BeanInfoMgr() {
 		fieldMap = new IdentityHashMap<>();
 		init();
 	}
