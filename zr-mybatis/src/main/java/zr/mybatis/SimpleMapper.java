@@ -2,7 +2,6 @@ package zr.mybatis;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +28,7 @@ public class SimpleMapper<T> {
 	protected final String delete;
 
 	SimpleMapper(String namespace, SqlSessionTemplate template, MapperConfigInfo configInfo,
-			SpringMybatisHelper helper) {
+			ZRSpringMybatisHelper helper) {
 		this.template = template;
 		this.configInfo = configInfo;
 		this.beanInfo = configInfo.getBean();
@@ -48,7 +47,7 @@ public class SimpleMapper<T> {
 
 	public int insert(T e) {
 		if (insertAsMap)
-			return insertMap(toMap(e, true, ignoreEmpty));
+			return insertMap(Util.toMap(beanInfo, e, true, ignoreEmpty));
 		return template.insert(insertObj, e);
 	}
 
@@ -129,7 +128,7 @@ public class SimpleMapper<T> {
 			SqlWhere where = criteria.where();
 			for (Field f : beanInfo.getFields()) {
 				Object value = Util.get(f, condition);
-				where.eq(f.getName(), value);
+				where.eq(f.getName(), value, true);
 			}
 		}
 		return update(criteria);
@@ -141,22 +140,6 @@ public class SimpleMapper<T> {
 
 	public BeanInfo getBeanInfo() {
 		return beanInfo;
-	}
-
-	protected Map<String, Object> toMap(Object obj, boolean ignoreNull, boolean ignoreEmpty) {
-		Map<String, Object> hr = new LinkedHashMap<>();
-		for (Field f : beanInfo.getFields())
-			try {
-				Object value = f.get(obj);
-				if (ignoreNull && value == null)
-					continue;
-				if (ignoreEmpty && value instanceof CharSequence)
-					if (((CharSequence) value).length() == 0)
-						continue;
-				hr.put(f.getName(), value);
-			} catch (Exception e) {
-			}
-		return hr;
 	}
 
 }

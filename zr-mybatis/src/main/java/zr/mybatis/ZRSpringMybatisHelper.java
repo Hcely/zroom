@@ -26,7 +26,7 @@ import zr.mybatis.info.BeanInfoMgr;
 import zr.mybatis.info.MapperConfigInfo;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class SpringMybatisHelper implements ApplicationContextAware, Initializable, Clearable {
+public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializable, Clearable {
 	protected final Map<MapperConfigInfo, SimpleMapper> mapperMap;
 	protected final BeanInfoMgr infoMgr;
 	protected ApplicationContext appContext;
@@ -34,7 +34,7 @@ public class SpringMybatisHelper implements ApplicationContextAware, Initializab
 	protected boolean ignoreEmpty = false;
 	protected boolean insertAsMap = false;
 
-	public SpringMybatisHelper() {
+	public ZRSpringMybatisHelper() {
 		this.mapperMap = new HashMap<>();
 		this.infoMgr = new BeanInfoMgr();
 		this.nameHandler = DefTableNameHandler.INSTANCE;

@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RUNTIME)
 @Target(TYPE)
-public @interface ZRRequiedParam {
+public @interface ZRRequiedParams {
 	/**
 	 * type:xxx|name:xxx|org:xxx|req:xxx|desc:xxxx|demo:xxx
 	 */

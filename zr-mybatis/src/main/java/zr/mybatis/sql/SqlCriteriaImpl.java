@@ -132,8 +132,6 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 
 	@Override
 	public SqlSorts sorts() {
-		if (sorts == null)
-			sorts = new StringBuilder(128);
 		return this;
 	}
 
@@ -150,7 +148,17 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 	}
 
 	@Override
+	public SqlSorts sort(String name, boolean asc) {
+		if (asc)
+			return asc(name);
+		else
+			return desc(name);
+	}
+
+	@Override
 	public SqlSorts asc(String name) {
+		if (sorts == null)
+			sorts = new StringBuilder(128);
 		if (sorts.length() > 0)
 			sorts.append(',');
 		sorts.append('`').append(name).append("` ASC");
@@ -159,6 +167,8 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 
 	@Override
 	public SqlSorts desc(String name) {
+		if (sorts == null)
+			sorts = new StringBuilder(128);
 		if (sorts.length() > 0)
 			sorts.append(',');
 		sorts.append('`').append(name).append("` DESC");
@@ -327,4 +337,5 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 	public String getTailSql() {
 		return tailSql;
 	}
+
 }

@@ -7,15 +7,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import v.common.unit.Ternary;
 import zr.mybatis.annotation.Ignore;
 import zr.mybatis.annotation.IncColumn;
 import zr.mybatis.annotation.KeyColumn;
-import zr.mybatis.annotation.SortColumn;
 
 public class BeanInfo {
 	private static final Field[] EMPTY_FIELDS = {};
-	private static final SortField[] EMPTY_SORTS = {};
 
 	public static final BeanInfo BOOLEAN = new BeanInfo(Boolean.class, "boolean");
 	public static final BeanInfo BYTE = new BeanInfo(Byte.class, "byte");
@@ -32,30 +29,19 @@ public class BeanInfo {
 		Field incColumn = null;
 		List<Field> keys = new ArrayList<>(4);
 		List<Field> normals = new ArrayList<>(fields.length);
-		List<SortField> sorts = new ArrayList<>(4);
 		for (Field f : fields) {
 			if (f.getAnnotation(IncColumn.class) != null)
 				incColumn = f;
 			KeyColumn anno0 = f.getAnnotation(KeyColumn.class);
-			boolean b = true;
-			if (anno0 != null) {
+			if (anno0 != null)
 				keys.add(f);
-				if (anno0.sortAsc() != Ternary.UNKNOWN) {
-					b = false;
-					sorts.add(new SortField(f.getName(), anno0.sortAsc() == Ternary.TRUE));
-				}
-			} else
+			else
 				normals.add(f);
-			if (b) {
-				SortColumn anno1 = f.getAnnotation(SortColumn.class);
-				if (anno1 != null)
-					sorts.add(new SortField(f.getName(), anno1.asc()));
-			}
+
 		}
 		Field[] keys0 = keys.toArray(new Field[keys.size()]);
 		Field[] normal0 = normals.toArray(new Field[normals.size()]);
-		SortField[] sorts0 = sorts.toArray(new SortField[sorts.size()]);
-		return new BeanInfo(clazz, fields, incColumn, keys0, normal0, sorts0);
+		return new BeanInfo(clazz, fields, incColumn, keys0, normal0);
 	}
 
 	private static final Field[] getFields(Class<?> clazz) {
@@ -86,7 +72,6 @@ public class BeanInfo {
 	protected final Field incColumn;
 	protected final Field[] keys;
 	protected final Field[] normals;
-	protected final SortField[] sorts;
 	protected final boolean baseBean;
 	protected final boolean map;
 
@@ -101,19 +86,17 @@ public class BeanInfo {
 		this.incColumn = null;
 		this.keys = EMPTY_FIELDS;
 		this.normals = EMPTY_FIELDS;
-		this.sorts = EMPTY_SORTS;
 		this.baseBean = true;
 		this.map = Map.class.isAssignableFrom(type);
 	}
 
-	private BeanInfo(Class<?> type, Field[] fields, Field incColumn, Field[] keys, Field[] normals, SortField[] sorts) {
+	private BeanInfo(Class<?> type, Field[] fields, Field incColumn, Field[] keys, Field[] normals) {
 		this.type = type;
 		this.typeName = type.getName();
 		this.fields = fields;
 		this.incColumn = incColumn;
 		this.keys = keys;
 		this.normals = normals;
-		this.sorts = sorts;
 		this.baseBean = false;
 		this.map = false;
 	}
@@ -140,10 +123,6 @@ public class BeanInfo {
 
 	public Field[] getNormals() {
 		return normals;
-	}
-
-	public SortField[] getSorts() {
-		return sorts;
 	}
 
 	public boolean isBaseBean() {

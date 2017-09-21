@@ -16,7 +16,7 @@ import zr.monitor.annotation.ZRAuthority;
 import zr.monitor.annotation.ZRDate;
 import zr.monitor.annotation.ZRDescription;
 import zr.monitor.annotation.ZRFilter;
-import zr.monitor.annotation.ZRRequiedParam;
+import zr.monitor.annotation.ZRRequiedParams;
 import zr.monitor.bean.info.ZRApiInfo;
 import zr.monitor.bean.info.ZRParamInfo;
 
@@ -66,7 +66,7 @@ public class ZRDefApiInfoBuilder implements ZRApiInfoBuilder {
 		if (anno == null)
 			return;
 		for (Class<?> clazz : anno.value()) {
-			ZRRequiedParam p = clazz.getAnnotation(ZRRequiedParam.class);
+			ZRRequiedParams p = clazz.getAnnotation(ZRRequiedParams.class);
 			for (String e : p.value()) {
 				ZRParamInfo info = ZRParamInfo.parseStr(e);
 				if (info != null)

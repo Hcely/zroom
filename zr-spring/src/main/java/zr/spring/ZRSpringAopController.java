@@ -69,11 +69,10 @@ public class ZRSpringAopController implements ApplicationContextAware, Initializ
 	@PostConstruct
 	@Override
 	public void init() {
-
 		center.setFilters(getFilters());
 		center.setMethods(getMethods());
 		center.setApiInfoBuilder(getApiInfoBuilder());
-
+		center.init();
 	}
 
 	protected Set<Method> getMethods() {

@@ -57,11 +57,8 @@ public abstract class SimpleDao<T> implements InsertOperate<T>, SelectOperate<T>
 		if (condition != null) {
 			SqlWhere where = criteria.where();
 			BeanInfo bean = mapper.getBeanInfo();
-			for (Field f : bean.getFields()) {
-				Object value = Util.get(f, condition);
-				if (value != null)
-					where.eq(f.getName(), value);
-			}
+			for (Field f : bean.getFields())
+				where.eq(f.getName(), Util.get(f, condition), true);
 		}
 		return mapper.selectOne(criteria);
 	}
@@ -77,11 +74,8 @@ public abstract class SimpleDao<T> implements InsertOperate<T>, SelectOperate<T>
 		if (condition != null) {
 			SqlWhere where = criteria.where();
 			BeanInfo bean = mapper.getBeanInfo();
-			for (Field f : bean.getFields()) {
-				Object value = Util.get(f, condition);
-				if (value != null)
-					where.eq(f.getName(), value);
-			}
+			for (Field f : bean.getFields())
+				where.eq(f.getName(), Util.get(f, condition), true);
 		}
 		return mapper.selectList(criteria);
 	}

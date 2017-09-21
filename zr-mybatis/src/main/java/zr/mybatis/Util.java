@@ -16,6 +16,7 @@ import org.springframework.aop.framework.AopProxy;
 import org.springframework.aop.support.AopUtils;
 
 import zr.mybatis.annotation.MapperConfig;
+import zr.mybatis.info.BeanInfo;
 
 final class Util {
 	private static int incNum = 0;
@@ -127,6 +128,23 @@ final class Util {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	public static final Map<String, Object> toMap(BeanInfo beanInfo, Object obj, boolean ignoreNull,
+			boolean ignoreEmpty) {
+		Map<String, Object> hr = new LinkedHashMap<>();
+		for (Field f : beanInfo.getFields())
+			try {
+				Object value = f.get(obj);
+				if (ignoreNull && value == null)
+					continue;
+				if (ignoreEmpty && value instanceof CharSequence)
+					if (((CharSequence) value).length() == 0)
+						continue;
+				hr.put(f.getName(), value);
+			} catch (Exception e) {
+			}
+		return hr;
 	}
 
 }

@@ -83,7 +83,7 @@ public class ZRMonitorCenter extends VSimpleStatusObject {
 	}
 
 	@Override
-	public void _init0() {
+	protected void _init0() {
 		loop = new VThreadLoop();
 
 		infoMgr = new ZRInfoMgr(apiInfoBuilder);
