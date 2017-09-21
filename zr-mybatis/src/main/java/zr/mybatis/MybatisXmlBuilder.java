@@ -56,12 +56,8 @@ final class MybatisXmlBuilder {
 	private static final void writeSelectSql(StringBuilder sb, MapperConfigInfo info) {
 		sb.append("<sql id=\"_SELECT\">\n");
 		sb.append("<choose>\n");
-		sb.append("<when test=\"dieldValid\">\n");
-		sb.append("<foreach collection=\"fields\" item=\"i\" separator=\",\">\n");
-		sb.append("${i}\n");
-		sb.append("</foreach>\n");
-		sb.append("</when>\n");
-		sb.append("<otherwise>");
+		sb.append("<when test=\"fieldValid\">${fields}</when>\n");
+		sb.append("<otherwise>\n");
 		writeSelectFields(sb, info);
 		sb.append("</otherwise>\n");
 		sb.append("</choose>\n");
@@ -96,17 +92,9 @@ final class MybatisXmlBuilder {
 		sb.append("SET\n");
 		sb.append("<foreach collection=\"updates\" item=\"i\" separator=\",\">\n");
 		sb.append("<choose>\n");
-
-		sb.append("<when test=\"i.raw\">\n");
-		sb.append("${i.key}=#{i.value}\n");
-		sb.append("</when>\n");
-
-		sb.append("<otherwise>\n");
-		sb.append("${i.key}\n");
-		sb.append("</otherwise>\n");
-
+		sb.append("<when test=\"i.raw\">${i.key}</when>\n");
+		sb.append("<otherwise>${i.key}=#{i.value}</otherwise>\n");
 		sb.append("</choose>\n");
-
 		sb.append("</foreach>\n");
 
 		sb.append("</sql>\n");
@@ -238,9 +226,11 @@ final class MybatisXmlBuilder {
 	private static final void writeInsertMapSql(StringBuilder sb) {
 		sb.append("INSERT INTO\n");
 		sb.append("<include refid=\"_TABLE\" />\n");
-		sb.append("<foreach collection=\"entrySet\" item=\"e\" open=\"(\" separator=\",\" close=\")\">${e.key}</foreach>");
+		sb.append(
+				"<foreach collection=\"_parameter\" index=\"key\"  open=\"(\" separator=\",\" close=\")\">${key}</foreach>");
 		sb.append("VALUES\n");
-		sb.append("<foreach collection=\"entrySet\" item=\"e\" open=\"(\" separator=\",\" close=\")\">#{e.value}</foreach>");
+		sb.append(
+				"<foreach collection=\"_parameter\" item=\"value\" open=\"(\" separator=\",\" close=\")\">#{value}</foreach>");
 	}
 
 	private static final void writeSelectObj(StringBuilder sb, MapperConfigInfo info) {

@@ -3,10 +3,8 @@ package zr.mybatis.sql;
 import java.util.LinkedList;
 import java.util.List;
 
-import v.common.helper.StrUtil;
-
 public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
-	protected List<String> fields;
+	protected StringBuilder fields;
 	protected List<SqlUpdate> updates;
 	protected LinkedList<SqlWhereImpl> wheres;
 	protected String groupBy;
@@ -35,15 +33,21 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 
 	@Override
 	public SqlCriteria addField(final String key) {
-		StringBuilder sb = new StringBuilder(key.length() + 2);
-		sb.append('`').append(key).append('`');
-		fields.add(StrUtil.sbToString(sb));
+		if (fields == null)
+			fields = new StringBuilder(128);
+		if (fields.length() > 0)
+			fields.append(',');
+		fields.append('`').append(key).append('`');
 		return this;
 	}
 
 	@Override
 	public SqlCriteria addRawField(final String key) {
-		fields.add(key);
+		if (fields == null)
+			fields = new StringBuilder(128);
+		if (fields.length() > 0)
+			fields.append(',');
+		fields.append(key);
 		return this;
 	}
 
@@ -51,8 +55,7 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 	public SqlCriteria update(String key, Object value, boolean ignoreNull) {
 		if (ignoreNull && value == null)
 			return this;
-		updates.add(new SqlUpdate(false, key, value));
-		return this;
+		return addUpdate(new SqlUpdate(false, key, value));
 	}
 
 	@Override
@@ -66,8 +69,7 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 			return this;
 		StringBuilder sb = new StringBuilder(24 + (key.length() << 1));
 		sb.append('`').append(key).append("`=`").append(key).append("`+").append(num);
-		updates.add(new SqlUpdate(true, sb.toString(), null));
-		return this;
+		return addUpdate(new SqlUpdate(true, sb.toString(), null));
 	}
 
 	@Override
@@ -77,8 +79,7 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 		StringBuilder sb = new StringBuilder(key.length() * 3 + 48);
 		sb.append('`').append(key).append("`=if(`").append(key).append("`>").append(num).append(",`").append(key)
 				.append("`,").append(num).append(')');
-		updates.add(new SqlUpdate(true, sb.toString(), null));
-		return this;
+		return addUpdate(new SqlUpdate(true, sb.toString(), null));
 	}
 
 	@Override
@@ -88,13 +89,18 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 		StringBuilder sb = new StringBuilder(key.length() * 3 + 48);
 		sb.append('`').append(key).append("`=if(`").append(key).append("`<").append(num).append(",`").append(key)
 				.append("`,").append(num).append(')');
-		updates.add(new SqlUpdate(true, sb.toString(), null));
-		return this;
+		return addUpdate(new SqlUpdate(true, sb.toString(), null));
 	}
 
 	@Override
 	public SqlCriteria updateRaw(String update) {
-		updates.add(new SqlUpdate(true, update, null));
+		return addUpdate(new SqlUpdate(true, update, null));
+	}
+
+	private SqlCriteria addUpdate(SqlUpdate update) {
+		if (updates == null)
+			updates = new LinkedList<>();
+		updates.add(update);
 		return this;
 	}
 
@@ -149,30 +155,26 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 
 	@Override
 	public SqlSorts sort(String name, boolean asc) {
+		if (sorts == null)
+			sorts = new StringBuilder(128);
+		if (sorts.length() > 0)
+			sorts.append(',');
+		sorts.append('`').append(name);
 		if (asc)
-			return asc(name);
+			sorts.append("` ASC");
 		else
-			return desc(name);
+			sorts.append("` DESC");
+		return this;
 	}
 
 	@Override
 	public SqlSorts asc(String name) {
-		if (sorts == null)
-			sorts = new StringBuilder(128);
-		if (sorts.length() > 0)
-			sorts.append(',');
-		sorts.append('`').append(name).append("` ASC");
-		return this;
+		return sort(name, true);
 	}
 
 	@Override
 	public SqlSorts desc(String name) {
-		if (sorts == null)
-			sorts = new StringBuilder(128);
-		if (sorts.length() > 0)
-			sorts.append(',');
-		sorts.append('`').append(name).append("` DESC");
-		return this;
+		return sort(name, false);
 	}
 
 	@Override
@@ -196,7 +198,7 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 	@Override
 	public SqlCriteria reset() {
 		if (fields != null)
-			fields.clear();
+			fields.setLength(0);
 		if (updates != null)
 			updates.clear();
 		if (wheres != null)
@@ -213,7 +215,7 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 	@Override
 	public SqlCriteria resetFields() {
 		if (fields != null)
-			fields.clear();
+			fields.setLength(0);
 		return this;
 	}
 
@@ -264,7 +266,7 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 
 	@Override
 	public boolean isFieldValid() {
-		return fields != null && fields.size() > 0;
+		return fields != null && fields.length() > 0;
 	}
 
 	@Override
@@ -302,8 +304,8 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 		return tailSql != null;
 	}
 
-	public List<String> getFields() {
-		return fields;
+	public String getFields() {
+		return fields.toString();
 	}
 
 	public List<SqlUpdate> getUpdates() {

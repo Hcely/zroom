@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>zr.monitor</groupId>
 		<artifactId>zr</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.1</version>
 	</parent>
 	<artifactId>zr-mybatis</artifactId>
 	<name>zr-mybatis</name>
@@ -29,11 +29,6 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
 			<version>4.3.7.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>zr.monitor</groupId>
-			<artifactId>zr-lib</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>

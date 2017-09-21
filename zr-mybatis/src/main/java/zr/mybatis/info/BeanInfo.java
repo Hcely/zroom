@@ -37,7 +37,6 @@ public class BeanInfo {
 				keys.add(f);
 			else
 				normals.add(f);
-
 		}
 		Field[] keys0 = keys.toArray(new Field[keys.size()]);
 		Field[] normal0 = normals.toArray(new Field[normals.size()]);

@@ -18,11 +18,11 @@ import zr.mybatis.sql.SqlWhere;
 public abstract class SimpleDao<T> implements InsertOperate<T>, SelectOperate<T>, UpdateOperate<T>, DeleteOperate<T> {
 	SimpleMapper<T> mapper;
 
-	protected final SimpleMapper<T> getMapper() {
+	protected final SimpleMapper<T> mapper() {
 		return mapper;
 	}
 
-	protected final SqlSessionTemplate getSqlTemplate() {
+	protected final SqlSessionTemplate template() {
 		return mapper.template;
 	}
 
@@ -69,6 +69,11 @@ public abstract class SimpleDao<T> implements InsertOperate<T>, SelectOperate<T>
 	}
 
 	@Override
+	public List<T> queryAll(SqlCriteria sorts) {
+		return mapper.selectList(sorts.resetFields().resetWheres());
+	}
+
+	@Override
 	public List<T> query(T condition) {
 		SqlCriteria criteria = SqlCriteria.create();
 		if (condition != null) {
@@ -78,6 +83,19 @@ public abstract class SimpleDao<T> implements InsertOperate<T>, SelectOperate<T>
 				where.eq(f.getName(), Util.get(f, condition), true);
 		}
 		return mapper.selectList(criteria);
+	}
+
+	@Override
+	public List<T> query(T condition, SqlCriteria sorts) {
+		sorts.resetFields();
+		sorts.resetWheres();
+		if (condition != null) {
+			SqlWhere where = sorts.where();
+			BeanInfo bean = mapper.getBeanInfo();
+			for (Field f : bean.getFields())
+				where.eq(f.getName(), Util.get(f, condition), true);
+		}
+		return mapper.selectList(sorts);
 	}
 
 	@Override

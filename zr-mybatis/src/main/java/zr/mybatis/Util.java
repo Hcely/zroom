@@ -133,8 +133,11 @@ final class Util {
 	public static final Map<String, Object> toMap(BeanInfo beanInfo, Object obj, boolean ignoreNull,
 			boolean ignoreEmpty) {
 		Map<String, Object> hr = new LinkedHashMap<>();
+		Field incField = beanInfo.getIncColumn();
 		for (Field f : beanInfo.getFields())
 			try {
+				if (f == incField)
+					continue;
 				Object value = f.get(obj);
 				if (ignoreNull && value == null)
 					continue;
