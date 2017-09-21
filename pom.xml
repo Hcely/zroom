@@ -18,6 +18,7 @@
     <module>zr-dubbo-topology</module>
     <module>zr-topology</module>
     <module>zr-mybatis</module>
+    <module>zr-lib</module>
   </modules>
 	<dependencies>
 		<!-- servlet start -->
@@ -45,10 +46,5 @@
 			<version>${jackson-version}</version>
 		</dependency>
 		<!-- json end -->
-		<dependency>
-			<groupId>wv</groupId>
-			<artifactId>v</artifactId>
-			<version>1.5.0</version>
-		</dependency>
 	</dependencies>
 </project>

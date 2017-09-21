@@ -36,5 +36,10 @@
 			<version>1.3.2</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>zr.monitor</groupId>
+			<artifactId>zr-lib</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>
