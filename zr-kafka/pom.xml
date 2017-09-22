@@ -4,8 +4,8 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>zr.monitor</groupId>
-		<artifactId>zr</artifactId>
+		<groupId>zr</groupId>
+		<artifactId>root</artifactId>
 		<version>0.0.1</version>
 	</parent>
 	<artifactId>zr-kafka</artifactId>
@@ -16,14 +16,14 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>zr.monitor</groupId>
-			<artifactId>zr-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.kafka</groupId>
 			<artifactId>kafka-clients</artifactId>
 			<version>0.11.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>zr</groupId>
+			<artifactId>zr-monitor</artifactId>
+			<version>0.0.1</version>
 		</dependency>
 	</dependencies>
 </project>

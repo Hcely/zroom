@@ -11,10 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.aop.framework.AdvisedSupport;
-import org.springframework.aop.framework.AopProxy;
-import org.springframework.aop.support.AopUtils;
-
 import zr.mybatis.annotation.MapperConfig;
 import zr.mybatis.info.BeanInfo;
 
@@ -56,40 +52,6 @@ final class Util {
 			f.setAccessible(true);
 			hr.put(f.getName(), new MapperField(f, config));
 		}
-	}
-
-	public static final Object getRawObj(Object obj) {
-		try {
-			if (AopUtils.isCglibProxy(obj))
-				return getRawCGLibProxy(obj);
-			else if (AopUtils.isJdkDynamicProxy(obj))
-				return getRawJdkProxy(obj);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return obj;
-	}
-
-	private static final Object getRawCGLibProxy(Object obj) throws Exception {
-		Class<?> clazz = obj.getClass();
-		Field f = clazz.getDeclaredField("CGLIB$CALLBACK_0");
-		f.setAccessible(true);
-		Object dynamicAdvisedInterceptor = f.get(obj);
-		Field advised = dynamicAdvisedInterceptor.getClass().getDeclaredField("advised");
-		advised.setAccessible(true);
-		Object target = ((AdvisedSupport) advised.get(dynamicAdvisedInterceptor)).getTargetSource().getTarget();
-		return target;
-	}
-
-	private static final Object getRawJdkProxy(Object obj) throws Exception {
-		Class<?> clazz = obj.getClass();
-		Field h = clazz.getSuperclass().getDeclaredField("h");
-		h.setAccessible(true);
-		AopProxy aopProxy = (AopProxy) h.get(obj);
-		Field advised = aopProxy.getClass().getDeclaredField("advised");
-		advised.setAccessible(true);
-		Object target = ((AdvisedSupport) advised.get(aopProxy)).getTargetSource().getTarget();
-		return target;
 	}
 
 	public static final Class<?> getDaoGenericType(Class<?> clazz) {

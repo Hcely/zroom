@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -17,24 +18,31 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.PriorityOrdered;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.servlet.ModelAndView;
 
+import v.Destoryable;
 import v.Initializable;
 import v.server.helper.ClassHelper;
+import zr.common.util.ZRSpringUtil;
 import zr.monitor.ZRMonitorCenter;
 import zr.monitor.ZRRequestFilter;
 import zr.monitor.info.ZRApiInfoBuilder;
 import zr.monitor.method.ZRMethod;
 import zr.monitor.method.ZRMethodListener;
 import zr.monitor.statistic.ZRStatisticHandler;
-import zr.spring.util.ZRSpringUtil;
 
-public class ZRSpringAopController implements ApplicationContextAware, Initializable {
+@SuppressWarnings("rawtypes")
+public class ZRSpringAopController
+		implements ApplicationContextAware, HandlerExceptionResolver, PriorityOrdered, Initializable, Destoryable {
 	private static final String CONTROLLER_FLAG = "controller";
-	protected ApplicationContext appContext;
 	protected final ZRMonitorCenter center;
 	protected final Map<Method, ZRMethod> methodMapping;
+	protected ApplicationContext appContext;
+	protected ZRSpringRequestHandler requestHandler;
 
 	public ZRSpringAopController() {
 		this.center = new ZRMonitorCenter();
@@ -61,6 +69,10 @@ public class ZRSpringAopController implements ApplicationContextAware, Initializ
 		center.setStatisticHandler(statisticHandler);
 	}
 
+	public void setRequestHandler(ZRSpringRequestHandler requestHandler) {
+		this.requestHandler = requestHandler;
+	}
+
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.appContext = applicationContext;
@@ -72,7 +84,15 @@ public class ZRSpringAopController implements ApplicationContextAware, Initializ
 		center.setFilters(getFilters());
 		center.setMethods(getMethods());
 		center.setApiInfoBuilder(getApiInfoBuilder());
+		center.setReqHandler(requestHandler);
 		center.init();
+	}
+
+	@PreDestroy
+	@Override
+	public void destory() {
+		center.destory();
+		methodMapping.clear();
 	}
 
 	protected Set<Method> getMethods() {
@@ -116,7 +136,12 @@ public class ZRSpringAopController implements ApplicationContextAware, Initializ
 		HttpServletRequest request = getCurHttpRequest();
 		HttpServletResponse response = getCurHttpResponse();
 		String remoteIp = getRemoteIp(request);
-		return center.execute(jp, zrm, remoteIp, request, response);
+		ZRHttpRequest zreq = ZRSpringContext.getRequest(System.currentTimeMillis(), zrm, remoteIp, request, response);
+		try {
+			return center.execute(jp, zrm, zreq);
+		} finally {
+			zreq.reset();
+		}
 	}
 
 	protected ZRMethod getZRMethod(Method method) {
@@ -152,6 +177,17 @@ public class ZRSpringAopController implements ApplicationContextAware, Initializ
 		if (hr != null)
 			return hr;
 		return "127.0.0.1";
+	}
+
+	@Override
+	public int getOrder() {
+		return 1000;
+	}
+
+	@Override
+	public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler,
+			Exception ex) {
+		return requestHandler.resolveException(request, response, handler, ex);
 	}
 
 }

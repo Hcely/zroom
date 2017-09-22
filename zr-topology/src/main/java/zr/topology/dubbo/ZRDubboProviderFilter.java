@@ -8,10 +8,10 @@ import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.RpcException;
 
 import zr.monitor.ZRMonitorCenter;
-import zr.monitor.ZRContext;
-import zr.monitor.ZRRequest;
-import zr.monitor.ZRTopologyStack;
+import zr.monitor.ZRequest;
 import zr.monitor.bean.result.ZRTopology;
+import zr.monitor.topology.ZRTopologyContext;
+import zr.monitor.topology.ZRTopologyStack;
 
 public class ZRDubboProviderFilter implements Filter {
 
@@ -25,17 +25,17 @@ public class ZRDubboProviderFilter implements Filter {
 			return result;
 		} finally {
 			if (stack != null) {
-				byte resultStatus = ZRRequest.RESULT_OK;
+				byte resultStatus = ZRequest.RESULT_OK;
 				if (result == null || result.hasException())
-					resultStatus = ZRRequest.RESULT_ERROR;
+					resultStatus = ZRequest.RESULT_ERROR;
 				stack.finishAndPopTopology(topology, System.currentTimeMillis(), resultStatus);
-				ZRContext.putTopology(stack.reqId(), stack.finishAndGetResult());
+				ZRTopologyContext.putTopology(stack.reqId(), stack.finishAndGetResult());
 			}
 		}
 	}
 
 	private static final ZRTopologyStack checkTopology(Invoker<?> invoker, Invocation invocation) {
-		ZRTopologyStack stack = ZRContext.curTopologyStack();
+		ZRTopologyStack stack = ZRTopologyContext.curTopologyStack();
 		if (stack.isEmpty()) {
 			RpcContext context = RpcContext.getContext();
 			String reqId = context.getAttachment(ZRMonitorCenter.ZR_REQUEST_ID);

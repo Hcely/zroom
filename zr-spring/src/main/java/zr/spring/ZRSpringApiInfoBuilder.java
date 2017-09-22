@@ -13,15 +13,14 @@ import v.common.helper.StrUtil;
 import zr.monitor.bean.info.ZRApiInfo;
 import zr.monitor.bean.info.ZRParamInfo;
 import zr.monitor.info.ZRDefApiInfoBuilder;
-import zr.spring.util.ZRSpringUtil;
 
 public class ZRSpringApiInfoBuilder extends ZRDefApiInfoBuilder {
 
 	@Override
 	protected void setBaseInfo(String module, String methodName, String version, Method method, ZRApiInfo apiInfo) {
 		super.setBaseInfo(module, methodName, version, method, apiInfo);
-		apiInfo.setUris(ZRSpringUtil.getUris(method));
-		apiInfo.setMethods(ZRSpringUtil.getMethods(method));
+		apiInfo.setPaths(Util.getUris(method));
+		apiInfo.setRequestTypes(Util.getMethods(method));
 	}
 
 	@Override

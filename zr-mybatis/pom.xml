@@ -4,8 +4,8 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>zr.monitor</groupId>
-		<artifactId>zr</artifactId>
+		<groupId>zr</groupId>
+		<artifactId>root</artifactId>
 		<version>0.0.1</version>
 	</parent>
 	<artifactId>zr-mybatis</artifactId>
@@ -29,6 +29,11 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
 			<version>4.3.7.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>zr</groupId>
+			<artifactId>zr-common</artifactId>
+			<version>0.0.1</version>
 		</dependency>
 	</dependencies>
 </project>

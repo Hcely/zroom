@@ -12,11 +12,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 
-import zr.monitor.ZRContext;
 import zr.monitor.ZRMonitorCenter;
-import zr.monitor.ZRRequest;
-import zr.monitor.ZRTopologyStack;
+import zr.monitor.ZRequest;
 import zr.monitor.bean.result.ZRTopology;
+import zr.monitor.topology.ZRTopologyContext;
+import zr.monitor.topology.ZRTopologyStack;
 
 @SuppressWarnings("deprecation")
 public class ZRHttpClient extends CloseableHttpClient {
@@ -46,25 +46,25 @@ public class ZRHttpClient extends CloseableHttpClient {
 				byte resultStatus = checkResponse(result);
 				stack.finishAndPopTopology(topology, System.currentTimeMillis(), resultStatus);
 				if (stack.isEmpty())
-					ZRContext.putTopology(stack.reqId(), stack.finishAndGetResult());
+					ZRTopologyContext.putTopology(stack.reqId(), stack.finishAndGetResult());
 			}
 		}
 	}
 
 	private static final byte checkResponse(CloseableHttpResponse result) {
 		if (result == null)
-			return ZRRequest.RESULT_ERROR;
+			return ZRequest.RESULT_ERROR;
 		StatusLine status = result.getStatusLine();
 		if (status == null)
-			return ZRRequest.RESULT_OK;
+			return ZRequest.RESULT_OK;
 		int code = status.getStatusCode();
 		if (code < 400)
-			return ZRRequest.RESULT_OK;
-		return ZRRequest.RESULT_ERROR;
+			return ZRequest.RESULT_OK;
+		return ZRequest.RESULT_ERROR;
 	}
 
 	private static final ZRTopologyStack checkTopology() {
-		ZRTopologyStack stack = ZRContext.curTopologyStack();
+		ZRTopologyStack stack = ZRTopologyContext.curTopologyStack();
 		return stack.isEmpty() ? null : stack;
 	}
 

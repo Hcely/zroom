@@ -1,47 +1,19 @@
 package zr.spring;
 
-import org.aspectj.lang.ProceedingJoinPoint;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import zr.monitor.ZRLogContent;
-import zr.monitor.ZRRequest;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.springframework.web.servlet.ModelAndView;
+
 import zr.monitor.ZRRequestHandler;
 
-final class ZRSpringRequestHandler implements ZRRequestHandler<ProceedingJoinPoint> {
-
+public interface ZRSpringRequestHandler extends ZRRequestHandler<ProceedingJoinPoint, ZRHttpRequest> {
 	@Override
-	public Object executeNoMethod(ProceedingJoinPoint invoker) throws Throwable {
+	public default Object executeNoMethod(ProceedingJoinPoint invoker, ZRHttpRequest zreq) throws Throwable {
 		return invoker.proceed();
 	}
 
-	@Override
-	public void onApiClose(ProceedingJoinPoint invoker, ZRRequest zreq) throws Throwable {
-
-	}
-
-	@Override
-	public boolean onBefore(ProceedingJoinPoint invoker, ZRRequest zreq) throws Throwable {
-
-		return false;
-	}
-
-	@Override
-	public void execute(ProceedingJoinPoint invoker, ZRRequest zreq) throws Throwable {
-
-	}
-
-	@Override
-	public void onAfter(ProceedingJoinPoint invoker, ZRRequest zreq) {
-
-	}
-
-	@Override
-	public Throwable onError(ProceedingJoinPoint invoker, ZRRequest zreq, boolean resultError) {
-		return null;
-	}
-
-	@Override
-	public void onLog(ProceedingJoinPoint invoker, ZRRequest zreq, ZRLogContent logHr) {
-
-	}
-
+	public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler,
+			Exception ex);
 }

@@ -20,6 +20,7 @@ import v.Clearable;
 import v.Initializable;
 import v.common.helper.StrUtil;
 import v.common.unit.Ternary;
+import zr.common.util.ZRSpringUtil;
 import zr.mybatis.annotation.MapperConfig;
 import zr.mybatis.info.BeanInfo;
 import zr.mybatis.info.BeanInfoMgr;
@@ -75,7 +76,7 @@ public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializ
 		SqlSessionTemplate defTemplate = appContext.getBean(SqlSessionTemplate.class);
 		Map<String, Object> beans = appContext.getBeansWithAnnotation(Repository.class);
 		for (Object e : beans.values()) {
-			e = Util.getRawObj(e);
+			e = ZRSpringUtil.getRawObj(e);
 			List<MapperField> fields = Util.getMapperFields(e.getClass());
 			for (MapperField f : fields) {
 				MapperConfigInfo info = buildConfig(f, defTemplate);
@@ -88,7 +89,7 @@ public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializ
 		}
 		Map<String, SimpleDao> daos = appContext.getBeansOfType(SimpleDao.class);
 		for (SimpleDao e : daos.values()) {
-			e = (SimpleDao) Util.getRawObj(e);
+			e = (SimpleDao) ZRSpringUtil.getRawObj(e);
 			MapperConfigInfo info = buildConfig(e.getClass(), defTemplate);
 			e.mapper = getMapper(info);
 		}
