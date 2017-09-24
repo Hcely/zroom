@@ -46,8 +46,12 @@ public class SimpleMapper<T> {
 	}
 
 	public int insert(T e) {
-		if (insertAsMap)
-			return insertMap(Util.toMap(beanInfo, e, true, ignoreEmpty));
+		if (insertAsMap) {
+			Map<String, Object> map = Util.toMap(beanInfo, e, true, ignoreEmpty);
+			int hr = insertMap(map);
+			Util.setIncColumn(beanInfo, e, map);
+			return hr;
+		}
 		return template.insert(insertObj, e);
 	}
 

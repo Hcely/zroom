@@ -97,14 +97,18 @@ final class Util {
 		}
 	}
 
+	public static final void set(Field f, Object obj, Object value) {
+		try {
+			f.set(obj, value);
+		} catch (Exception e) {
+		}
+	}
+
 	public static final Map<String, Object> toMap(BeanInfo beanInfo, Object obj, boolean ignoreNull,
 			boolean ignoreEmpty) {
 		Map<String, Object> hr = new LinkedHashMap<>();
-		Field incField = beanInfo.getIncColumn();
 		for (Field f : beanInfo.getFields())
 			try {
-				if (f == incField)
-					continue;
 				Object value = f.get(obj);
 				if (ignoreNull && value == null)
 					continue;
@@ -115,6 +119,37 @@ final class Util {
 			} catch (Exception e) {
 			}
 		return hr;
+	}
+
+	public static final void setIncColumn(BeanInfo beanInfo, Object obj, Map<String, Object> map) {
+		Field incField = beanInfo.getIncColumn();
+		if (incField == null)
+			return;
+		Number number = (Number) map.get(incField.getName());
+		number = getNumber(number, incField.getType());
+		if (number == null)
+			return;
+		set(incField, obj, number);
+	}
+
+	public static final Number getNumber(final Number number, final Class<?> clazz) {
+		if (number == null)
+			return null;
+		if (number.getClass() == clazz)
+			return number;
+		if (clazz == int.class || clazz == Integer.class)
+			return Integer.valueOf(number.intValue());
+		if (clazz == long.class || clazz == Long.class)
+			return Long.valueOf(number.longValue());
+		if (clazz == double.class || clazz == Double.class)
+			return Double.valueOf(number.doubleValue());
+		if (clazz == byte.class || clazz == Byte.class)
+			return Byte.valueOf(number.byteValue());
+		if (clazz == short.class || clazz == Short.class)
+			return Short.valueOf(number.shortValue());
+		if (clazz == float.class || clazz == Float.class)
+			return Float.valueOf(number.floatValue());
+		return null;
 	}
 
 }

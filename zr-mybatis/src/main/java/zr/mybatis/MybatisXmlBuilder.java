@@ -32,7 +32,7 @@ final class MybatisXmlBuilder {
 		writeLimitSql(sb);
 
 		writeInsertObj(sb, info);
-		writeInsertMap(sb);
+		writeInsertMap(sb, info);
 		writeSelectObj(sb, info);
 		writeSelectMap(sb);
 		writeUpdate(sb);
@@ -192,8 +192,12 @@ final class MybatisXmlBuilder {
 		sb.append("</insert>\n");
 	}
 
-	private static final void writeInsertMap(StringBuilder sb) {
-		sb.append("<insert id=\"" + INSERT_MAP + "\" parameterType=\"map\">\n");
+	private static final void writeInsertMap(StringBuilder sb, MapperConfigInfo info) {
+		sb.append("<insert id=\"" + INSERT_MAP + "\" parameterType=\"map\"");
+		Field incCol = info.getBean().getIncColumn();
+		if (incCol != null)
+			sb.append(" useGeneratedKeys=\"true\" keyProperty=\"").append(incCol.getName()).append('"');
+		sb.append(">\n");
 		writeInsertMapSql(sb);
 		sb.append("</insert>\n");
 	}
