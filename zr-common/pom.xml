@@ -10,6 +10,7 @@
 	</parent>
 	<artifactId>zr-common</artifactId>
 	<name>zr-common</name>
+	<version>${zr-version}</version>
 	<url>http://maven.apache.org</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

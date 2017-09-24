@@ -68,6 +68,8 @@ final class Util {
 			Type pt = ((ParameterizedType) type).getActualTypeArguments()[idx];
 			if (pt instanceof Class)
 				return (Class<?>) pt;
+			if (pt instanceof ParameterizedType)
+				return (Class<?>) ((ParameterizedType) pt).getRawType();
 			TypeVariable<?>[] types = clazz.getTypeParameters();
 			clazz = null;
 			for (idx = 0, len = types.length; idx < len; ++idx)
@@ -81,7 +83,10 @@ final class Util {
 
 	public static final Class<?> getFieldGenericType(Field field) {
 		ParameterizedType type = (ParameterizedType) field.getGenericType();
-		return (Class<?>) type.getActualTypeArguments()[0];
+		Type pt = type.getActualTypeArguments()[0];
+		if (pt instanceof ParameterizedType)
+			return (Class<?>) ((ParameterizedType) pt).getRawType();
+		return (Class<?>) pt;
 	}
 
 	public static final Object get(Field f, Object obj) {

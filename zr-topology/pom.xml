@@ -10,6 +10,7 @@
 	</parent>
 	<artifactId>zr-topology</artifactId>
 	<name>zr-topology</name>
+	<version>${zr-version}</version>
 	<url>http://maven.apache.org</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,7 +19,7 @@
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>dubbo</artifactId>
-			<version>2.5.3</version>
+			<version>2.5.5</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -36,7 +37,7 @@
 		<dependency>
 			<groupId>zr</groupId>
 			<artifactId>zr-monitor</artifactId>
-			<version>0.0.1</version>
+			<version>${zr-version}</version>
 		</dependency>
 	</dependencies>
 </project>

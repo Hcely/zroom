@@ -6,13 +6,13 @@ import zr.common.util.ZRKeyMap;
 
 @SuppressWarnings("unchecked")
 public class Test01 {
-	public static final int len = 20;
+	public static final int len = 30;
 	public static final int size = 100000000;
 
 	public static void main(String[] args) {
 		ZRKey<String>[] keys = new ZRKey[len];
 		for (int i = 0; i < len; ++i) {
-			keys[i] = ZRKey.build("key" + i);
+			keys[i] = ZRKey.build("key" + i, String.class);
 		}
 		run0(keys);
 		System.out.println("=======");

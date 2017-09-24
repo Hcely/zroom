@@ -1,10 +1,13 @@
 package zr.common.util;
 
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 import v.Clearable;
 import v.common.helper.NumberHelper;
 
-@SuppressWarnings("unchecked")
-public class ZRKeyMap implements Clearable {
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public class ZRKeyMap implements Clearable, Iterable<Entry<ZRKey, Object>> {
 	private Object[] datas;
 	private int capacity;
 	private final int incSize;
@@ -55,5 +58,13 @@ public class ZRKeyMap implements Clearable {
 		for (int i = 0, len = capacity; i < len; ++i)
 			datas[i] = null;
 	}
+
+	@Override
+	public Iterator<Entry<ZRKey, Object>> iterator() {
+		
+		return null;
+	}
+	
+	
 
 }
