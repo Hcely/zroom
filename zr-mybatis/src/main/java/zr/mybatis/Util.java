@@ -107,9 +107,12 @@ final class Util {
 	public static final Map<String, Object> toMap(BeanInfo beanInfo, Object obj, boolean ignoreNull,
 			boolean ignoreEmpty) {
 		Map<String, Object> hr = new LinkedHashMap<>();
+		Field incField = beanInfo.getIncColumn();
 		for (Field f : beanInfo.getFields())
 			try {
 				Object value = f.get(obj);
+				if (f == incField && value != null && ((Number) value).longValue() == 0)
+					continue;
 				if (ignoreNull && value == null)
 					continue;
 				if (ignoreEmpty && value instanceof CharSequence)
