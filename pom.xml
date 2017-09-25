@@ -17,7 +17,7 @@
 	<properties>
 		<zr-version>0.0.1</zr-version>
 		<jackson-version>2.8.8</jackson-version>
-		<v-version>1.5.0</v-version>
+		<v-version>1.5.1</v-version>
 		<log-version>2.8.2</log-version>
 	</properties>
 	<dependencies>
