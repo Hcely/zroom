@@ -21,18 +21,20 @@ public class BeanWriter {
 	protected BeanNameHandler nameHandler;
 	protected boolean nativeClass;
 	protected boolean smallAsInt;
+	protected boolean instanceCreator;
 
 	public BeanWriter(String packageName) {
-		this(packageName, new File(DEF_OUTPUT_FOLDER), DefBeanNameHandler.INSTANCE, false, true);
+		this(packageName, new File(DEF_OUTPUT_FOLDER), DefBeanNameHandler.INSTANCE, false, true, false);
 	}
 
 	public BeanWriter(String packageName, File outputFolder, BeanNameHandler nameHandler, boolean nativeClass,
-			boolean smallAsInt) {
+			boolean smallAsInt, boolean instanceCreator) {
 		this.packageName = packageName;
 		this.outputFolder = outputFolder;
 		this.nameHandler = nameHandler;
 		this.nativeClass = nativeClass;
 		this.smallAsInt = smallAsInt;
+		this.instanceCreator = false;
 	}
 
 	public void setOutputFolder(File outputFolder) {
@@ -85,10 +87,18 @@ public class BeanWriter {
 
 	private void writeBeanStart(StringBuilder sb, String beanName) {
 		sb.append("public class ").append(beanName).append(" implements Serializable, Cloneable {\n");
+		sb.append("\tprivate static final long serialVersionUID = 1L;\n");
+		if (instanceCreator) {
+			sb.append("\tprivate static final ").append(beanName).append(" INSTANCE = new ").append(beanName)
+					.append("();\n\n");
+			sb.append("\tpublic static final ").append(beanName).append(" create() {\n");
+			sb.append("\t\treturn INSTANCE.clone();\n\t}\n");
+		}
+		sb.append("\n");
 	}
 
 	private void writeMemberParams(StringBuilder sb, TableInfo table) {
-		sb.append("\tprivate static final long serialVersionUID = 1L;\n\n");
+
 		for (ColumnInfo col : table.columns) {
 			if (col.inc)
 				sb.append("\t@IncColumn");

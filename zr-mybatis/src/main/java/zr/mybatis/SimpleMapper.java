@@ -14,8 +14,8 @@ import zr.mybatis.sql.SqlCriteria;
 import zr.mybatis.sql.SqlWhere;
 
 public class SimpleMapper<T> {
+
 	protected final SqlSessionTemplate template;
-	protected final MapperConfigInfo configInfo;
 	protected final BeanInfo beanInfo;
 	protected final boolean ignoreEmpty;
 	protected final boolean insertAsMap;
@@ -30,7 +30,6 @@ public class SimpleMapper<T> {
 	SimpleMapper(String namespace, SqlSessionTemplate template, MapperConfigInfo configInfo,
 			ZRSpringMybatisHelper helper) {
 		this.template = template;
-		this.configInfo = configInfo;
 		this.beanInfo = configInfo.getBean();
 		Ternary e = configInfo.getIgnoreEmpty();
 		this.ignoreEmpty = e == Ternary.UNKNOWN ? helper.ignoreEmpty : (e == Ternary.TRUE);
@@ -55,15 +54,8 @@ public class SimpleMapper<T> {
 		return template.insert(insertObj, e);
 	}
 
-	public void insertBatch(Collection<T> list) {
-		if (list == null || list.isEmpty())
-			return;
-		for (T e : list)
-			insert(e);
-	}
-
-	public int insertMap(Map<String, Object> e) {
-		return template.insert(insertMap, e);
+	public int insertMap(Map<String, Object> map) {
+		return template.insert(insertMap, map);
 	}
 
 	public T selectOne(SqlCriteria criteria) {
@@ -88,11 +80,22 @@ public class SimpleMapper<T> {
 		return 0;
 	}
 
-	public int updateByKey(T obj) {
+	public int delete(SqlCriteria criteria) {
+		return template.delete(delete, criteria);
+	}
+
+	public final void insertBatch(Collection<T> list) {
+		if (list == null || list.isEmpty())
+			return;
+		for (T e : list)
+			insert(e);
+	}
+
+	public final int updateByKey(T obj) {
 		return updateByKey(obj, ignoreEmpty);
 	}
 
-	public int updateByKey(T obj, boolean ignoreEmpty) {
+	public final int updateByKey(T obj, boolean ignoreEmpty) {
 		if (obj == null)
 			return 0;
 		SqlCriteria criteria = SqlCriteria.create();
@@ -112,11 +115,11 @@ public class SimpleMapper<T> {
 		return update(criteria);
 	}
 
-	public int update(T update, T condition) {
+	public final int update(T update, T condition) {
 		return update(update, condition, ignoreEmpty);
 	}
 
-	public int update(T update, T condition, boolean ignoreEmpty) {
+	public final int update(T update, T condition, boolean ignoreEmpty) {
 		if (update == null)
 			return 0;
 		SqlCriteria criteria = SqlCriteria.create();
@@ -138,11 +141,7 @@ public class SimpleMapper<T> {
 		return update(criteria);
 	}
 
-	public int delete(SqlCriteria criteria) {
-		return template.delete(delete, criteria);
-	}
-
-	public BeanInfo getBeanInfo() {
+	public final BeanInfo getBeanInfo() {
 		return beanInfo;
 	}
 

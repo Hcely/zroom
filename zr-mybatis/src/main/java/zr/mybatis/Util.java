@@ -154,5 +154,4 @@ final class Util {
 			return Float.valueOf(number.floatValue());
 		return null;
 	}
-
 }

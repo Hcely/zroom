@@ -1,8 +1,6 @@
 package zr.mybatis;
 
 public class DefTableNameHandler implements TableNameHandler {
-	static final DefTableNameHandler INSTANCE = new DefTableNameHandler();
-
 	@Override
 	public String getTableName(Class<?> beanClazz) {
 		String name = beanClazz.getSimpleName();
