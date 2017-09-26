@@ -8,7 +8,6 @@
 		<artifactId>root</artifactId>
 		<version>0.0.1</version>
 	</parent>
-	<groupId>zr-mybatis-gen</groupId>
 	<artifactId>zr-mybatis-gen</artifactId>
 	<version>${zr-version}</version>
 	<name>zr-mybatis-gen</name>
