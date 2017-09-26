@@ -43,6 +43,10 @@ public class ZRMybatisGen {
 		writer.setInstanceCreator(instanceCreator);
 	}
 
+	public void setUseAnnotation(boolean useAnnotation) {
+		writer.setUseAnnotation(useAnnotation);
+	}
+
 	public void setFactory(DatabaseFactory factory) {
 		this.factory = factory;
 	}

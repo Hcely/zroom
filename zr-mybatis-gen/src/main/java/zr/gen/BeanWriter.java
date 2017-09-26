@@ -27,6 +27,7 @@ public class BeanWriter implements Initializable {
 	protected boolean nativeClass;
 	protected boolean smallAsInt;
 	protected boolean instanceCreator;
+	protected boolean useAnnotation;
 
 	public BeanWriter(String packageName) {
 		this(packageName, null, DefBeanNameHandler.INSTANCE, false, true, false);
@@ -40,6 +41,7 @@ public class BeanWriter implements Initializable {
 		this.nativeClass = nativeClass;
 		this.smallAsInt = smallAsInt;
 		this.instanceCreator = false;
+		this.useAnnotation = true;
 	}
 
 	public void setOutputFolder(File outputFolder) {
@@ -64,6 +66,10 @@ public class BeanWriter implements Initializable {
 
 	public void setInstanceCreator(boolean instanceCreator) {
 		this.instanceCreator = instanceCreator;
+	}
+
+	public void setUseAnnotation(boolean useAnnotation) {
+		this.useAnnotation = useAnnotation;
 	}
 
 	@Override
@@ -125,10 +131,12 @@ public class BeanWriter implements Initializable {
 
 	private void writeMemberParams(StringBuilder sb, TableInfo table) {
 		for (ColumnInfo col : table.getColumns()) {
-			if (col.isInc())
-				sb.append("\t@IncColumn\n");
-			if (col.isPri())
-				sb.append("\t@KeyColumn\n");
+			if (useAnnotation) {
+				if (col.isInc())
+					sb.append("\t@IncColumn\n");
+				if (col.isPri())
+					sb.append("\t@KeyColumn\n");
+			}
 			sb.append("\tprotected ").append(getType(col.getType())).append(" ").append(col.getName()).append(";\n");
 		}
 		sb.append('\n');
@@ -173,10 +181,12 @@ public class BeanWriter implements Initializable {
 		for (ColumnInfo col : table.getColumns()) {
 			if (col.getType() == ColumnType.DATE)
 				map.put(Date.class, null);
-			if (col.isInc())
-				map.put(IncColumn.class, null);
-			if (col.isPri())
-				map.put(KeyColumn.class, null);
+			if (useAnnotation) {
+				if (col.isInc())
+					map.put(IncColumn.class, null);
+				if (col.isPri())
+					map.put(KeyColumn.class, null);
+			}
 		}
 		List<String> hr = new ArrayList<>(map.size());
 		for (Class<?> e : map.keySet())
