@@ -1,5 +1,7 @@
 package zr.gen.table;
 
+import zr.gen.BeanNameHandler;
+
 public class DefBeanNameHandler implements BeanNameHandler {
 	public static final DefBeanNameHandler INSTANCE = new DefBeanNameHandler();
 

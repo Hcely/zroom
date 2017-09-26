@@ -1,4 +1,4 @@
-package zr.gen.table;
+package zr.gen;
 
 public interface BeanNameHandler {
 

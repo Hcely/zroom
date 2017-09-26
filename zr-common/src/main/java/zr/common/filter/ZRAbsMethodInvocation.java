@@ -4,13 +4,13 @@ import zr.common.util.ZRKey;
 import zr.common.util.ZRKeyMap;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public abstract class ZRAbsFilterExecutor<T> implements ZRMethodExecutor<T> {
+public abstract class ZRAbsMethodInvocation<T> implements ZRMethodInvocation<T> {
 	protected ZRFilter[] filters;
 	protected int length;
 	protected int stackIdx;
 	protected final ZRKeyMap map;
 
-	public ZRAbsFilterExecutor() {
+	public ZRAbsMethodInvocation() {
 		this.filters = null;
 		this.length = 0;
 		this.stackIdx = 0;

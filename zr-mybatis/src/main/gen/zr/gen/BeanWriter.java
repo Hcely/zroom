@@ -1,4 +1,4 @@
-package zr.gen.table;
+package zr.gen;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,11 +10,16 @@ import java.util.Date;
 import java.util.IdentityHashMap;
 import java.util.List;
 
+import v.Initializable;
 import v.common.helper.StrUtil;
+import zr.gen.table.ColumnInfo;
+import zr.gen.table.ColumnType;
+import zr.gen.table.DefBeanNameHandler;
+import zr.gen.table.TableInfo;
 import zr.mybatis.annotation.IncColumn;
 import zr.mybatis.annotation.KeyColumn;
 
-public class BeanWriter {
+public class BeanWriter implements Initializable {
 	public static final String DEF_OUTPUT_FOLDER = "./output";
 	protected final String packageName;
 	protected File outputFolder;
@@ -24,7 +29,7 @@ public class BeanWriter {
 	protected boolean instanceCreator;
 
 	public BeanWriter(String packageName) {
-		this(packageName, new File(DEF_OUTPUT_FOLDER), DefBeanNameHandler.INSTANCE, false, true, false);
+		this(packageName, null, DefBeanNameHandler.INSTANCE, false, true, false);
 	}
 
 	public BeanWriter(String packageName, File outputFolder, BeanNameHandler nameHandler, boolean nativeClass,
@@ -41,6 +46,10 @@ public class BeanWriter {
 		this.outputFolder = outputFolder;
 	}
 
+	public void setOutputFolder(String outputFolder) {
+		setOutputFolder(new File(outputFolder));
+	}
+
 	public void setNameHandler(BeanNameHandler nameHandler) {
 		this.nameHandler = nameHandler;
 	}
@@ -53,10 +62,25 @@ public class BeanWriter {
 		this.smallAsInt = smallAsInt;
 	}
 
-	public void write(TableInfo table) throws IOException {
+	public void setInstanceCreator(boolean instanceCreator) {
+		this.instanceCreator = instanceCreator;
+	}
+
+	@Override
+	public void init() {
+		if (nameHandler == null)
+			nameHandler = DefBeanNameHandler.INSTANCE;
+		if (outputFolder == null)
+			outputFolder = new File(DEF_OUTPUT_FOLDER);
+		String path = packageName.replace('.', '/');
+		outputFolder = new File(outputFolder, path);
+		if (!outputFolder.exists())
+			outputFolder.mkdirs();
+	}
+
+	public void write(TableInfo table) {
 		StringBuilder sb = new StringBuilder(1024 * 8);
-		String beanName = nameHandler == null ? DefBeanNameHandler.INSTANCE.getBeanName(packageName)
-				: nameHandler.getBeanName(table.tableName);
+		String beanName = nameHandler.getBeanName(table.getTableName());
 		writePackage(sb);
 		writeImports(sb, table);
 		writeBeanStart(sb, beanName);
@@ -65,13 +89,15 @@ public class BeanWriter {
 		writeCloneMethod(sb, beanName);
 		writeGetSets(sb, table, beanName);
 		writeBeanEnd(sb);
-		if (outputFolder == null)
-			outputFolder = new File(DEF_OUTPUT_FOLDER);
-		if (!outputFolder.exists())
-			outputFolder.mkdirs();
-		FileOutputStream out = new FileOutputStream(new File(outputFolder, beanName + ".java"));
-		out.write(sb.toString().getBytes());
-		out.close();
+		try {
+			FileOutputStream out = new FileOutputStream(new File(outputFolder, beanName + ".java"));
+			out.write(sb.toString().getBytes());
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
 	}
 
 	private void writePackage(StringBuilder sb) {
@@ -98,13 +124,12 @@ public class BeanWriter {
 	}
 
 	private void writeMemberParams(StringBuilder sb, TableInfo table) {
-
-		for (ColumnInfo col : table.columns) {
-			if (col.inc)
-				sb.append("\t@IncColumn");
-			if (col.pri)
-				sb.append("\t@KeyColumn");
-			sb.append("\tprotected ").append(getType(col.type)).append(" ").append(col.name).append(";\n");
+		for (ColumnInfo col : table.getColumns()) {
+			if (col.isInc())
+				sb.append("\t@IncColumn\n");
+			if (col.isPri())
+				sb.append("\t@KeyColumn\n");
+			sb.append("\tprotected ").append(getType(col.getType())).append(" ").append(col.getName()).append(";\n");
 		}
 		sb.append('\n');
 	}
@@ -116,24 +141,25 @@ public class BeanWriter {
 	private void writeCloneMethod(StringBuilder sb, String beanName) {
 		sb.append("\t@Override\n\tpublic ").append(beanName).append(" clone() {\n\t\ttry {\n\t\t\treturn (")
 				.append(beanName)
-				.append(") super.clone();\n\t\t} catch (CloneNotSupportedException e) {\n\t\t\tthrow new RuntimeException(e);\n\t\t}\t}\n\n");
+				.append(") super.clone();\n\t\t} catch (CloneNotSupportedException e) {\n\t\t\tthrow new RuntimeException(e);\n\t\t}\n\t}\n\n");
 	}
 
 	private void writeGetSets(StringBuilder sb, TableInfo table, String beanName) {
-		for (ColumnInfo col : table.columns)
+		for (ColumnInfo col : table.getColumns())
 			writeGetSet(sb, beanName, col);
 	}
 
 	private void writeGetSet(StringBuilder sb, String beanName, ColumnInfo column) {
-		String typeName = getType(column.type);
-		String uName = buildUName(column.name);
+		String typeName = getType(column.getType());
+		String uName = buildUName(column.getName());
 		sb.append("\tpublic ").append(typeName).append(" get").append(uName).append("() {\n");
-		sb.append("\t\treturn ").append(column.name).append(";\n");
+		sb.append("\t\treturn ").append(column.getName()).append(";\n");
 		sb.append("\t}\n\n");
 
 		sb.append("\tpublic ").append(beanName).append(" set").append(uName).append("(").append(typeName).append(" ")
-				.append(column.name).append(") {\n");
-		sb.append("\t\tthis.").append(column.name).append(" = ").append(column.name).append(";\n");
+				.append(column.getName()).append(") {\n");
+		sb.append("\t\tthis.").append(column.getName()).append(" = ").append(column.getName()).append(";\n");
+		sb.append("\t\treturn this;\n");
 		sb.append("\t}\n\n");
 	}
 
@@ -144,12 +170,12 @@ public class BeanWriter {
 	protected final List<String> getImports(TableInfo table) {
 		IdentityHashMap<Class<?>, Void> map = new IdentityHashMap<>();
 		map.put(Serializable.class, null);
-		for (ColumnInfo col : table.columns) {
-			if (col.type == ColumnType.DATE)
+		for (ColumnInfo col : table.getColumns()) {
+			if (col.getType() == ColumnType.DATE)
 				map.put(Date.class, null);
-			if (col.inc)
+			if (col.isInc())
 				map.put(IncColumn.class, null);
-			if (col.pri)
+			if (col.isPri())
 				map.put(KeyColumn.class, null);
 		}
 		List<String> hr = new ArrayList<>(map.size());
@@ -179,7 +205,7 @@ public class BeanWriter {
 			return nativeClass ? type.nativeName : type.typeName;
 		case DATE:
 			return type.typeName;
-		case STR:
+		case STRING:
 		default:
 			return type.typeName;
 		}

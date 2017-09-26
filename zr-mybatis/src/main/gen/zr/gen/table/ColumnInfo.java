@@ -30,4 +30,9 @@ public class ColumnInfo {
 		return type;
 	}
 
+	@Override
+	public String toString() {
+		return "ColumnInfo [name=" + name + ", pri=" + pri + ", inc=" + inc + ", type=" + type + "]";
+	}
+
 }

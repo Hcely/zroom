@@ -28,4 +28,9 @@ public class TableInfo {
 		return columns;
 	}
 
+	@Override
+	public String toString() {
+		return "TableInfo [tableName=" + tableName + ", columns=" + columns + "]";
+	}
+
 }

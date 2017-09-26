@@ -2,7 +2,7 @@ package zr.common.filter;
 
 import zr.common.util.ZRKey;
 
-public interface ZRMethodExecutor<T> {
+public interface ZRMethodInvocation<T> {
 	public Object execute(T method) throws Throwable;
 
 	public <V> void setFlag(ZRKey<V> key, V value);
