@@ -116,7 +116,7 @@ public class MysqlDatabaseFactory implements DatabaseFactory {
 			String field = rs.getString(1);
 			String type = rs.getString(2);
 			String key = rs.getString(4);
-			String extra = rs.getString(5);
+			String extra = rs.getString(6);
 			ColumnType ctype = getType(type);
 			boolean pri = isPri(key);
 			boolean inc = isAutoIncrease(extra);
