@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -86,10 +87,16 @@ public class MysqlDatabaseFactory implements DatabaseFactory {
 	}
 
 	@Override
-	public Map<String, TableInfo> getTables() {
+	public Map<String, TableInfo> getTables(String[] tables) {
+		Map<String, Void> tableMap = null;
+		if (tables != null && tables.length > 0) {
+			tableMap = new HashMap<>();
+			for (String e : tables)
+				tableMap.put(e, null);
+		}
 		LinkedHashMap<String, TableInfo> hr = new LinkedHashMap<>();
 		try {
-			showTables(hr);
+			showTables(tableMap, hr);
 			for (TableInfo e : hr.values())
 				showColumns(e);
 		} catch (SQLException e) {
@@ -98,11 +105,14 @@ public class MysqlDatabaseFactory implements DatabaseFactory {
 		return hr;
 	}
 
-	private void showTables(final LinkedHashMap<String, TableInfo> hr) throws SQLException {
+	private void showTables(final Map<String, Void> tables, final LinkedHashMap<String, TableInfo> hr)
+			throws SQLException {
 		Statement sm = conn.createStatement();
 		ResultSet rs = sm.executeQuery(SHOW_TABLES);
 		while (rs.next()) {
 			String tableName = rs.getString(1);
+			if (tables != null && !tables.containsKey(tableName))
+				continue;
 			hr.put(tableName, new TableInfo(tableName));
 		}
 		rs.close();

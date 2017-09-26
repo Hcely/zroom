@@ -52,10 +52,18 @@ public class ZRMybatisGen {
 	}
 
 	public void doOutput() {
+		doOutput0(null);
+	}
+
+	public void doOutput(String... tables) {
+		doOutput0(tables);
+	}
+
+	private void doOutput0(String[] tables) {
 		factory.init();
 		writer.init();
-		Map<String, TableInfo> tables = factory.getTables();
-		for (TableInfo table : tables.values())
+		Map<String, TableInfo> tableMap = factory.getTables(tables);
+		for (TableInfo table : tableMap.values())
 			writer.write(table);
 	}
 }

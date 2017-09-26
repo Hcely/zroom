@@ -7,5 +7,5 @@ import v.Initializable;
 import zr.gen.table.TableInfo;
 
 public interface DatabaseFactory extends Initializable, Destoryable {
-	public Map<String, TableInfo> getTables();
+	public Map<String, TableInfo> getTables(String[] tables);
 }

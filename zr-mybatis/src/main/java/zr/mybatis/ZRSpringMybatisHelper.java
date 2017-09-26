@@ -33,14 +33,14 @@ import zr.mybatis.info.MapperConfigInfo;
 public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializable, Clearable {
 	protected final Map<MapperConfigInfo, SimpleMapper> mapperMap;
 	protected final BeanInfoMgr infoMgr;
-	protected ZRMybatisFilter[] filters;
+	ZRMybatisFilter[] filters;
 
-	protected ApplicationContext appContext;
-	protected SqlSessionTemplate defTemplate;
-	protected TableNameHandler nameHandler;
+	ApplicationContext appContext;
+	SqlSessionTemplate defTemplate;
+	TableNameHandler nameHandler;
 
-	protected boolean ignoreEmpty = false;
-	protected boolean insertAsMap = false;
+	boolean ignoreEmpty = false;
+	boolean insertAsMap = false;
 
 	public ZRSpringMybatisHelper() {
 		this.mapperMap = new HashMap<>();
@@ -52,46 +52,47 @@ public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializ
 		this.appContext = applicationContext;
 	}
 
-	public boolean isIgnoreEmpty() {
-		return ignoreEmpty;
-	}
-
-	public void setIgnoreEmpty(boolean ignoreEmpty) {
+	public final void setIgnoreEmpty(boolean ignoreEmpty) {
 		this.ignoreEmpty = ignoreEmpty;
 	}
 
-	public boolean isInsertAsMap() {
-		return insertAsMap;
-	}
-
-	public void setInsertAsMap(boolean insertAsMap) {
+	public final void setInsertAsMap(boolean insertAsMap) {
 		this.insertAsMap = insertAsMap;
 	}
 
-	public TableNameHandler getNameHandler() {
-		return nameHandler;
-	}
-
-	public void setNameHandler(TableNameHandler nameHandler) {
+	public final void setNameHandler(TableNameHandler nameHandler) {
 		this.nameHandler = nameHandler;
 	}
 
 	@PostConstruct
 	@Override
-	public void init() {
+	public final void init() {
 		if (nameHandler == null)
 			nameHandler = new DefTableNameHandler();
-		initDefTemplate();
+		defTemplate = getDefTemplate(appContext);
 		initFilters();
 		initMappers();
 		initDaos();
 	}
 
-	private void initDefTemplate() {
+	protected SqlSessionTemplate getDefTemplate(final ApplicationContext appContext) {
 		Map<String, SqlSessionTemplate> beans = appContext.getBeansOfType(SqlSessionTemplate.class);
-		defTemplate = beans.get("org.mybatis.spring.SqlSessionTemplate#0");
-		if (defTemplate == null)
-			defTemplate = beans.values().iterator().next();
+		SqlSessionTemplate hr = beans.get("org.mybatis.spring.SqlSessionTemplate#0");
+		if (hr != null)
+			return hr;
+		hr = beans.get("sqlTemplate");
+		if (hr != null)
+			return hr;
+		hr = beans.get("sqlTemplate0");
+		if (hr != null)
+			return hr;
+		hr = beans.get("sqlSessionTemplate");
+		if (hr != null)
+			return hr;
+		hr = beans.get("sqlSessionTemplate0");
+		if (hr != null)
+			return hr;
+		return beans.values().iterator().next();
 	}
 
 	private void initFilters() {
@@ -131,17 +132,17 @@ public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializ
 		}
 	}
 
-	private MapperConfigInfo buildConfig(MapperField f) {
+	private final MapperConfigInfo buildConfig(MapperField f) {
 		return buildConfig0(Util.getFieldGenericType(f.field), f.config);
 	}
 
-	private MapperConfigInfo buildConfig(Class<?> clazz) {
+	private final MapperConfigInfo buildConfig(Class<?> clazz) {
 		Class<?> type = Util.getDaoGenericType(clazz);
 		MapperConfig config = Util.getDaoConfig(clazz);
 		return buildConfig0(type, config);
 	}
 
-	private MapperConfigInfo buildConfig0(Class<?> type, MapperConfig config) {
+	private final MapperConfigInfo buildConfig0(Class<?> type, MapperConfig config) {
 		SqlSessionTemplate template = getTemplate(config == null ? null : config.template());
 		BeanInfo bean = infoMgr.getFields(type);
 		String table = config == null ? null : config.table();
@@ -153,7 +154,7 @@ public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializ
 		return new MapperConfigInfo(template, bean, table.intern(), ignoreEmpty, insertAsMap, fields);
 	}
 
-	private SimpleMapper getMapper(MapperConfigInfo info) {
+	private final SimpleMapper getMapper(MapperConfigInfo info) {
 		SimpleMapper mapper = mapperMap.get(info);
 		if (mapper != null)
 			return mapper;
@@ -181,7 +182,7 @@ public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializ
 
 	@PreDestroy
 	@Override
-	public void clear() {
+	public final void clear() {
 		mapperMap.clear();
 		infoMgr.clear();
 	}
