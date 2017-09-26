@@ -36,7 +36,6 @@ public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializ
 	protected ZRMybatisFilter[] filters;
 
 	protected ApplicationContext appContext;
-
 	protected SqlSessionTemplate defTemplate;
 	protected TableNameHandler nameHandler;
 
@@ -82,10 +81,17 @@ public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializ
 	public void init() {
 		if (nameHandler == null)
 			nameHandler = new DefTableNameHandler();
-		defTemplate = appContext.getBean(SqlSessionTemplate.class);
+		initDefTemplate();
 		initFilters();
 		initMappers();
 		initDaos();
+	}
+
+	private void initDefTemplate() {
+		Map<String, SqlSessionTemplate> beans = appContext.getBeansOfType(SqlSessionTemplate.class);
+		defTemplate = beans.get("org.mybatis.spring.SqlSessionTemplate#0");
+		if (defTemplate == null)
+			defTemplate = beans.values().iterator().next();
 	}
 
 	private void initFilters() {
