@@ -84,12 +84,12 @@ public abstract class SimpleDao<T> implements SqlOperate<T> {
 	}
 
 	@Override
-	public T find(ObjCondition<? extends ObjCondition<?, ?>, T> condition) {
+	public T find(ObjCondition<?> condition) {
 		return mapper.selectOne(condition);
 	}
 
 	@Override
-	public List<T> query(ObjCondition<? extends ObjCondition<?, ?>, T> condition) {
+	public List<T> query(ObjCondition<?> condition) {
 		return mapper.selectList(condition);
 	}
 

@@ -93,19 +93,19 @@ public class SimpleMapper<T> {
 			insert(e);
 	}
 
-	public final T selectOne(ObjCondition<? extends ObjCondition<?, ?>, T> condition) {
+	public final T selectOne(ObjCondition<?> condition) {
 		return selectOne(condition.criteria());
 	}
 
-	public final List<T> selectList(ObjCondition<? extends ObjCondition<?, ?>, T> condition) {
+	public final List<T> selectList(ObjCondition<?> condition) {
 		return selectList(condition.criteria());
 	}
 
-	public final Map<String, Object> selectOneMap(ObjCondition<? extends ObjCondition<?, ?>, T> condition) {
+	public final Map<String, Object> selectOneMap(ObjCondition<?> condition) {
 		return selectOneMap(condition.criteria());
 	}
 
-	public final List<Map<String, Object>> selectListMap(ObjCondition<? extends ObjCondition<?, ?>, T> condition) {
+	public final List<Map<String, Object>> selectListMap(ObjCondition<?> condition) {
 		return selectListMap(condition.criteria());
 	}
 

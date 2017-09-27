@@ -4,7 +4,7 @@ import zr.mybatis.sql.SqlCriteria;
 import zr.mybatis.sql.SqlWhere;
 
 @SuppressWarnings("unchecked")
-public abstract class ObjCondition<T extends ObjCondition<?, ?>, K> {
+public abstract class ObjCondition<T extends ObjCondition<?>> {
 	final SqlCriteria criteria;
 	final FieldOps<T> fieldOps;
 	SqlWhere where;

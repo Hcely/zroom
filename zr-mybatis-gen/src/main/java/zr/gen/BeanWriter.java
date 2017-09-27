@@ -97,7 +97,7 @@ public class BeanWriter implements Initializable {
 		writeCloneMethod(sb, beanName);
 		writeGetSets(sb, table, beanName);
 		if (conditionOps)
-			writeConditionOps(sb, table, beanName);
+			writeConditionOps(sb, table);
 		writeBeanEnd(sb);
 
 		try {
@@ -133,14 +133,19 @@ public class BeanWriter implements Initializable {
 	private void writeBeanStart(StringBuilder sb, String beanName) {
 		sb.append("public class ").append(beanName).append(" implements Serializable, Cloneable {\n");
 		sb.append("\tprivate static final long serialVersionUID = 1L;\n\n");
-		if (instanceCreator) {
-			sb.append("\tprivate static final ").append(beanName).append(" INSTANCE = new ").append(beanName)
-					.append("();\n\n");
-			sb.append("\tpublic static final ").append(beanName).append(" create() {\n");
-			sb.append("\t\treturn INSTANCE.clone();\n\t}\n\n");
+		if (instanceCreator || conditionOps) {
+			if (instanceCreator)
+				sb.append("\tprivate static final ").append(beanName).append(" INSTANCE = new ").append(beanName)
+						.append("();\n");
+			if (conditionOps)
+				sb.append("\tprivate static final Condition CON_INSTANCE = new Condition();\n");
+			sb.append('\n');
 		}
+		if (instanceCreator)
+			sb.append("\tpublic static final ").append(beanName).append(" create() {\n")
+					.append("\t\treturn INSTANCE.clone();\n\t}\n\n");
 		if (conditionOps)
-			sb.append("\tpublic static final Condition condition() {\n\t\treturn new Condition();\n\t}\n\n");
+			sb.append("\tpublic static final Condition condition() {\n\t\treturn CON_INSTANCE.clone();\n\t}\n\n");
 	}
 
 	private void writeMemberParams(StringBuilder sb, TableInfo table) {
@@ -191,10 +196,11 @@ public class BeanWriter implements Initializable {
 		sb.append("\t}\n\n");
 	}
 
-	private void writeConditionOps(StringBuilder sb, TableInfo table, String beanName) {
-		sb.append("\tpublic static final class Condition extends ObjCondition<Condition, ").append(beanName)
-				.append("> {\n\n");
+	private void writeConditionOps(StringBuilder sb, TableInfo table) {
+		sb.append("\tpublic static final class Condition extends ObjCondition<Condition> implements Cloneable {\n");
 		sb.append("\t\tprivate Condition() {\n\t\t}\n\n");
+		sb.append(
+				"\t\t@Override\n\t\tprotected Condition clone() {\n\t\t\ttry {\n\t\t\t\treturn (Condition) super.clone();\n\t\t\t} catch (CloneNotSupportedException e) {\n\t\t\t\tthrow new RuntimeException(e);\n\t\t\t}\n\t\t}\n\n");
 		for (ColumnInfo col : table.getColumns()) {
 			String name = col.getName();
 			sb.append("\t\tpublic final FieldOps<Condition> ").append(name).append("() {\n");

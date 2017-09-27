@@ -2,7 +2,7 @@ package zr.mybatis.sql.condition;
 
 import java.util.Collection;
 
-public class FieldOps<T extends ObjCondition<?, ?>> {
+public class FieldOps<T extends ObjCondition<?>> {
 	protected final T condition;
 	protected String key;
 
