@@ -1,11 +1,11 @@
-package zr.common.filter;
+package zr.common.interceptor;
 
 import zr.common.util.ZRKey;
 import zr.common.util.ZRKeyMap;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public abstract class ZRAbsMethodInvocation<T> implements ZRMethodInvocation<T> {
-	protected ZRFilter[] filters;
+	protected ZRInterceptor[] filters;
 	protected int length;
 	protected int stackIdx;
 	protected final ZRKeyMap map;
@@ -17,7 +17,7 @@ public abstract class ZRAbsMethodInvocation<T> implements ZRMethodInvocation<T> 
 		this.map = new ZRKeyMap();
 	}
 
-	public Object execute(final ZRFilter[] filters, final T method) throws Throwable {
+	public Object execute(final ZRInterceptor[] filters, final T method) throws Throwable {
 		this.filters = filters;
 		this.length = filters.length;
 		this.stackIdx = 0;

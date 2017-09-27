@@ -14,6 +14,15 @@ public interface ZRSpringRequestHandler extends ZRRequestHandler<ProceedingJoinP
 		return invoker.proceed();
 	}
 
+	@Override
+	public default boolean onBefore(ProceedingJoinPoint invoker, ZRHttpRequest zreq) throws Throwable {
+		return false;
+	}
+
+	@Override
+	public default void onAfter(ProceedingJoinPoint invoker, ZRHttpRequest zreq) {
+	}
+
 	public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler,
 			Exception ex);
 }
