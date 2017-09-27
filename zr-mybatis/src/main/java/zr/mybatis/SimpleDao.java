@@ -8,14 +8,12 @@ import java.util.Map;
 import org.mybatis.spring.SqlSessionTemplate;
 
 import zr.mybatis.info.BeanInfo;
-import zr.mybatis.operate.DeleteOperate;
-import zr.mybatis.operate.InsertOperate;
-import zr.mybatis.operate.SelectOperate;
-import zr.mybatis.operate.UpdateOperate;
+import zr.mybatis.operate.SqlOperate;
 import zr.mybatis.sql.SqlCriteria;
 import zr.mybatis.sql.SqlWhere;
+import zr.mybatis.sql.condition.ObjCondition;
 
-public abstract class SimpleDao<T> implements InsertOperate<T>, SelectOperate<T>, UpdateOperate<T>, DeleteOperate<T> {
+public abstract class SimpleDao<T> implements SqlOperate<T> {
 	SimpleMapper<T> mapper;
 
 	protected final SimpleMapper<T> mapper() {
@@ -83,6 +81,16 @@ public abstract class SimpleDao<T> implements InsertOperate<T>, SelectOperate<T>
 				where.eq(f.getName(), Util.get(f, condition), true);
 		}
 		return mapper.selectList(criteria);
+	}
+
+	@Override
+	public T find(ObjCondition<? extends ObjCondition<?, ?>, T> condition) {
+		return mapper.selectOne(condition);
+	}
+
+	@Override
+	public List<T> query(ObjCondition<? extends ObjCondition<?, ?>, T> condition) {
+		return mapper.selectList(condition);
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.mybatis.spring.SqlSessionTemplate;
 
@@ -12,6 +13,7 @@ import zr.mybatis.info.BeanInfo;
 import zr.mybatis.info.MapperConfigInfo;
 import zr.mybatis.sql.SqlCriteria;
 import zr.mybatis.sql.SqlWhere;
+import zr.mybatis.sql.condition.ObjCondition;
 
 public class SimpleMapper<T> {
 
@@ -89,6 +91,46 @@ public class SimpleMapper<T> {
 			return;
 		for (T e : list)
 			insert(e);
+	}
+
+	public final T selectOne(ObjCondition<? extends ObjCondition<?, ?>, T> condition) {
+		return selectOne(condition.criteria());
+	}
+
+	public final List<T> selectList(ObjCondition<? extends ObjCondition<?, ?>, T> condition) {
+		return selectList(condition.criteria());
+	}
+
+	public final Map<String, Object> selectOneMap(ObjCondition<? extends ObjCondition<?, ?>, T> condition) {
+		return selectOneMap(condition.criteria());
+	}
+
+	public final List<Map<String, Object>> selectListMap(ObjCondition<? extends ObjCondition<?, ?>, T> condition) {
+		return selectListMap(condition.criteria());
+	}
+
+	public final T selectOneByMap(Map<String, Object> condition) {
+		SqlCriteria c = SqlCriteria.create();
+		SqlWhere w = c.where();
+		for (Entry<String, Object> e : condition.entrySet())
+			w.eq(e.getKey(), e.getValue());
+		return selectOne(c);
+	}
+
+	public final List<T> selectListByMap(Map<String, Object> condition) {
+		SqlCriteria c = SqlCriteria.create();
+		SqlWhere w = c.where();
+		for (Entry<String, Object> e : condition.entrySet())
+			w.eq(e.getKey(), e.getValue());
+		return selectList(c);
+	}
+
+	public final T selectById(String key, Object value) {
+		return selectOne(SqlCriteria.create().where().eq(key, value).end());
+	}
+
+	public final List<T> selectByIds(String key, Collection<?> values) {
+		return selectList(SqlCriteria.create().where().in(key, values).end());
 	}
 
 	public final int updateByKey(T obj) {

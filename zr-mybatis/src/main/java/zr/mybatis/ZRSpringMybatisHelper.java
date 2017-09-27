@@ -86,10 +86,22 @@ public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializ
 		hr = beans.get("sqlTemplate0");
 		if (hr != null)
 			return hr;
+		hr = beans.get("sqlTemplate-0");
+		if (hr != null)
+			return hr;
+		hr = beans.get("sqlTemplate_0");
+		if (hr != null)
+			return hr;
 		hr = beans.get("sqlSessionTemplate");
 		if (hr != null)
 			return hr;
 		hr = beans.get("sqlSessionTemplate0");
+		if (hr != null)
+			return hr;
+		hr = beans.get("sqlSessionTemplate-0");
+		if (hr != null)
+			return hr;
+		hr = beans.get("sqlSessionTemplate_0");
 		if (hr != null)
 			return hr;
 		return beans.values().iterator().next();

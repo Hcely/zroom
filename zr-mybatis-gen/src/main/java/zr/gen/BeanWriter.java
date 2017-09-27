@@ -11,13 +11,14 @@ import java.util.IdentityHashMap;
 import java.util.List;
 
 import v.Initializable;
-import v.common.helper.StrUtil;
 import zr.gen.table.ColumnInfo;
 import zr.gen.table.ColumnType;
 import zr.gen.table.DefBeanNameHandler;
 import zr.gen.table.TableInfo;
 import zr.mybatis.annotation.IncColumn;
 import zr.mybatis.annotation.KeyColumn;
+import zr.mybatis.sql.condition.FieldOps;
+import zr.mybatis.sql.condition.ObjCondition;
 
 public class BeanWriter implements Initializable {
 	public static final String DEF_OUTPUT_FOLDER = "./output";
@@ -28,20 +29,22 @@ public class BeanWriter implements Initializable {
 	protected boolean smallAsInt;
 	protected boolean instanceCreator;
 	protected boolean useAnnotation;
+	protected boolean conditionOps;
 
 	public BeanWriter(String packageName) {
-		this(packageName, null, DefBeanNameHandler.INSTANCE, false, true, false);
+		this(packageName, null, DefBeanNameHandler.INSTANCE, false, true, false, true, true);
 	}
 
 	public BeanWriter(String packageName, File outputFolder, BeanNameHandler nameHandler, boolean nativeClass,
-			boolean smallAsInt, boolean instanceCreator) {
+			boolean smallAsInt, boolean instanceCreator, boolean useAnnotation, boolean conditionOps) {
 		this.packageName = packageName;
 		this.outputFolder = outputFolder;
 		this.nameHandler = nameHandler;
 		this.nativeClass = nativeClass;
 		this.smallAsInt = smallAsInt;
-		this.instanceCreator = false;
-		this.useAnnotation = true;
+		this.instanceCreator = instanceCreator;
+		this.useAnnotation = useAnnotation;
+		this.conditionOps = conditionOps;
 	}
 
 	public void setOutputFolder(File outputFolder) {
@@ -72,16 +75,15 @@ public class BeanWriter implements Initializable {
 		this.useAnnotation = useAnnotation;
 	}
 
+	public void setConditionOps(boolean conditionOps) {
+		this.conditionOps = conditionOps;
+	}
+
 	@Override
 	public void init() {
 		if (nameHandler == null)
 			nameHandler = DefBeanNameHandler.INSTANCE;
-		if (outputFolder == null)
-			outputFolder = new File(DEF_OUTPUT_FOLDER);
-		String path = packageName.replace('.', '/');
-		outputFolder = new File(outputFolder, path);
-		if (!outputFolder.exists())
-			outputFolder.mkdirs();
+		outputFolder = buildOutputFoler(outputFolder, packageName);
 	}
 
 	public void write(TableInfo table) {
@@ -94,7 +96,10 @@ public class BeanWriter implements Initializable {
 		writePostConstruct(sb, beanName);
 		writeCloneMethod(sb, beanName);
 		writeGetSets(sb, table, beanName);
+		if (conditionOps)
+			writeConditionOps(sb, table, beanName);
 		writeBeanEnd(sb);
+
 		try {
 			FileOutputStream out = new FileOutputStream(new File(outputFolder, beanName + ".java"));
 			out.write(sb.toString().getBytes());
@@ -112,21 +117,30 @@ public class BeanWriter implements Initializable {
 
 	private void writeImports(StringBuilder sb, TableInfo table) {
 		List<String> list = getImports(table);
-		for (String e : list)
+		char c = 0;
+		for (String e : list) {
+			if (c == 0)
+				c = e.charAt(0);
+			else if (c != e.charAt(0)) {
+				c = e.charAt(0);
+				sb.append('\n');
+			}
 			sb.append("import ").append(e).append(";\n");
+		}
 		sb.append('\n');
 	}
 
 	private void writeBeanStart(StringBuilder sb, String beanName) {
 		sb.append("public class ").append(beanName).append(" implements Serializable, Cloneable {\n");
-		sb.append("\tprivate static final long serialVersionUID = 1L;\n");
+		sb.append("\tprivate static final long serialVersionUID = 1L;\n\n");
 		if (instanceCreator) {
 			sb.append("\tprivate static final ").append(beanName).append(" INSTANCE = new ").append(beanName)
 					.append("();\n\n");
 			sb.append("\tpublic static final ").append(beanName).append(" create() {\n");
-			sb.append("\t\treturn INSTANCE.clone();\n\t}\n");
+			sb.append("\t\treturn INSTANCE.clone();\n\t}\n\n");
 		}
-		sb.append("\n");
+		if (conditionOps)
+			sb.append("\tpublic static final Condition condition() {\n\t\treturn new Condition();\n\t}\n\n");
 	}
 
 	private void writeMemberParams(StringBuilder sb, TableInfo table) {
@@ -159,15 +173,34 @@ public class BeanWriter implements Initializable {
 
 	private void writeGetSet(StringBuilder sb, String beanName, ColumnInfo column) {
 		String typeName = getType(column.getType());
-		String uName = buildUName(column.getName());
-		sb.append("\tpublic ").append(typeName).append(" get").append(uName).append("() {\n");
-		sb.append("\t\treturn ").append(column.getName()).append(";\n");
+		String name = column.getName();
+		int len;
+		sb.append("\tpublic ").append(typeName).append(" get");
+		len = sb.length();
+		sb.append(name).append("() {\n");
+		sb.setCharAt(len, Character.toUpperCase(name.charAt(0)));
+		sb.append("\t\treturn ").append(name).append(";\n");
 		sb.append("\t}\n\n");
 
-		sb.append("\tpublic ").append(beanName).append(" set").append(uName).append("(").append(typeName).append(" ")
-				.append(column.getName()).append(") {\n");
-		sb.append("\t\tthis.").append(column.getName()).append(" = ").append(column.getName()).append(";\n");
+		sb.append("\tpublic ").append(beanName).append(" set");
+		len = sb.length();
+		sb.append(name).append("(").append(typeName).append(" ").append(name).append(") {\n");
+		sb.setCharAt(len, Character.toUpperCase(name.charAt(0)));
+		sb.append("\t\tthis.").append(name).append(" = ").append(name).append(";\n");
 		sb.append("\t\treturn this;\n");
+		sb.append("\t}\n\n");
+	}
+
+	private void writeConditionOps(StringBuilder sb, TableInfo table, String beanName) {
+		sb.append("\tpublic static final class Condition extends ObjCondition<Condition, ").append(beanName)
+				.append("> {\n\n");
+		sb.append("\t\tprivate Condition() {\n\t\t}\n\n");
+		for (ColumnInfo col : table.getColumns()) {
+			String name = col.getName();
+			sb.append("\t\tpublic final FieldOps<Condition> ").append(name).append("() {\n");
+			sb.append("\t\t\treturn setKey(\"").append(name).append("\");\n");
+			sb.append("\t\t}\n\n");
+		}
 		sb.append("\t}\n\n");
 	}
 
@@ -187,6 +220,10 @@ public class BeanWriter implements Initializable {
 				if (col.isPri())
 					map.put(KeyColumn.class, null);
 			}
+		}
+		if (conditionOps) {
+			map.put(FieldOps.class, null);
+			map.put(ObjCondition.class, null);
 		}
 		List<String> hr = new ArrayList<>(map.size());
 		for (Class<?> e : map.keySet())
@@ -221,11 +258,14 @@ public class BeanWriter implements Initializable {
 		}
 	}
 
-	private static final String buildUName(String name) {
-		StringBuilder sb = new StringBuilder(name.length());
-		sb.append(name);
-		sb.setCharAt(0, Character.toUpperCase(name.charAt(0)));
-		return StrUtil.sbToString(sb);
+	public static File buildOutputFoler(File folder, String packageName) {
+		if (folder == null)
+			folder = new File(DEF_OUTPUT_FOLDER);
+		String path = packageName.replace('.', '/');
+		folder = new File(folder, path);
+		if (!folder.exists())
+			folder.mkdirs();
+		return folder;
 	}
 
 }
