@@ -133,19 +133,14 @@ public class BeanWriter implements Initializable {
 	private void writeBeanStart(StringBuilder sb, String beanName) {
 		sb.append("public class ").append(beanName).append(" implements Serializable, Cloneable {\n");
 		sb.append("\tprivate static final long serialVersionUID = 1L;\n\n");
-		if (instanceCreator || criteriaOps) {
-			if (instanceCreator)
-				sb.append("\tprivate static final ").append(beanName).append(" INSTANCE = new ").append(beanName)
-						.append("();\n");
-			if (criteriaOps)
-				sb.append("\tprivate static final Criteria CRI_INSTANCE = new Criteria();\n");
-			sb.append('\n');
-		}
-		if (instanceCreator)
+		if (instanceCreator) {
+			sb.append("\tprivate static final ").append(beanName).append(" INSTANCE = new ").append(beanName)
+					.append("();\n\n");
 			sb.append("\tpublic static final ").append(beanName).append(" create() {\n")
 					.append("\t\treturn INSTANCE.clone();\n\t}\n\n");
+		}
 		if (criteriaOps)
-			sb.append("\tpublic static final Criteria criteria() {\n\t\treturn CRI_INSTANCE.clone();\n\t}\n\n");
+			sb.append("\tpublic static final Criteria criteria() {\n\t\treturn new Criteria();\n\t}\n\n");
 	}
 
 	private void writeMemberParams(StringBuilder sb, TableInfo table) {
