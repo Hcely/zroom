@@ -2,13 +2,13 @@ package zr.mybatis.operate;
 
 import java.util.List;
 
+import zr.mybatis.sql.ObjCriteria;
 import zr.mybatis.sql.SqlCriteria;
-import zr.mybatis.sql.condition.ObjCondition;
 
 public interface SelectOperate<T> {
 	public T find(T condition);
 
-	public T find(ObjCondition<?> condition);
+	public T find(ObjCriteria<?> condition);
 
 	public List<T> queryAll();
 
@@ -18,6 +18,6 @@ public interface SelectOperate<T> {
 
 	public List<T> query(T condition, SqlCriteria sorts);
 
-	public List<T> query(ObjCondition<?> condition);
+	public List<T> query(ObjCriteria<?> condition);
 
 }

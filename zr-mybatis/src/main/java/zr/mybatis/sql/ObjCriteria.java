@@ -1,23 +1,17 @@
-package zr.mybatis.sql.condition;
-
-import zr.mybatis.sql.SqlCriteria;
-import zr.mybatis.sql.SqlWhere;
+package zr.mybatis.sql;
 
 @SuppressWarnings("unchecked")
-public abstract class ObjCondition<T extends ObjCondition<?>> {
+public abstract class ObjCriteria<T extends ObjCriteria<?>> {
 	final SqlCriteria criteria;
 	final FieldOps<T> fieldOps;
-	SqlWhere where;
 
-	public ObjCondition() {
+	public ObjCriteria() {
 		criteria = SqlCriteria.create();
-		where = criteria.where();
 		fieldOps = (FieldOps<T>) new FieldOps<>(this);
 	}
 
 	public final T or() {
-		where = where.or();
-		return (T) this;
+		return fieldOps.or();
 	}
 
 	public final SqlCriteria criteria() {

@@ -9,9 +9,9 @@ import org.mybatis.spring.SqlSessionTemplate;
 
 import zr.mybatis.info.BeanInfo;
 import zr.mybatis.operate.SqlOperate;
+import zr.mybatis.sql.ObjCriteria;
 import zr.mybatis.sql.SqlCriteria;
 import zr.mybatis.sql.SqlWhere;
-import zr.mybatis.sql.condition.ObjCondition;
 
 public abstract class SimpleDao<T> implements SqlOperate<T> {
 	SimpleMapper<T> mapper;
@@ -84,12 +84,12 @@ public abstract class SimpleDao<T> implements SqlOperate<T> {
 	}
 
 	@Override
-	public T find(ObjCondition<?> condition) {
+	public T find(ObjCriteria<?> condition) {
 		return mapper.selectOne(condition);
 	}
 
 	@Override
-	public List<T> query(ObjCondition<?> condition) {
+	public List<T> query(ObjCriteria<?> condition) {
 		return mapper.selectList(condition);
 	}
 
@@ -119,6 +119,21 @@ public abstract class SimpleDao<T> implements SqlOperate<T> {
 	@Override
 	public int insert(Map<String, Object> e) {
 		return mapper.insertMap(e);
+	}
+
+	@Override
+	public int delete(ObjCriteria<?> objCriteria) {
+		return mapper.delete(objCriteria);
+	}
+
+	@Override
+	public int update(ObjCriteria<?> objCriteria) {
+		return mapper.update(objCriteria);
+	}
+
+	@Override
+	public int update(T update, ObjCriteria<?> condition) {
+		return mapper.update(update, condition);
 	}
 
 }

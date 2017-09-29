@@ -47,6 +47,10 @@ public class ZRMybatisGen {
 		writer.setUseAnnotation(useAnnotation);
 	}
 
+	public void setCriteriaOps(boolean criteriaOps) {
+		writer.setCriteriaOps(criteriaOps);
+	}
+
 	public void setFactory(DatabaseFactory factory) {
 		this.factory = factory;
 	}

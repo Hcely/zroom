@@ -1,25 +1,52 @@
-package zr.mybatis.sql.condition;
+package zr.mybatis.sql;
 
 import java.util.Collection;
 
-public class FieldOps<T extends ObjCondition<?>> {
+public class FieldOps<T extends ObjCriteria<?>> {
 	protected final T condition;
+	protected SqlWhere where;
 	protected String key;
 
 	public FieldOps(T condition) {
 		this.condition = condition;
+		this.where = condition.criteria.where();
+	}
+
+	final T or() {
+		where = where.or();
+		return condition;
+	}
+
+	public final T set(Object value, boolean ignoreNull) {
+		if (key != null) {
+			condition.criteria.update(key, value, ignoreNull);
+			key = null;
+		}
+		return condition;
+	}
+
+	public final T set(Object value) {
+		if (key != null) {
+			condition.criteria.update(key, value, false);
+			key = null;
+		}
+		return condition;
 	}
 
 	public final T eq(Object value, boolean ignoreNull) {
 		if (key != null) {
-			condition.where.eq(key, value, ignoreNull);
+			where.eq(key, value, ignoreNull);
 			key = null;
 		}
 		return condition;
 	}
 
 	public final T eq(Object value) {
-		return eq(value, false);
+		if (key != null) {
+			where.eq(key, value, false);
+			key = null;
+		}
+		return condition;
 	}
 
 	public final T eqNull(Object value) {
@@ -31,14 +58,18 @@ public class FieldOps<T extends ObjCondition<?>> {
 
 	public final T notEq(Object value, boolean ignoreNull) {
 		if (key != null) {
-			condition.where.notEq(key, value, ignoreNull);
+			where.notEq(key, value, ignoreNull);
 			key = null;
 		}
 		return condition;
 	}
 
 	public final T notEq(Object value) {
-		return notEq(value, false);
+		if (key != null) {
+			where.notEq(key, value, false);
+			key = null;
+		}
+		return condition;
 	}
 
 	public final T notEqNull(Object value) {
@@ -50,127 +81,167 @@ public class FieldOps<T extends ObjCondition<?>> {
 
 	public final T gt(Object value, boolean ignoreNull) {
 		if (key != null) {
-			condition.where.gt(key, value, ignoreNull);
+			where.gt(key, value, ignoreNull);
 			key = null;
 		}
 		return condition;
 	}
 
 	public final T gt(Object value) {
-		return gt(value, false);
+		if (key != null) {
+			where.gt(key, value, false);
+			key = null;
+		}
+		return condition;
 	}
 
 	public final T gte(Object value, boolean ignoreNull) {
 		if (key != null) {
-			condition.where.gte(key, value, ignoreNull);
+			where.gte(key, value, ignoreNull);
 			key = null;
 		}
 		return condition;
 	}
 
 	public final T gte(Object value) {
-		return gte(value, false);
+		if (key != null) {
+			where.gte(key, value, false);
+			key = null;
+		}
+		return condition;
 	}
 
 	public final T lt(Object value, boolean ignoreNull) {
 		if (key != null) {
-			condition.where.lt(key, value, ignoreNull);
+			where.lt(key, value, ignoreNull);
 			key = null;
 		}
 		return condition;
 	}
 
 	public final T lt(Object value) {
-		return lt(value, false);
+		if (key != null) {
+			where.lt(key, value, false);
+			key = null;
+		}
+		return condition;
 	}
 
 	public final T lte(Object value, boolean ignoreNull) {
 		if (key != null) {
-			condition.where.lte(key, value, ignoreNull);
+			where.lte(key, value, ignoreNull);
 			key = null;
 		}
 		return condition;
 	}
 
 	public final T lte(Object value) {
-		return lte(value, false);
+		if (key != null) {
+			where.lte(key, value, false);
+			key = null;
+		}
+		return condition;
 	}
 
 	public final T like(String value, boolean ignoreNull) {
 		if (key != null) {
-			condition.where.like(key, value, ignoreNull);
+			where.like(key, value, ignoreNull);
 			key = null;
 		}
 		return condition;
 	}
 
 	public final T like(String value) {
-		return like(value, false);
+		if (key != null) {
+			where.like(key, value, false);
+			key = null;
+		}
+		return condition;
 	}
 
 	public final T notLike(String value, boolean ignoreNull) {
 		if (key != null) {
-			condition.where.notLike(key, value, ignoreNull);
+			where.notLike(key, value, ignoreNull);
 			key = null;
 		}
 		return condition;
 	}
 
 	public final T notLike(String value) {
-		return notLike(value, false);
+		if (key != null) {
+			where.notLike(key, value, false);
+			key = null;
+		}
+		return condition;
 	}
 
 	public final T between(Object value0, Object value1, boolean ignoreNull) {
 		if (key != null) {
-			condition.where.between(key, value0, value1, ignoreNull);
+			where.between(key, value0, value1, ignoreNull);
 			key = null;
 		}
 		return condition;
 	}
 
 	public final T between(Object value0, Object value1) {
-		return between(value0, value1, false);
+		if (key != null) {
+			where.between(key, value0, value1, false);
+			key = null;
+		}
+		return condition;
 	}
 
 	public final T notBetween(Object value0, Object value1, boolean ignoreNull) {
 		if (key != null) {
-			condition.where.notBetween(key, value0, value1, ignoreNull);
+			where.notBetween(key, value0, value1, ignoreNull);
 			key = null;
 		}
 		return condition;
 	}
 
 	public final T notBetween(Object value0, Object value1) {
-		return notBetween(value0, value1, false);
+		if (key != null) {
+			where.notBetween(key, value0, value1, false);
+			key = null;
+		}
+		return condition;
 	}
 
 	public final T in(Collection<?> collection, boolean ignoreNull) {
 		if (key != null) {
-			condition.where.in(key, collection, ignoreNull);
+			where.in(key, collection, ignoreNull);
 			key = null;
 		}
 		return condition;
 	}
 
 	public final T in(Collection<?> collection) {
-		return in(collection, false);
+		if (key != null) {
+			where.in(key, collection, false);
+			key = null;
+		}
+		return condition;
 	}
 
 	public final T notIn(Collection<?> collection, boolean ignoreNull) {
 		if (key != null) {
-			condition.where.notIn(key, collection, ignoreNull);
+			where.notIn(key, collection, ignoreNull);
 			key = null;
 		}
 		return condition;
 	}
 
 	public final T notIn(Collection<?> collection) {
-		return notIn(collection, false);
+		if (key != null) {
+			where.notIn(key, collection, false);
+			key = null;
+		}
+		return condition;
 	}
 
 	public final T isNull() {
 		if (key != null) {
-			condition.where.isNull(key);
+			where.isNull(key);
 			key = null;
 		}
 		return condition;
@@ -178,7 +249,7 @@ public class FieldOps<T extends ObjCondition<?>> {
 
 	public final T notNull() {
 		if (key != null) {
-			condition.where.notNull(key);
+			where.notNull(key);
 			key = null;
 		}
 		return condition;

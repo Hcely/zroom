@@ -17,8 +17,8 @@ import zr.gen.table.DefBeanNameHandler;
 import zr.gen.table.TableInfo;
 import zr.mybatis.annotation.IncColumn;
 import zr.mybatis.annotation.KeyColumn;
-import zr.mybatis.sql.condition.FieldOps;
-import zr.mybatis.sql.condition.ObjCondition;
+import zr.mybatis.sql.FieldOps;
+import zr.mybatis.sql.ObjCriteria;
 
 public class BeanWriter implements Initializable {
 	public static final String DEF_OUTPUT_FOLDER = "./output";
@@ -29,14 +29,14 @@ public class BeanWriter implements Initializable {
 	protected boolean smallAsInt;
 	protected boolean instanceCreator;
 	protected boolean useAnnotation;
-	protected boolean conditionOps;
+	protected boolean criteriaOps;
 
 	public BeanWriter(String packageName) {
 		this(packageName, null, DefBeanNameHandler.INSTANCE, false, true, false, true, true);
 	}
 
 	public BeanWriter(String packageName, File outputFolder, BeanNameHandler nameHandler, boolean nativeClass,
-			boolean smallAsInt, boolean instanceCreator, boolean useAnnotation, boolean conditionOps) {
+			boolean smallAsInt, boolean instanceCreator, boolean useAnnotation, boolean criteriaOps) {
 		this.packageName = packageName;
 		this.outputFolder = outputFolder;
 		this.nameHandler = nameHandler;
@@ -44,7 +44,7 @@ public class BeanWriter implements Initializable {
 		this.smallAsInt = smallAsInt;
 		this.instanceCreator = instanceCreator;
 		this.useAnnotation = useAnnotation;
-		this.conditionOps = conditionOps;
+		this.criteriaOps = criteriaOps;
 	}
 
 	public void setOutputFolder(File outputFolder) {
@@ -75,8 +75,8 @@ public class BeanWriter implements Initializable {
 		this.useAnnotation = useAnnotation;
 	}
 
-	public void setConditionOps(boolean conditionOps) {
-		this.conditionOps = conditionOps;
+	public void setCriteriaOps(boolean criteriaOps) {
+		this.criteriaOps = criteriaOps;
 	}
 
 	@Override
@@ -96,8 +96,8 @@ public class BeanWriter implements Initializable {
 		writePostConstruct(sb, beanName);
 		writeCloneMethod(sb, beanName);
 		writeGetSets(sb, table, beanName);
-		if (conditionOps)
-			writeConditionOps(sb, table);
+		if (criteriaOps)
+			writeCriteriaOps(sb, table);
 		writeBeanEnd(sb);
 
 		try {
@@ -133,19 +133,19 @@ public class BeanWriter implements Initializable {
 	private void writeBeanStart(StringBuilder sb, String beanName) {
 		sb.append("public class ").append(beanName).append(" implements Serializable, Cloneable {\n");
 		sb.append("\tprivate static final long serialVersionUID = 1L;\n\n");
-		if (instanceCreator || conditionOps) {
+		if (instanceCreator || criteriaOps) {
 			if (instanceCreator)
 				sb.append("\tprivate static final ").append(beanName).append(" INSTANCE = new ").append(beanName)
 						.append("();\n");
-			if (conditionOps)
-				sb.append("\tprivate static final Condition CON_INSTANCE = new Condition();\n");
+			if (criteriaOps)
+				sb.append("\tprivate static final Criteria CRI_INSTANCE = new Criteria();\n");
 			sb.append('\n');
 		}
 		if (instanceCreator)
 			sb.append("\tpublic static final ").append(beanName).append(" create() {\n")
 					.append("\t\treturn INSTANCE.clone();\n\t}\n\n");
-		if (conditionOps)
-			sb.append("\tpublic static final Condition condition() {\n\t\treturn CON_INSTANCE.clone();\n\t}\n\n");
+		if (criteriaOps)
+			sb.append("\tpublic static final Criteria criteria() {\n\t\treturn CRI_INSTANCE.clone();\n\t}\n\n");
 	}
 
 	private void writeMemberParams(StringBuilder sb, TableInfo table) {
@@ -196,14 +196,15 @@ public class BeanWriter implements Initializable {
 		sb.append("\t}\n\n");
 	}
 
-	private void writeConditionOps(StringBuilder sb, TableInfo table) {
-		sb.append("\tpublic static final class Condition extends ObjCondition<Condition> implements Cloneable {\n");
-		sb.append("\t\tprivate Condition() {\n\t\t}\n\n");
+	private void writeCriteriaOps(StringBuilder sb, TableInfo table) {
+		sb.append("\tpublic static final class Criteria extends ").append(ObjCriteria.class.getSimpleName())
+				.append("<Criteria> implements Cloneable {\n");
+		sb.append("\t\tprivate Criteria() {\n\t\t}\n\n");
 		sb.append(
-				"\t\t@Override\n\t\tprotected Condition clone() {\n\t\t\ttry {\n\t\t\t\treturn (Condition) super.clone();\n\t\t\t} catch (CloneNotSupportedException e) {\n\t\t\t\tthrow new RuntimeException(e);\n\t\t\t}\n\t\t}\n\n");
+				"\t\t@Override\n\t\tprotected Criteria clone() {\n\t\t\ttry {\n\t\t\t\treturn (Criteria) super.clone();\n\t\t\t} catch (CloneNotSupportedException e) {\n\t\t\t\tthrow new RuntimeException(e);\n\t\t\t}\n\t\t}\n\n");
 		for (ColumnInfo col : table.getColumns()) {
 			String name = col.getName();
-			sb.append("\t\tpublic final FieldOps<Condition> ").append(name).append("() {\n");
+			sb.append("\t\tpublic final FieldOps<Criteria> ").append(name).append("() {\n");
 			sb.append("\t\t\treturn setKey(\"").append(name).append("\");\n");
 			sb.append("\t\t}\n\n");
 		}
@@ -227,9 +228,9 @@ public class BeanWriter implements Initializable {
 					map.put(KeyColumn.class, null);
 			}
 		}
-		if (conditionOps) {
+		if (criteriaOps) {
 			map.put(FieldOps.class, null);
-			map.put(ObjCondition.class, null);
+			map.put(ObjCriteria.class, null);
 		}
 		List<String> hr = new ArrayList<>(map.size());
 		for (Class<?> e : map.keySet())

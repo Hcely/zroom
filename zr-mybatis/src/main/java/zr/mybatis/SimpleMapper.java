@@ -11,9 +11,9 @@ import org.mybatis.spring.SqlSessionTemplate;
 import v.common.unit.Ternary;
 import zr.mybatis.info.BeanInfo;
 import zr.mybatis.info.MapperConfigInfo;
+import zr.mybatis.sql.ObjCriteria;
 import zr.mybatis.sql.SqlCriteria;
 import zr.mybatis.sql.SqlWhere;
-import zr.mybatis.sql.condition.ObjCondition;
 
 public class SimpleMapper<T> {
 
@@ -93,19 +93,19 @@ public class SimpleMapper<T> {
 			insert(e);
 	}
 
-	public final T selectOne(ObjCondition<?> condition) {
+	public final T selectOne(ObjCriteria<?> condition) {
 		return selectOne(condition.criteria());
 	}
 
-	public final List<T> selectList(ObjCondition<?> condition) {
+	public final List<T> selectList(ObjCriteria<?> condition) {
 		return selectList(condition.criteria());
 	}
 
-	public final Map<String, Object> selectOneMap(ObjCondition<?> condition) {
+	public final Map<String, Object> selectOneMap(ObjCriteria<?> condition) {
 		return selectOneMap(condition.criteria());
 	}
 
-	public final List<Map<String, Object>> selectListMap(ObjCondition<?> condition) {
+	public final List<Map<String, Object>> selectListMap(ObjCriteria<?> condition) {
 		return selectListMap(condition.criteria());
 	}
 
@@ -157,6 +157,28 @@ public class SimpleMapper<T> {
 		return update(criteria);
 	}
 
+	public final int update(ObjCriteria<?> objCriteria) {
+		return update(objCriteria.criteria());
+	}
+
+	public final int update(T update, ObjCriteria<?> condition) {
+		return update(update, condition, ignoreEmpty);
+	}
+
+	public final int update(T update, ObjCriteria<?> condition, boolean ignoreEmpty) {
+		SqlCriteria criteria = condition.criteria();
+		criteria.resetUpdates();
+		for (Field f : beanInfo.getFields()) {
+			Object value = Util.get(f, update);
+			if (value == null)
+				continue;
+			if (ignoreEmpty && (value instanceof CharSequence) && ((CharSequence) value).length() == 0)
+				continue;
+			criteria.update(f.getName(), value);
+		}
+		return update(criteria);
+	}
+
 	public final int update(T update, T condition) {
 		return update(update, condition, ignoreEmpty);
 	}
@@ -181,6 +203,10 @@ public class SimpleMapper<T> {
 			}
 		}
 		return update(criteria);
+	}
+
+	public final int delete(ObjCriteria<?> objCriteria) {
+		return delete(objCriteria.criteria());
 	}
 
 	public final BeanInfo getBeanInfo() {
