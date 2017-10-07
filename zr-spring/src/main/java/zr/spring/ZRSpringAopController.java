@@ -2,6 +2,7 @@ package zr.spring;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class ZRSpringAopController
 
 	public ZRSpringAopController() {
 		this.center = new ZRMonitorCenter();
-		this.methodMapping = new IdentityHashMap<>(256);
+		this.methodMapping = new HashMap<>(256);
 	}
 
 	public void setWorkerNum(int workerNum) {

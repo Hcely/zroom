@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,7 @@ public class ZRMethodMgr implements Clearable {
 		this.filters = new ZRFilters();
 		this.listener = listener == null ? ZRMethodListener.DEF : listener;
 		this.methodMap0 = new HashMap<>(256);
-		this.methodMap1 = new IdentityHashMap<>(256);
+		this.methodMap1 = new HashMap<>(256);
 		this.methods = new LinkedList<>();
 	}
 

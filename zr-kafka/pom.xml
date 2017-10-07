@@ -26,5 +26,10 @@
 			<artifactId>zr-monitor</artifactId>
 			<version>0.0.1</version>
 		</dependency>
+		<dependency>
+			<groupId>wv</groupId>
+			<artifactId>binary3</artifactId>
+			<version>1.0.1</version>
+		</dependency>
 	</dependencies>
 </project>
