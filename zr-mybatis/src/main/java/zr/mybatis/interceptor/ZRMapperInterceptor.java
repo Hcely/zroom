@@ -8,17 +8,31 @@ import zr.mybatis.sql.SqlCriteria;
 
 @SuppressWarnings("rawtypes")
 public interface ZRMapperInterceptor {
-	public int getPriority();
+	public default int getPriority() {
+		return Integer.MAX_VALUE;
+	}
 
-	public int onInsertObj(ZRInsertObjExecutor executor, BeanInfo info, Object obj);
+	public default int onInsertObj(ZRInsertObjExecutor executor, BeanInfo info, Object obj) {
+		return executor.insertObj(info, obj);
+	}
 
-	public int onInsertMap(ZRInsertObjExecutor executor, BeanInfo info, Map<String, Object> map);
+	public default int onInsertMap(ZRInsertMapExecutor executor, BeanInfo info, Map<String, Object> map) {
+		return executor.insertMap(info, map);
+	}
 
-	public Object onSelectOne(ZRSelectOneExecutor executor, BeanInfo info, SqlCriteria criteria, boolean map);
+	public default Object onSelectOne(ZRSelectOneExecutor executor, BeanInfo info, SqlCriteria criteria, boolean map) {
+		return executor.selectOne(info, criteria, map);
+	}
 
-	public List onSelectList(ZRSelectListExecutor executor, BeanInfo info, SqlCriteria criteria, boolean map);
+	public default List onSelectList(ZRSelectListExecutor executor, BeanInfo info, SqlCriteria criteria, boolean map) {
+		return executor.selectList(info, criteria, map);
+	}
 
-	public int onUpdate(ZRUpdateExecutor executor, BeanInfo info, SqlCriteria criteria);
+	public default int onUpdate(ZRUpdateExecutor executor, BeanInfo info, SqlCriteria criteria) {
+		return executor.update(info, criteria);
+	}
 
-	public int onDelete(ZRDeleteExecutor executor, BeanInfo info, SqlCriteria criteria);
+	public default int onDelete(ZRDeleteExecutor executor, BeanInfo info, SqlCriteria criteria) {
+		return executor.delete(info, criteria);
+	}
 }
