@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>zr</groupId>
 			<artifactId>zr-common</artifactId>
-			<version>${zr-version}</version>
+			<version>0.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>

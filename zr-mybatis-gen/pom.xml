@@ -19,18 +19,12 @@
 		<dependency>
 			<groupId>zr</groupId>
 			<artifactId>zr-mybatis</artifactId>
-			<version>${zr-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>zr</groupId>
-			<artifactId>zr-common</artifactId>
-			<version>${zr-version}</version>
+			<version>0.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>6.0.4</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

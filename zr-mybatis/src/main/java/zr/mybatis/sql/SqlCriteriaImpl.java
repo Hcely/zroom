@@ -1,11 +1,12 @@
 package zr.mybatis.sql;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Map;
 
 public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 	protected StringBuilder fields;
-	protected List<SqlUpdate> updates;
+	protected Map<String, SqlUpdate> updateMap;
 	protected LinkedList<SqlWhereImpl> wheres;
 	protected String groupBy;
 	protected StringBuilder sorts;
@@ -55,7 +56,7 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 	public SqlCriteria update(String key, Object value, boolean ignoreNull) {
 		if (ignoreNull && value == null)
 			return this;
-		return addUpdate(new SqlUpdate(false, key, value));
+		return addUpdate(key, new SqlUpdate(false, key, value));
 	}
 
 	@Override
@@ -69,7 +70,7 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 			return this;
 		StringBuilder sb = new StringBuilder(24 + (key.length() << 1));
 		sb.append('`').append(key).append("`=`").append(key).append("`+").append(num);
-		return addUpdate(new SqlUpdate(true, sb.toString(), null));
+		return addUpdate(key, new SqlUpdate(true, sb.toString(), null));
 	}
 
 	@Override
@@ -79,7 +80,7 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 		StringBuilder sb = new StringBuilder(key.length() * 3 + 48);
 		sb.append('`').append(key).append("`=if(`").append(key).append("`>").append(num).append(",`").append(key)
 				.append("`,").append(num).append(')');
-		return addUpdate(new SqlUpdate(true, sb.toString(), null));
+		return addUpdate(key, new SqlUpdate(true, sb.toString(), null));
 	}
 
 	@Override
@@ -89,18 +90,20 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 		StringBuilder sb = new StringBuilder(key.length() * 3 + 48);
 		sb.append('`').append(key).append("`=if(`").append(key).append("`<").append(num).append(",`").append(key)
 				.append("`,").append(num).append(')');
-		return addUpdate(new SqlUpdate(true, sb.toString(), null));
+		return addUpdate(key, new SqlUpdate(true, sb.toString(), null));
 	}
 
 	@Override
-	public SqlCriteria updateRaw(String update) {
-		return addUpdate(new SqlUpdate(true, update, null));
+	public boolean containUpdate(String key) {
+		if (updateMap == null)
+			return false;
+		return updateMap.containsKey(key);
 	}
 
-	private SqlCriteria addUpdate(SqlUpdate update) {
-		if (updates == null)
-			updates = new LinkedList<>();
-		updates.add(update);
+	private SqlCriteria addUpdate(String key, SqlUpdate update) {
+		if (updateMap == null)
+			updateMap = new LinkedHashMap<>();
+		updateMap.put(key, update);
 		return this;
 	}
 
@@ -199,8 +202,8 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 	public SqlCriteria reset() {
 		if (fields != null)
 			fields.setLength(0);
-		if (updates != null)
-			updates.clear();
+		if (updateMap != null)
+			updateMap.clear();
 		if (wheres != null)
 			wheres.clear();
 		groupBy = null;
@@ -221,8 +224,8 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 
 	@Override
 	public SqlCriteria resetUpdates() {
-		if (updates != null)
-			updates.clear();
+		if (updateMap != null)
+			updateMap.clear();
 		return this;
 	}
 
@@ -271,7 +274,7 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 
 	@Override
 	public boolean isUpdateValid() {
-		return updates != null && updates.size() > 0;
+		return updateMap != null && updateMap.size() > 0;
 	}
 
 	@Override
@@ -308,8 +311,8 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 		return fields.toString();
 	}
 
-	public List<SqlUpdate> getUpdates() {
-		return updates;
+	public Map<String, SqlUpdate> getUpdates() {
+		return updateMap;
 	}
 
 	public LinkedList<SqlWhereImpl> getWheres() {

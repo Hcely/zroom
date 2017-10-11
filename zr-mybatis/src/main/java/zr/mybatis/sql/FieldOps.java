@@ -17,7 +17,7 @@ public class FieldOps<T extends ObjCriteria<?>> {
 		return condition;
 	}
 
-	public final T set(Object value, boolean ignoreNull) {
+	public final T update(Object value, boolean ignoreNull) {
 		if (key != null) {
 			condition.criteria.update(key, value, ignoreNull);
 			key = null;
@@ -25,7 +25,7 @@ public class FieldOps<T extends ObjCriteria<?>> {
 		return condition;
 	}
 
-	public final T set(Object value) {
+	public final T update(Object value) {
 		if (key != null) {
 			condition.criteria.update(key, value, false);
 			key = null;

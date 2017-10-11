@@ -19,8 +19,6 @@ public interface SqlCriteria {
 
 	public SqlCriteria updateMax(String key, Number num);
 
-	public SqlCriteria updateRaw(String update);
-
 	public SqlWhere where();
 
 	public SqlCriteria groupBy(String... columns);
@@ -68,4 +66,6 @@ public interface SqlCriteria {
 	public boolean isLimitValid();
 
 	public boolean isTailValid();
+
+	public boolean containUpdate(String key);
 }

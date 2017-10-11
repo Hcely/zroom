@@ -133,6 +133,15 @@ public class SimpleMapper<T> {
 		return selectList(SqlCriteria.create().where().in(key, values).end());
 	}
 
+	public final int selectCount(SqlCriteria criteria) {
+		if (criteria == null)
+			criteria = SqlCriteria.create().addRawField("COUNT(*) as num");
+		else
+			criteria.resetFields().addRawField("COUNT(*) as num");
+		Map<String, Object> map = selectOneMap(criteria);
+		return ((Number) map.get("num")).intValue();
+	}
+
 	public final int updateByKey(T obj) {
 		return updateByKey(obj, ignoreEmpty);
 	}
