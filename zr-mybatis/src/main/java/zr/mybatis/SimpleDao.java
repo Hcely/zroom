@@ -31,7 +31,7 @@ public abstract class SimpleDao<T> implements SqlOperate<T> {
 			SqlWhere where = criteria.where();
 			BeanInfo bean = mapper.getBeanInfo();
 			for (Field f : bean.getFields()) {
-				Object value = Util.get(f, condition);
+				Object value = ZRMybatisUtil.get(f, condition);
 				if (value != null)
 					where.eq(f.getName(), value);
 			}
@@ -56,7 +56,7 @@ public abstract class SimpleDao<T> implements SqlOperate<T> {
 			SqlWhere where = criteria.where();
 			BeanInfo bean = mapper.getBeanInfo();
 			for (Field f : bean.getFields())
-				where.eq(f.getName(), Util.get(f, condition), true);
+				where.eq(f.getName(), ZRMybatisUtil.get(f, condition), true);
 		}
 		return mapper.selectOne(criteria);
 	}
@@ -78,7 +78,7 @@ public abstract class SimpleDao<T> implements SqlOperate<T> {
 			SqlWhere where = criteria.where();
 			BeanInfo bean = mapper.getBeanInfo();
 			for (Field f : bean.getFields())
-				where.eq(f.getName(), Util.get(f, condition), true);
+				where.eq(f.getName(), ZRMybatisUtil.get(f, condition), true);
 		}
 		return mapper.selectList(criteria);
 	}
@@ -101,7 +101,7 @@ public abstract class SimpleDao<T> implements SqlOperate<T> {
 			SqlWhere where = sorts.where();
 			BeanInfo bean = mapper.getBeanInfo();
 			for (Field f : bean.getFields())
-				where.eq(f.getName(), Util.get(f, condition), true);
+				where.eq(f.getName(), ZRMybatisUtil.get(f, condition), true);
 		}
 		return mapper.selectList(sorts);
 	}

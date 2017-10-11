@@ -14,20 +14,20 @@ import java.util.Map;
 import zr.mybatis.annotation.MapperConfig;
 import zr.mybatis.info.BeanInfo;
 
-final class Util {
+public final class ZRMybatisUtil {
 	private static int incNum = 0;
 
-	public static final String getNextNamespace() {
+	static final String getNextNamespace() {
 		return new StringBuilder(16).append("_zrMapper_").append(incNum++).toString();
 	}
 
-	public static final List<MapperField> getMapperFields(Class<?> clazz) {
+	static final List<MapperField> getMapperFields(Class<?> clazz) {
 		LinkedHashMap<String, MapperField> hr = new LinkedHashMap<>();
 		getMapperFields(clazz, hr);
 		return new ArrayList<>(hr.values());
 	}
 
-	public static final MapperConfig getDaoConfig(Class<?> clazz) {
+	static final MapperConfig getDaoConfig(Class<?> clazz) {
 		while (clazz != Object.class) {
 			MapperConfig config = clazz.getAnnotation(MapperConfig.class);
 			if (config != null)
@@ -54,7 +54,7 @@ final class Util {
 		}
 	}
 
-	public static final Class<?> getDaoGenericType(Class<?> clazz) {
+	static final Class<?> getDaoGenericType(Class<?> clazz) {
 		LinkedList<Class<?>> stacks = new LinkedList<>();
 		while (clazz.getSuperclass() != SimpleDao.class) {
 			stacks.add(clazz);
@@ -81,7 +81,7 @@ final class Util {
 		throw new RuntimeException("can not get type of SimpleDao");
 	}
 
-	public static final Class<?> getFieldGenericType(Field field) {
+	static final Class<?> getFieldGenericType(Field field) {
 		ParameterizedType type = (ParameterizedType) field.getGenericType();
 		Type pt = type.getActualTypeArguments()[0];
 		if (pt instanceof ParameterizedType)
@@ -89,7 +89,7 @@ final class Util {
 		return (Class<?>) pt;
 	}
 
-	public static final Object get(Field f, Object obj) {
+	static final Object get(Field f, Object obj) {
 		try {
 			return f.get(obj);
 		} catch (Exception e) {
@@ -97,7 +97,7 @@ final class Util {
 		}
 	}
 
-	public static final void set(Field f, Object obj, Object value) {
+	static final void set(Field f, Object obj, Object value) {
 		try {
 			f.set(obj, value);
 		} catch (Exception e) {

@@ -48,9 +48,9 @@ public class SimpleMapper<T> {
 
 	public int insert(T e) {
 		if (insertAsMap) {
-			Map<String, Object> map = Util.toMap(beanInfo, e, true, ignoreEmpty);
+			Map<String, Object> map = ZRMybatisUtil.toMap(beanInfo, e, true, ignoreEmpty);
 			int hr = insertMap(map);
-			Util.setIncColumn(beanInfo, e, map);
+			ZRMybatisUtil.setIncColumn(beanInfo, e, map);
 			return hr;
 		}
 		return template.insert(insertObj, e);
@@ -142,7 +142,7 @@ public class SimpleMapper<T> {
 			return 0;
 		SqlCriteria criteria = SqlCriteria.create();
 		for (Field f : beanInfo.getNormals()) {
-			Object value = Util.get(f, obj);
+			Object value = ZRMybatisUtil.get(f, obj);
 			if (value == null)
 				continue;
 			if (ignoreEmpty && (value instanceof CharSequence) && ((CharSequence) value).length() == 0)
@@ -151,7 +151,7 @@ public class SimpleMapper<T> {
 		}
 		SqlWhere where = criteria.where();
 		for (Field f : beanInfo.getKeys()) {
-			Object value = Util.get(f, obj);
+			Object value = ZRMybatisUtil.get(f, obj);
 			where.eq(f.getName(), value);
 		}
 		return update(criteria);
@@ -169,7 +169,7 @@ public class SimpleMapper<T> {
 		SqlCriteria criteria = condition.criteria();
 		criteria.resetUpdates();
 		for (Field f : beanInfo.getFields()) {
-			Object value = Util.get(f, update);
+			Object value = ZRMybatisUtil.get(f, update);
 			if (value == null)
 				continue;
 			if (ignoreEmpty && (value instanceof CharSequence) && ((CharSequence) value).length() == 0)
@@ -188,7 +188,7 @@ public class SimpleMapper<T> {
 			return 0;
 		SqlCriteria criteria = SqlCriteria.create();
 		for (Field f : beanInfo.getFields()) {
-			Object value = Util.get(f, update);
+			Object value = ZRMybatisUtil.get(f, update);
 			if (value == null)
 				continue;
 			if (ignoreEmpty && (value instanceof CharSequence) && ((CharSequence) value).length() == 0)
@@ -198,7 +198,7 @@ public class SimpleMapper<T> {
 		if (condition != null) {
 			SqlWhere where = criteria.where();
 			for (Field f : beanInfo.getFields()) {
-				Object value = Util.get(f, condition);
+				Object value = ZRMybatisUtil.get(f, condition);
 				where.eq(f.getName(), value, true);
 			}
 		}

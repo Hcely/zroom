@@ -28,12 +28,13 @@ import zr.mybatis.annotation.MapperConfig;
 import zr.mybatis.info.BeanInfo;
 import zr.mybatis.info.BeanInfoMgr;
 import zr.mybatis.info.MapperConfigInfo;
+import zr.mybatis.interceptor.ZRMapperInterceptor;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializable, Clearable {
 	protected final Map<MapperConfigInfo, SimpleMapper> mapperMap;
 	protected final BeanInfoMgr infoMgr;
-	ZRMybatisFilter[] filters;
+	ZRMapperExecutorTL executorTL;
 
 	ApplicationContext appContext;
 	SqlSessionTemplate defTemplate;
@@ -108,22 +109,25 @@ public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializ
 	}
 
 	private void initFilters() {
-		Map<String, ZRMybatisFilter> beans = appContext.getBeansOfType(ZRMybatisFilter.class);
-		List<ZRMybatisFilter> list = new ArrayList<>(beans.values());
-		Collections.sort(list, new Comparator<ZRMybatisFilter>() {
+		Map<String, ZRMapperInterceptor> beans = appContext.getBeansOfType(ZRMapperInterceptor.class);
+		if (beans.isEmpty())
+			return;
+		List<ZRMapperInterceptor> list = new ArrayList<>(beans.values());
+		Collections.sort(list, new Comparator<ZRMapperInterceptor>() {
 			@Override
-			public int compare(ZRMybatisFilter o1, ZRMybatisFilter o2) {
+			public int compare(ZRMapperInterceptor o1, ZRMapperInterceptor o2) {
 				return o1.getPriority() - o2.getPriority();
 			}
 		});
-		filters = list.toArray(new ZRMybatisFilter[list.size()]);
+		ZRMapperInterceptor[] interceptors = list.toArray(new ZRMapperInterceptor[list.size()]);
+		executorTL = new ZRMapperExecutorTL(interceptors);
 	}
 
 	private void initMappers() {
 		Map<String, Object> beans = appContext.getBeansWithAnnotation(Repository.class);
 		for (Object e : beans.values()) {
 			e = ZRSpringUtil.getRawObj(e);
-			List<MapperField> fields = Util.getMapperFields(e.getClass());
+			List<MapperField> fields = ZRMybatisUtil.getMapperFields(e.getClass());
 			for (MapperField f : fields) {
 				MapperConfigInfo info = buildConfig(f);
 				SimpleMapper mapper = getMapper(info);
@@ -145,12 +149,12 @@ public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializ
 	}
 
 	private final MapperConfigInfo buildConfig(MapperField f) {
-		return buildConfig0(Util.getFieldGenericType(f.field), f.config);
+		return buildConfig0(ZRMybatisUtil.getFieldGenericType(f.field), f.config);
 	}
 
 	private final MapperConfigInfo buildConfig(Class<?> clazz) {
-		Class<?> type = Util.getDaoGenericType(clazz);
-		MapperConfig config = Util.getDaoConfig(clazz);
+		Class<?> type = ZRMybatisUtil.getDaoGenericType(clazz);
+		MapperConfig config = ZRMybatisUtil.getDaoConfig(clazz);
 		return buildConfig0(type, config);
 	}
 
@@ -170,7 +174,7 @@ public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializ
 		SimpleMapper mapper = mapperMap.get(info);
 		if (mapper != null)
 			return mapper;
-		String namespace = Util.getNextNamespace();
+		String namespace = ZRMybatisUtil.getNextNamespace();
 		SqlSessionTemplate template = info.getTemplate();
 		Configuration configuration = template.getConfiguration();
 		String xml = MybatisXmlBuilder.build(namespace, info);
@@ -178,7 +182,7 @@ public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializ
 		XMLMapperBuilder builder = new XMLMapperBuilder(inputStream, configuration, namespace + ".xml",
 				configuration.getSqlFragments(), namespace);
 		builder.parse();
-		if (filters == null || filters.length == 0)
+		if (executorTL == null)
 			mapper = new SimpleMapper(namespace, info.getTemplate(), info, this);
 		else
 			mapper = new FilterSimpleMapper(namespace, info.getTemplate(), info, this);
