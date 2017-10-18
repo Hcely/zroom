@@ -4,8 +4,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import v.common.helper.StrUtil;
+
 public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
-	protected StringBuilder fields;
+	protected Map<String, Void> fieldMap;
 	protected Map<String, SqlUpdate> updateMap;
 	protected LinkedList<SqlWhereImpl> wheres;
 	protected String groupBy;
@@ -34,21 +36,18 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 
 	@Override
 	public SqlCriteria addField(final String key) {
-		if (fields == null)
-			fields = new StringBuilder(128);
-		if (fields.length() > 0)
-			fields.append(',');
-		fields.append('`').append(key).append('`');
+		if (fieldMap == null)
+			fieldMap = new LinkedHashMap<>();
+		StringBuilder sb = new StringBuilder(key.length() + 2).append('`').append(key).append('`');
+		fieldMap.put(StrUtil.sbToString(sb), null);
 		return this;
 	}
 
 	@Override
 	public SqlCriteria addRawField(final String key) {
-		if (fields == null)
-			fields = new StringBuilder(128);
-		if (fields.length() > 0)
-			fields.append(',');
-		fields.append(key);
+		if (fieldMap == null)
+			fieldMap = new LinkedHashMap<>();
+		fieldMap.put(key, null);
 		return this;
 	}
 
@@ -200,8 +199,8 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 
 	@Override
 	public SqlCriteria reset() {
-		if (fields != null)
-			fields.setLength(0);
+		if (fieldMap != null)
+			fieldMap.clear();
 		if (updateMap != null)
 			updateMap.clear();
 		if (wheres != null)
@@ -217,8 +216,8 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 
 	@Override
 	public SqlCriteria resetFields() {
-		if (fields != null)
-			fields.setLength(0);
+		if (fieldMap != null)
+			fieldMap.clear();
 		return this;
 	}
 
@@ -269,7 +268,7 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 
 	@Override
 	public boolean isFieldValid() {
-		return fields != null && fields.length() > 0;
+		return fieldMap != null && fieldMap.size() > 0;
 	}
 
 	@Override
@@ -307,8 +306,8 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 		return tailSql != null;
 	}
 
-	public String getFields() {
-		return fields.toString();
+	public Map<String, Void> getFields() {
+		return fieldMap;
 	}
 
 	public Map<String, SqlUpdate> getUpdates() {

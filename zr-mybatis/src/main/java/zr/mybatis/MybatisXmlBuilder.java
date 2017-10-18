@@ -56,7 +56,10 @@ final class MybatisXmlBuilder {
 	private static final void writeSelectSql(StringBuilder sb, MapperConfigInfo info) {
 		sb.append("<sql id=\"_SELECT\">\n");
 		sb.append("<choose>\n");
-		sb.append("<when test=\"fieldValid\">${fields}</when>\n");
+		sb.append("<when test=\"fieldValid\">\n");
+		sb.append(
+				"<foreach collection=\"fields\" index=\"key\"  open=\"(\" separator=\",\" close=\")\">${key}</foreach>\n");
+		sb.append("</when>\n");
 		sb.append("<otherwise>\n");
 		writeSelectFields(sb, info);
 		sb.append("</otherwise>\n");

@@ -119,7 +119,7 @@ public class ZKER implements Destoryable {
 	}
 
 	public void set(String parent, String key, String value) {
-		parent = get(parent);
+		parent = getPath(parent);
 		String path = buildPath(parent, key);
 		if (client.exists(path))
 			client.writeData(path, value);
@@ -140,7 +140,7 @@ public class ZKER implements Destoryable {
 	}
 
 	public void setTemp(String parent, String key, String value) {
-		parent = get(parent);
+		parent = getPath(parent);
 		String path = buildPath(parent, key);
 		try {
 			if (client.exists(path))
@@ -165,7 +165,7 @@ public class ZKER implements Destoryable {
 	}
 
 	public boolean setLock(String parent, String key, String value) {
-		parent = get(parent);
+		parent = getPath(parent);
 		String path = buildPath(parent, key);
 		if (client.exists(path)) {
 			String v = client.readData(path);
