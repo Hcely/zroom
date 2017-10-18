@@ -57,8 +57,7 @@ final class MybatisXmlBuilder {
 		sb.append("<sql id=\"_SELECT\">\n");
 		sb.append("<choose>\n");
 		sb.append("<when test=\"fieldValid\">\n");
-		sb.append(
-				"<foreach collection=\"fields\" index=\"key\"  open=\"(\" separator=\",\" close=\")\">${key}</foreach>\n");
+		sb.append("<foreach collection=\"fields\" index=\"key\" separator=\",\">${key}</foreach>\n");
 		sb.append("</when>\n");
 		sb.append("<otherwise>\n");
 		writeSelectFields(sb, info);
