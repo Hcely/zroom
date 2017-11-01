@@ -23,7 +23,6 @@ import v.Clearable;
 import v.Initializable;
 import v.common.helper.StrUtil;
 import v.common.unit.Ternary;
-import zr.common.util.ZRSpringUtil;
 import zr.mybatis.annotation.MapperConfig;
 import zr.mybatis.info.BeanInfo;
 import zr.mybatis.info.BeanInfoMgr;
@@ -126,7 +125,7 @@ public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializ
 	private void initMappers() {
 		Map<String, Object> beans = appContext.getBeansWithAnnotation(Repository.class);
 		for (Object e : beans.values()) {
-			e = ZRSpringUtil.getRawObj(e);
+			e = Util.getRawObj(e);
 			List<MapperField> fields = ZRMybatisUtil.getMapperFields(e.getClass());
 			for (MapperField f : fields) {
 				MapperConfigInfo info = buildConfig(f);
@@ -142,7 +141,7 @@ public class ZRSpringMybatisHelper implements ApplicationContextAware, Initializ
 	private void initDaos() {
 		Map<String, SimpleDao> daos = appContext.getBeansOfType(SimpleDao.class);
 		for (SimpleDao e : daos.values()) {
-			e = (SimpleDao) ZRSpringUtil.getRawObj(e);
+			e = (SimpleDao) Util.getRawObj(e);
 			MapperConfigInfo info = buildConfig(e.getClass());
 			e.mapper = getMapper(info);
 		}

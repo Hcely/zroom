@@ -25,7 +25,11 @@ public interface SqlCriteria {
 
 	public SqlHaving having();
 
-	public SqlSorts sorts();
+	public SqlCriteria asc(String name);
+
+	public SqlCriteria desc(String name);
+
+	public SqlCriteria sort(String name, boolean asc);
 
 	public SqlCriteria limit(int count);
 
@@ -68,4 +72,5 @@ public interface SqlCriteria {
 	public boolean isTailValid();
 
 	public boolean containUpdate(String key);
+
 }

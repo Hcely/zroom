@@ -6,7 +6,7 @@ import java.util.Map;
 
 import v.common.helper.StrUtil;
 
-public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
+public final class SqlCriteriaImpl implements SqlCriteria {
 	protected Map<String, Void> fieldMap;
 	protected Map<String, SqlUpdate> updateMap;
 	protected LinkedList<SqlWhereImpl> wheres;
@@ -139,24 +139,7 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 	}
 
 	@Override
-	public SqlSorts sorts() {
-		return this;
-	}
-
-	@Override
-	public SqlSorts clear() {
-		if (sorts != null)
-			sorts.setLength(0);
-		return this;
-	}
-
-	@Override
-	public SqlCriteria end() {
-		return this;
-	}
-
-	@Override
-	public SqlSorts sort(String name, boolean asc) {
+	public SqlCriteria sort(String name, boolean asc) {
 		if (sorts == null)
 			sorts = new StringBuilder(128);
 		if (sorts.length() > 0)
@@ -170,12 +153,12 @@ public final class SqlCriteriaImpl implements SqlCriteria, SqlSorts {
 	}
 
 	@Override
-	public SqlSorts asc(String name) {
+	public SqlCriteria asc(String name) {
 		return sort(name, true);
 	}
 
 	@Override
-	public SqlSorts desc(String name) {
+	public SqlCriteria desc(String name) {
 		return sort(name, false);
 	}
 
